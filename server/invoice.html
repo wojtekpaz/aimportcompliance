@@ -10,7 +10,7 @@
 <style>
   :root{
     --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#101019; --line:#1c1c26;
-    --text:#e9e9ef; --muted:#8b8b9a; --faint:#56565f; --accent:#00d4c8;
+    --text:#eaeaea; --muted:#8b8b9a; --faint:#b0b0b0; --accent:#00d4c8;
     --accent-dim:rgba(0,212,200,.14); --amber:#d9a441; --red:#c2607a;
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
   }
@@ -45,6 +45,7 @@
   .control .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
   .control input{background:var(--panel);color:var(--text);border:1px solid rgba(255,255,255,.15);
     padding:10px 12px;font-family:var(--mono);font-size:13px;outline:none;text-transform:uppercase}
+  .control input::placeholder{color:#8a8a8a}
   .control input:focus{border-color:var(--accent)}
   .btn{background:transparent;border:1px solid rgba(0,212,200,.55);color:var(--accent);
     padding:13px 28px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
