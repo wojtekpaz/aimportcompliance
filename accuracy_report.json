@@ -1,0 +1,84 @@
+{
+  "summary": {
+    "n": 8,
+    "classified": 7,
+    "heading_accuracy": 87.5,
+    "full_code_accuracy": 75.0,
+    "model": "claude-sonnet-4-6",
+    "timestamp": "2026-06-12T18:44:37"
+  },
+  "results": [
+    {
+      "text": "men's t-shirt, knitted, 100% cotton, short sleeves",
+      "gold": "6109100010",
+      "got": "6109100010",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": true,
+      "source": "seed-example"
+    },
+    {
+      "text": "glazed ceramic wall tiles, water absorption 6% by weight",
+      "gold": "6907210000",
+      "got": "6907220000",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": false,
+      "source": "seed-example"
+    },
+    {
+      "text": "steel sections for utility-scale tubular wind turbine towers, 60m tall",
+      "gold": "7308909811",
+      "got": null,
+      "status": "needs_question",
+      "heading_match": false,
+      "full_match": false,
+      "source": "seed-example"
+    },
+    {
+      "text": "men's knitted shirt of cotton",
+      "gold": "6105100000",
+      "got": "6105100000",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": true,
+      "source": "seed-example"
+    },
+    {
+      "text": "live horses, purebred breeding animals",
+      "gold": "0101210000",
+      "got": "0101210000",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": true,
+      "source": "seed-example"
+    },
+    {
+      "text": "women's cotton knitted blouse",
+      "gold": "6106100000",
+      "got": "6106100000",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": true,
+      "source": "seed-example"
+    },
+    {
+      "text": "roasted coffee beans, not decaffeinated",
+      "gold": "0901210000",
+      "got": "0901210000",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": true,
+      "source": "seed-example"
+    },
+    {
+      "text": "natural honey (not M\u0101nuka)",
+      "gold": "0409000090",
+      "got": "0409000090",
+      "status": "classified",
+      "heading_match": true,
+      "full_match": true,
+      "source": "seed-example"
+    }
+  ]
+}

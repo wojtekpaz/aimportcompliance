@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 *)",
+      "WebSearch",
+      "WebFetch(domain:data.europa.eu)",
+      "WebFetch(domain:ec.europa.eu)",
+      "WebFetch(domain:eur-lex.europa.eu)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -sL -A \"Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\)\" \"https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R3020\" -o eurlex_test.html)",
+      "Bash(curl -sL -A \"Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\)\" -D - -o /dev/null \"https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024R3020\")",
+      "Bash(python3 server/app.py)",
+      "Bash(echo \"server starting \\(pid $!\\)...\")",
+      "Bash(curl -s http://127.0.0.1:8000/api/health)",
+      "Bash(break)",
+      "Read(//tmp/**)",
+      "Bash(awk '{print $5}')",
+      "Bash(python3 -m http.server 8080 --bind 127.0.0.1)",
+      "Bash(echo \"static server starting \\(pid $!\\)...\")",
+      "Bash(pkill -f \"http.server\")",
+      "Bash(pkill -f \"server/app.py\")",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/)",
+      "Bash(curl -s http://127.0.0.1:8000/)",
+      "Bash(echo \" / -> $\\(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/\\) \\($\\(curl -s http://127.0.0.1:8000/)"
+    ]
+  }
+}

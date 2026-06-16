@@ -1,0 +1,143 @@
+========================================================================
+AIMPORT — VERIFICATION REPORT ON REAL EU TARIFF PORTAL DATA
+========================================================================
+
+HOW TO VERIFY (you, by eye, ~15 minutes):
+Open the official EU TARIC consultation website. For each code below,
+enter the code + origin country, and compare: description, duty rate,
+anti-dumping rates/company codes, and document codes. Any mismatch = tell Claude.
+
+--- SHOWCASE 1: Cotton T-shirt, origin China ---
+CODE 6109100010  origin CN
+  description: T-shirts
+  DUTY [103 Third country duty] (set at level 6109000000): 12.000 %  [Regulation 1734/96]
+  DUTY [117 Suspension - goods for certain categories of ships, boats and other vessels and for drilling or production platforms] (set at level 6109000000): 0.000 %  [Regulation 2658/87]
+  OTHER [109 Supplementary unit]: NAR  [Regulation 2658/87]
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1007 (EU-Switzerland agreement: re-imported goods) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2027 (GSP+ (incentive arrangement for sustainable development and good governance)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2080 (OCTs (Overseas Countries and Territories)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2012 (European Economic Area) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2200 (Central America) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1035 (SADC EPA) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1034 (Eastern and Southern Africa States) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1006 (EU-Canada agreement: re-imported goods) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1033 (CARIFORUM) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2020 (GSP - General arrangements) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2005 (GSP-EBA (Special arrangement for the least-developed countries - Everything But Arms)) — check manually
+
+--- SHOWCASE 2: Ceramic tiles, origin China (heavy anti-dumping) ---
+CODE 6907210000  origin CN
+  description: Flags and paving, hearth or wall tiles, other than those of subheadings 6907|30|and 6907|40
+  DUTY [103 Third country duty] (set at level 6907000000): 5.000 %  [Regulation 2261/98]
+  DUTY [117 Suspension - goods for certain categories of ships, boats and other vessels and for drilling or production platforms] (set at level 6907000000): 0.000 %  [Regulation 2658/87]
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code 89XH: Cond:  A cert: D-008 (01):30.600 % ; A (01):69.700 %  [Regulation 2147/25]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code B009: Cond:  A cert: D-008 (01):29.300 % ; A (01):69.700 %  [Regulation 0493/24]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code B010: Cond:  A cert: D-008 (01):36.500 % ; A (01):69.700 %  [Regulation 0493/24]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  TRADE DEFENSE [552 ... and 103 more company-specific rates ...]:   []
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code C505: Cond:  A cert: D-008 (01):30.600 % ; A (01):69.700 %  [Regulation 0493/24]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  OTHER [755 Import control - Waste]: Cond:  E cert: C-672 (29):; E cert: C-669 (29):; E cert: Y-923 (29):;   [Regulation 1013/06]
+  OTHER [109 Supplementary unit]: MTK  [Regulation 2658/87]
+  OTHER [475 Restriction on entry into free circulation]:   [Regulation 0288/24]
+  OTHER [566 Anti-dumping/countervailing statistic]:   [Regulation 1036/16]
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1007 (EU-Switzerland agreement: re-imported goods) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2027 (GSP+ (incentive arrangement for sustainable development and good governance)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2005 (GSP-EBA (Special arrangement for the least-developed countries - Everything But Arms)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2080 (OCTs (Overseas Countries and Territories)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2012 (European Economic Area) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2200 (Central America) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1035 (SADC EPA) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1034 (Eastern and Southern Africa States) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1033 (CARIFORUM) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2020 (GSP - General arrangements) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1006 (EU-Canada agreement: re-imported goods) — check manually
+
+--- SHOWCASE 3: Same tiles, origin Turkey (different regime) ---
+CODE 6907210000  origin TR
+  description: Flags and paving, hearth or wall tiles, other than those of subheadings 6907|30|and 6907|40
+  DUTY [103 Third country duty] (set at level 6907000000): 5.000 %  [Regulation 2261/98]
+  DUTY [106 Customs Union Duty] (set at level 6900000000): 0.000 %  [Decision 0142/96]
+  DUTY [117 Suspension - goods for certain categories of ships, boats and other vessels and for drilling or production platforms] (set at level 6907000000): 0.000 %  [Regulation 2658/87]
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code 89AG: Cond:  A cert: D-008 (01):9.200 % ; A (01):20.900 %  [Regulation 1223/24]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code C900: Cond:  A cert: D-008 (01):20.900 % ; A (01):20.900 %  [Regulation 0265/23]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  TRADE DEFENSE [552 Definitive anti-dumping duty] add.code C901: Cond:  A cert: D-008 (01):4.800 % ; A (01):20.900 %  [Regulation 0265/23]
+      condition A: document D-008 (action 01)
+      condition A: document None-None (action 01)
+  OTHER [755 Import control - Waste]: Cond:  E cert: C-672 (29):; E cert: C-669 (29):; E cert: Y-923 (29):;   [Regulation 1013/06]
+  OTHER [109 Supplementary unit]: MTK  [Regulation 2658/87]
+  OTHER [566 Anti-dumping/countervailing statistic]:   [Regulation 1036/16]
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1007 (EU-Switzerland agreement: re-imported goods) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2027 (GSP+ (incentive arrangement for sustainable development and good governance)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2005 (GSP-EBA (Special arrangement for the least-developed countries - Everything But Arms)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2080 (OCTs (Overseas Countries and Territories)) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2012 (European Economic Area) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2200 (Central America) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1035 (SADC EPA) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1034 (Eastern and Southern Africa States) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1033 (CARIFORUM) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 2020 (GSP - General arrangements) — check manually
+  ! group-targeted measure not auto-resolved [142 Tariff preference] geo-group 1006 (EU-Canada agreement: re-imported goods) — check manually
+
+--- 7 RANDOM declarable codes, origin CN (statistical spot-check) ---
+CODE 2009191999  origin CN
+  description: Other
+  DUTY [103 Third country duty] (set at level 2009191900): 33.600 %  [Regulation 2204/99]
+  TRADE DEFENSE [695 Additional duties]: Cond:  B cert: Y-155 (01):50.000 % ; B (01):0.000 %  [Regulation 1227/25]
+      condition B: document Y-155 (action 01)
+      condition B: document None-None (action 01)
+  OTHER [750 Import control of organic products]: Cond:  B cert: C-644 (29):; B cert: Y-929 (29):; B (09):  [Regulation 2306/21]
+  OTHER [483 Declaration of subheading submitted to legal restrictions (unit price)]: Cond:  M 0.301 EUR/KGM(28):; M 0.000 EUR/KGM(10):  [Regulation 0927/12]
+
+CODE 0304449090  origin CN
+  description: Other
+  DUTY [103 Third country duty] (set at level 0304449000): 18.000 %  [Regulation 1006/11]
+  OTHER [750 Import control of organic products]: Cond:  B cert: C-644 (29):; B cert: Y-929 (29):; B (09):  [Regulation 2306/21]
+  OTHER [719 Control on illegal, unreported and unregulated fishing]: Cond:  Y cert: C-673 (29):; Y cert: Y-927 (29):; Y (09):  [Regulation 1005/08]
+
+CODE 4412999010  origin CN
+  description: Plywood of coniferous species, without the addition of other substances,of a thickness greater than 18,5 mm when sanded, or of a thickness greater than 8,5 mm when the faces are not further prepared than the peeling process
+  DUTY [103 Third country duty] (set at level 4412999000): 10.000 %  [Regulation 1832/21]
+  DUTY [117 Suspension - goods for certain categories of ships, boats and other vessels and for drilling or production platforms] (set at level 4412000000): 0.000 %  [Regulation 2658/87]
+  OTHER [109 Supplementary unit]: MTQ  [Regulation 2658/87]
+  OTHER [710 Import control - CITES]: Cond:  Y cert: C-400 (29):; Y cert: Y-900 (29):; Y (09):  [Regulation 0966/23]
+  OTHER [482 Declaration of subheading submitted to legal restrictions (net weight/supplementary unit)]: Cond:  R 80.000/KGM(28):; R 0.000/KGM(10):  [Regulation 0927/12]
+
+CODE 3903909038  origin CN
+  description: Polytetrafluoroethylene (CAS|RN|9002-84-0) encapsulated with an acrylonitrile-styrene copolymer (CAS|RN|9003-54-7), with a content by weight of each polymer of 50|% (± 1|%)
+  DUTY [103 Third country duty] (set at level 3903909000): 6.500 %  [Regulation 1789/03]
+  DUTY [112 Autonomous tariff suspension] (set at level 3903909038): 0.000 %  [Regulation 2605/25]
+  DUTY [119 Airworthiness tariff suspension] (set at level 3903000000): 0.000 %  [Regulation 1517/18]
+  OTHER [724 Import control of fluorinated greenhouse gases]: Cond:  Y cert: Y-160 (29):; Y cert: Y-169 (29):; Y (09):; YA cert: Y-1  [Regulation 0573/24]
+  OTHER [755 Import control - Waste]: Cond:  E cert: C-672 (29):; E cert: C-669 (29):; E cert: Y-923 (29):;   [Regulation 1013/06]
+
+CODE 3303009000  origin CN
+  description: Toilet waters
+  DUTY [103 Third country duty] (set at level 3303000000): 0.000 %  [Regulation 2261/98]
+  OTHER [761 Import control on REACH]: Cond:  B cert: Y-106 (29):; B cert: Y-110 (29):; B cert: Y-113 (29):;   [Regulation 1907/06]
+
+CODE 2401106000  origin CN
+  description: Sun-cured Oriental type tobacco
+  DUTY [103 Third country duty] (set at level 2401106000): 11.200 % MIN 22.000 EUR DTN MAX 56.000 EUR DTN  [Regulation 2204/99]
+  TRADE DEFENSE [695 Additional duties]: Cond:  B cert: Y-155 (01):50.000 % ; B (01):0.000 %  [Regulation 1227/25]
+      condition B: document Y-155 (action 01)
+      condition B: document None-None (action 01)
+
+CODE 2008305919  origin CN
+  description: Other
+  DUTY [103 Third country duty] (set at level 2008305900): 17.600 %  [Regulation 2204/99]
+  TRADE DEFENSE [695 Additional duties]: Cond:  B cert: Y-155 (01):50.000 % ; B (01):0.000 %  [Regulation 1227/25]
+      condition B: document Y-155 (action 01)
+      condition B: document None-None (action 01)
+  OTHER [750 Import control of organic products]: Cond:  B cert: C-644 (29):; B cert: Y-929 (29):; B (09):  [Regulation 2306/21]
+

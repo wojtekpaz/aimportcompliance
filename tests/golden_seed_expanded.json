@@ -1,0 +1,43 @@
+[
+  {"text": "men's t-shirt, knitted, 100% cotton, short sleeves", "code": "6109100010", "origin": "CN", "hint": "", "source": "seed-example", "confidence": "high"},
+  {"text": "glazed ceramic wall tiles, water absorption 6% by weight", "code": "6907210000", "origin": "CN", "hint": "", "source": "seed-example", "confidence": "high"},
+  {"text": "men's knitted shirt of cotton", "code": "6105100000", "origin": "BD", "hint": "", "source": "seed-example", "confidence": "high"},
+  {"text": "live horses, purebred breeding animals", "code": "0101210000", "origin": "", "hint": "", "source": "seed-example", "confidence": "high"},
+  {"text": "women's cotton knitted blouse", "code": "6106100000", "origin": "IN", "hint": "61", "source": "seed-example", "confidence": "high"},
+  {"text": "roasted coffee beans, not decaffeinated", "code": "0901210000", "origin": "BR", "hint": "", "source": "seed-example", "confidence": "high"},
+  {"text": "natural honey, not Manuka", "code": "0409000090", "origin": "UA", "hint": "", "source": "seed-example", "confidence": "high"},
+
+  {"text": "fresh bananas, not plantains", "code": "0803901000", "origin": "EC", "hint": "", "source": "curated", "confidence": "high"},
+  {"text": "shelled almonds, sweet, not bitter", "code": "0802120000", "origin": "US", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "extra virgin olive oil, obtained from the fruit of the olive tree solely by mechanical means", "code": "1509200000", "origin": "ES", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "white cane sugar, raw, not containing added flavouring or colouring matter", "code": "1701140090", "origin": "BR", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "sparkling wine of fresh grapes, Champagne, alcoholic strength 12% vol", "code": "2204100000", "origin": "FR", "hint": "", "source": "curated", "confidence": "medium"},
+
+  {"text": "Portland cement, grey, not coloured", "code": "2523290000", "origin": "TR", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "sodium chloride, pure, for industrial use", "code": "2501009900", "origin": "", "hint": "", "source": "curated", "confidence": "low"},
+
+  {"text": "natural rubber latex, prevulcanised", "code": "4001100000", "origin": "TH", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "new pneumatic rubber tyres for motor cars", "code": "4011100000", "origin": "CN", "hint": "", "source": "curated", "confidence": "high"},
+
+  {"text": "men's leather wallet, of bovine leather", "code": "4202310000", "origin": "IT", "hint": "", "source": "curated", "confidence": "medium"},
+
+  {"text": "kraft paper, uncoated, in rolls, weighing more than 150 g/m2", "code": "4804520000", "origin": "FI", "hint": "", "source": "curated", "confidence": "low"},
+
+  {"text": "men's woven trousers, 100% cotton, not knitted", "code": "6203423500", "origin": "BD", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "women's woven dress, of synthetic fibres", "code": "6204430000", "origin": "VN", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "cotton bath towels, terry towelling, woven", "code": "6302600000", "origin": "PK", "hint": "", "source": "curated", "confidence": "high"},
+  {"text": "men's leather footwear with outer soles of rubber, covering the ankle", "code": "6403510000", "origin": "VN", "hint": "", "source": "curated", "confidence": "low"},
+
+  {"text": "float glass, non-wired, coloured throughout the mass, 4mm thick", "code": "7005210000", "origin": "CN", "hint": "", "source": "curated", "confidence": "low"},
+
+  {"text": "stainless steel screws, threaded, for wood", "code": "7318120000", "origin": "CN", "hint": "73", "source": "curated", "confidence": "low"},
+  {"text": "carbon steel hand tools, hammers with handles", "code": "8205200000", "origin": "CN", "hint": "", "source": "curated", "confidence": "medium"},
+
+  {"text": "centrifugal pump for liquids, single-stage, for water", "code": "8413701000", "origin": "DE", "hint": "84", "source": "curated", "confidence": "low"},
+  {"text": "lithium-ion rechargeable battery, for portable electronics", "code": "8507600090", "origin": "CN", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "smartphone, cellular mobile telephone with touchscreen", "code": "8517130000", "origin": "CN", "hint": "", "source": "curated", "confidence": "medium"},
+  {"text": "LED lamp, light-emitting diode, for general lighting, E27 base", "code": "8539520000", "origin": "CN", "hint": "", "source": "curated", "confidence": "medium"},
+
+  {"text": "wooden office desk chair, upholstered, with metal frame", "code": "9401790000", "origin": "PL", "hint": "", "source": "curated", "confidence": "low"},
+  {"text": "children's tricycle, with pedals", "code": "9503001000", "origin": "CN", "hint": "", "source": "curated", "confidence": "low"}
+]

@@ -1,0 +1,43 @@
+======================================================================
+AIMPORT INGEST VERIFICATION REPORT
+======================================================================
+Source: sample_taric.xml  sha256:ec3c31923b3f…  records:28  loaded:2026-06-10T13:04:24+00:00
+
+--- Table counts ---
+  goods_nomenclature                             3
+  goods_nomenclature_description                 3
+  goods_nomenclature_indent                      3
+  measure                                        4
+  measure_component                              4
+  measure_condition                              1
+  geographical_area                              2
+  geographical_area_membership                   1
+  footnote                                       1
+
+--- Tree integrity ---
+  chapters: 2, codes: 3
+  !! PROBLEMS (first 20):
+     code 7308909800: heading 7308 not in tree
+
+--- Origin CN: member of geo groups ['CN', '1011'] ---
+
+--- 3 random declarable codes (VERIFY AGAINST official TARIC site, origin=CN) ---
+
+  CODE 6109 00 00 00
+    desc: T-shirts, singlets and other vests, knitted or crocheted
+    (no measures for this origin in DB — check site: may be inherited from parent code)
+
+  CODE 7308 90 98 00
+    desc: Other structures of iron or steel
+    measure 103 (Third country duty) geo=1011: 2.0%   [reg R8722580]
+    measure 552 (Definitive anti-dumping duty) geo=CN addcode=C999: 60.1%   [reg R2010154]
+      condition B: doc D017 (Commercial invoice with signed declaration (anti-dumping)) action=27
+
+  CODE 6109 10 00 00
+    desc: Of cotton
+    measure 103 (Third country duty) geo=1011: 12.0%   [reg R8722580]
+
+======================================================================
+HOW TO VERIFY: open the EU TARIC consultation site, enter each code
+above with origin country = CN, and compare description, duty
+rate, anti-dumping measures and document codes. Any mismatch = stop.

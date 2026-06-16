@@ -1,0 +1,56 @@
+==========================================================================
+AIMPORT — VERIFICATION REPORT v2  (corrected: 'Other' context + site notation)
+==========================================================================
+
+READING THIS REPORT:
+- Codes are shown in the EU site's spacing: 'XXXX YY ZZ WW'. In the database
+  they are stored without spaces. Same code, different punctuation.
+- 'Other' lines now show their FULL legal meaning (parent + excluded siblings),
+  the way a customs broker reads a basket provision.
+- Verify each code on the official EU customs tariff consultation site:
+  enter the code + origin country and compare description, duty, anti-dumping.
+
+--- SHOWCASE 1: cotton t-shirt, origin China ---
+  classified: 6109 10 00 10
+  path: ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, KNITTED OR CROCHETED > T-shirts, singlets and other vests, knitted or crocheted > Of cotton > T-shirts
+    description: T-shirts
+    DUTY [103 Third country duty] (set at level 6109000000): 12.000 %  [Regulation 1734/96]
+    DUTY [117 Suspension - goods for certain categories of ships, boats and other vessels and for drilling or production platforms] (set at level 6109000000): 0.000 %  [Regulation 2658/87]
+    OTHER [109 Supplementary unit]: NAR  [Regulation 2658/87]
+
+--- 'OTHER' HANDLING demonstrated (the fix) ---
+  6109 10 00 90
+     bare DB text : Other
+     broker reading: Other Of cotton — excluding: T-shirts
+  7308 90 98 00
+     bare DB text : Other
+     broker reading: Other Other — excluding: Solely or principally of sheet / Panels comprising two walls of profiled (ribbed) sheet with an insulating core
+
+--- 7 RANDOM declarable codes, origin CN (spot-check vs official site) ---
+  6204 62 59 10  ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, NOT KNITTED OR CROCHETED > Women's or girls' suits, ensembles, jackets, bl
+     duty: 12.000 %  [Regulation 1789/03]
+     duty: 0.000 %  [Regulation 2658/87]
+  2805 30 21 10  INORGANIC CHEMICALS; ORGANIC OR INORGANIC COMPOUNDS OF PRECIOUS METALS, OF RARE-EARTH METALS, OF RADIOACTIVE ELEMENTS OR
+     duty: 2.700 %  [Regulation 1998/22]
+     duty: 0.000 %  [Regulation 2605/25]
+  8203 40 00 00  TOOLS, IMPLEMENTS, CUTLERY, SPOONS AND FORKS, OF BASE METAL; PARTS THEREOF OF BASE METAL > Files, rasps, pliers (includi
+     duty: 1.700 %  [Regulation 2261/98]
+     duty: 0.000 %  [Regulation 2658/87]
+     duty: 0.000 %  [Regulation 1517/18]
+  0407 19 19 00  DAIRY PRODUCE; BIRDS' EGGS; NATURAL HONEY; EDIBLE PRODUCTS OF ANIMAL ORIGIN, NOT ELSEWHERE SPECIFIED OR INCLUDED > Birds
+     duty: 35.000 EUR MIL  [Regulation 1006/11]
+     DEFENSE Additional duties: Cond: B cert: Y-155 (01):50.000 % ; B (01):0.000 %
+  1108 20 00 00  PRODUCTS OF THE MILLING INDUSTRY; MALT; STARCHES; INULIN; WHEAT GLUTEN > Starches; inulin > Inulin
+     duty: 19.200 %  [Regulation 2204/99]
+     DEFENSE Additional duties: Cond: B cert: Y-155 (01):50.000 % ; B (01):0.000 %
+  2001 10 00 11  PREPARATIONS OF VEGETABLES, FRUIT, NUTS OR OTHER PARTS OF PLANTS > Vegetables, fruit, nuts and other edible parts of pla
+     duty: 17.600 %  [Regulation 2204/99]
+     DEFENSE Additional duties: Cond: B cert: Y-155 (01):50.000 % ; B (01):0.000 %
+  7225 99 00 93  IRON AND STEEL > Flat-rolled products of other alloy steel, of a width of 600 mm or more > Other > Plated or coated by h
+     duty: 0.000 %  [Regulation 1789/03]
+     duty: 0.000 %  [Regulation 2658/87]
+     DEFENSE Definitive anti-dumping duty: 27.900 %
+     DEFENSE Definitive anti-dumping duty: 27.900 %
+
+==========================================================================
+If all codes match the official site -> data foundation CERTIFIED.

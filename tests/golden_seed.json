@@ -1,0 +1,10 @@
+[
+  {"text": "men's t-shirt, knitted, 100% cotton, short sleeves", "code": "6109100010", "origin": "CN", "hint": "", "source": "seed-example"},
+  {"text": "glazed ceramic wall tiles, water absorption 6% by weight", "code": "6907210000", "origin": "CN", "hint": "", "source": "seed-example"},
+  {"text": "steel sections for utility-scale tubular wind turbine towers, 60m tall", "code": "7308909811", "origin": "CN", "hint": "73", "source": "seed-example"},
+  {"text": "men's knitted shirt of cotton", "code": "6105100000", "origin": "BD", "hint": "", "source": "seed-example"},
+  {"text": "live horses, purebred breeding animals", "code": "0101210000", "origin": "", "hint": "", "source": "seed-example"},
+  {"text": "women's cotton knitted blouse", "code": "6106100000", "origin": "IN", "hint": "61", "source": "seed-example"},
+  {"text": "roasted coffee beans, not decaffeinated", "code": "0901210000", "origin": "BR", "hint": "", "source": "seed-example"},
+  {"text": "natural honey (not Mānuka)", "code": "0409000090", "origin": "UA", "hint": "", "source": "seed-example"}
+]

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic TARIC3-style sample for parser tests.
+     Models a realistic slice: Chapter 61 t-shirts (6109) + a steel code
+     with anti-dumping from China + a certificate condition.
+     Field names follow TARIC3 conventions (dot-separated). -->
+<export>
+
+  <!-- ===== geography ===== -->
+  <geographical.area>
+    <geographical.area.sid>400</geographical.area.sid>
+    <geographical.area.id>1011</geographical.area.id>
+    <geographical.code>1</geographical.code>
+    <validity.start.date>1976-01-01</validity.start.date>
+  </geographical.area>
+  <geographical.area.description>
+    <geographical.area.sid>400</geographical.area.sid>
+    <language.id>EN</language.id>
+    <description>ERGA OMNES (all third countries)</description>
+  </geographical.area.description>
+
+  <geographical.area>
+    <geographical.area.sid>401</geographical.area.sid>
+    <geographical.area.id>CN</geographical.area.id>
+    <geographical.code>0</geographical.code>
+    <validity.start.date>1984-01-01</validity.start.date>
+  </geographical.area>
+  <geographical.area.description>
+    <geographical.area.sid>401</geographical.area.sid>
+    <language.id>EN</language.id>
+    <description>China</description>
+  </geographical.area.description>
+
+  <geographical.area.membership>
+    <geographical.area.sid>401</geographical.area.sid>
+    <geographical.area.group.sid>400</geographical.area.group.sid>
+    <validity.start.date>1984-01-01</validity.start.date>
+  </geographical.area.membership>
+
+  <!-- ===== measure types ===== -->
+  <measure.type>
+    <measure.type.id>103</measure.type.id>
+    <description>Third country duty</description>
+  </measure.type>
+  <measure.type>
+    <measure.type.id>552</measure.type.id>
+    <description>Definitive anti-dumping duty</description>
+  </measure.type>
+
+  <!-- ===== nomenclature: 6109 branch ===== -->
+  <goods.nomenclature>
+    <goods.nomenclature.sid>100</goods.nomenclature.sid>
+    <goods.nomenclature.item.id>6109000000</goods.nomenclature.item.id>
+    <producline.suffix>80</producline.suffix>
+    <validity.start.date>1972-01-01</validity.start.date>
+  </goods.nomenclature>
+  <goods.nomenclature.indent>
+    <goods.nomenclature.sid>100</goods.nomenclature.sid>
+    <number.indents>0</number.indents>
+    <validity.start.date>1972-01-01</validity.start.date>
+  </goods.nomenclature.indent>
+  <goods.nomenclature.description>
+    <goods.nomenclature.sid>100</goods.nomenclature.sid>
+    <language.id>EN</language.id>
+    <description>T-shirts, singlets and other vests, knitted or crocheted</description>
+    <validity.start.date>1972-01-01</validity.start.date>
+  </goods.nomenclature.description>
+
+  <goods.nomenclature>
+    <goods.nomenclature.sid>101</goods.nomenclature.sid>
+    <goods.nomenclature.item.id>6109100000</goods.nomenclature.item.id>
+    <producline.suffix>80</producline.suffix>
+    <validity.start.date>1972-01-01</validity.start.date>
+  </goods.nomenclature>
+  <goods.nomenclature.indent>
+    <goods.nomenclature.sid>101</goods.nomenclature.sid>
+    <number.indents>1</number.indents>
+    <validity.start.date>1972-01-01</validity.start.date>
+  </goods.nomenclature.indent>
+  <goods.nomenclature.description>
+    <goods.nomenclature.sid>101</goods.nomenclature.sid>
+    <language.id>EN</language.id>
+    <description>Of cotton</description>
+    <validity.start.date>1972-01-01</validity.start.date>
+  </goods.nomenclature.description>
+
+  <!-- third-country duty 12% on cotton t-shirts, erga omnes -->
+  <measure>
+    <measure.sid>9001</measure.sid>
+    <goods.nomenclature.item.id>6109100000</goods.nomenclature.item.id>
+    <goods.nomenclature.sid>101</goods.nomenclature.sid>
+    <measure.type>103</measure.type>
+    <geographical.area>1011</geographical.area>
+    <geographical.area.sid>400</geographical.area.sid>
+    <measure.generating.regulation.id>R8722580</measure.generating.regulation.id>
+    <validity.start.date>2022-01-01</validity.start.date>
+  </measure>
+  <measure.component>
+    <measure.sid>9001</measure.sid>
+    <duty.expression.id>01</duty.expression.id>
+    <duty.amount>12.0</duty.amount>
+  </measure.component>
+
+  <!-- ===== nomenclature: a steel code with ADD from China ===== -->
+  <goods.nomenclature>
+    <goods.nomenclature.sid>200</goods.nomenclature.sid>
+    <goods.nomenclature.item.id>7308909800</goods.nomenclature.item.id>
+    <producline.suffix>80</producline.suffix>
+    <validity.start.date>1990-01-01</validity.start.date>
+  </goods.nomenclature>
+  <goods.nomenclature.indent>
+    <goods.nomenclature.sid>200</goods.nomenclature.sid>
+    <number.indents>3</number.indents>
+    <validity.start.date>1990-01-01</validity.start.date>
+  </goods.nomenclature.indent>
+  <goods.nomenclature.description>
+    <goods.nomenclature.sid>200</goods.nomenclature.sid>
+    <language.id>EN</language.id>
+    <description>Other structures of iron or steel</description>
+    <validity.start.date>1990-01-01</validity.start.date>
+  </goods.nomenclature.description>
+
+  <!-- third-country duty 2% erga omnes -->
+  <measure>
+    <measure.sid>9002</measure.sid>
+    <goods.nomenclature.item.id>7308909800</goods.nomenclature.item.id>
+    <goods.nomenclature.sid>200</goods.nomenclature.sid>
+    <measure.type>103</measure.type>
+    <geographical.area>1011</geographical.area>
+    <geographical.area.sid>400</geographical.area.sid>
+    <measure.generating.regulation.id>R8722580</measure.generating.regulation.id>
+    <validity.start.date>2022-01-01</validity.start.date>
+  </measure>
+  <measure.component>
+    <measure.sid>9002</measure.sid>
+    <duty.expression.id>01</duty.expression.id>
+    <duty.amount>2.0</duty.amount>
+  </measure.component>
+
+  <!-- definitive anti-dumping 60.1% on China, residual company code C999,
+       with certificate condition -->
+  <measure>
+    <measure.sid>9003</measure.sid>
+    <goods.nomenclature.item.id>7308909800</goods.nomenclature.item.id>
+    <goods.nomenclature.sid>200</goods.nomenclature.sid>
+    <measure.type>552</measure.type>
+    <geographical.area>CN</geographical.area>
+    <geographical.area.sid>401</geographical.area.sid>
+    <additional.code>C999</additional.code>
+    <measure.generating.regulation.id>R2010154</measure.generating.regulation.id>
+    <validity.start.date>2023-04-15</validity.start.date>
+  </measure>
+  <measure.component>
+    <measure.sid>9003</measure.sid>
+    <duty.expression.id>01</duty.expression.id>
+    <duty.amount>60.1</duty.amount>
+  </measure.component>
+  <measure.condition>
+    <measure.sid>9003</measure.sid>
+    <condition.code>B</condition.code>
+    <certificate.type.code>D</certificate.type.code>
+    <certificate.code>017</certificate.code>
+    <action.code>27</action.code>
+  </measure.condition>
+  <certificate.description>
+    <certificate.type.code>D</certificate.type.code>
+    <certificate.code>017</certificate.code>
+    <description>Commercial invoice with signed declaration (anti-dumping)</description>
+  </certificate.description>
+
+  <!-- expired measure: must be excluded by date filtering -->
+  <measure>
+    <measure.sid>9004</measure.sid>
+    <goods.nomenclature.item.id>6109100000</goods.nomenclature.item.id>
+    <goods.nomenclature.sid>101</goods.nomenclature.sid>
+    <measure.type>103</measure.type>
+    <geographical.area>1011</geographical.area>
+    <geographical.area.sid>400</geographical.area.sid>
+    <measure.generating.regulation.id>R0000001</measure.generating.regulation.id>
+    <validity.start.date>2010-01-01</validity.start.date>
+    <validity.end.date>2021-12-31</validity.end.date>
+  </measure>
+  <measure.component>
+    <measure.sid>9004</measure.sid>
+    <duty.expression.id>01</duty.expression.id>
+    <duty.amount>14.0</duty.amount>
+  </measure.component>
+
+  <!-- footnote attached to the steel code -->
+  <footnote>
+    <footnote.type.id>TN</footnote.type.id>
+    <footnote.id>701</footnote.id>
+    <description>Excluding products for civil aircraft</description>
+  </footnote>
+  <footnote.association.goods.nomenclature>
+    <goods.nomenclature.sid>200</goods.nomenclature.sid>
+    <footnote.type>TN</footnote.type>
+    <footnote.id>701</footnote.id>
+  </footnote.association.goods.nomenclature>
+
+</export>
