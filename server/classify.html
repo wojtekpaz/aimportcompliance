@@ -160,6 +160,25 @@
     font-family:var(--mono);font-size:12px;letter-spacing:.06em;cursor:pointer;padding:0}
   .restart:hover{color:var(--accent)}
 
+  /* ---- BTI rulings accordion ---- */
+  .bti-section{margin-top:24px;border-top:1px solid var(--line);padding-top:18px}
+  .bti-item{border:1px solid var(--line);margin-bottom:6px}
+  .bti-head{display:flex;align-items:baseline;gap:6px;padding:10px 12px;cursor:pointer;
+    font-size:13px;line-height:1.45;user-select:none;transition:background .15s;list-style:none}
+  .bti-head:hover{background:rgba(255,255,255,.03)}
+  .bti-ref{font-family:var(--mono);font-size:11.5px;color:var(--accent);white-space:nowrap;flex-shrink:0}
+  .bti-meta{color:var(--faint);font-size:12px;white-space:nowrap;flex-shrink:0}
+  .bti-snip{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;
+    white-space:nowrap;flex:1;min-width:0}
+  .bti-pm{font-size:13px;color:var(--faint);margin-left:auto;padding-left:10px;flex-shrink:0}
+  .bti-body{display:none;padding:12px 14px;border-top:1px solid var(--line);
+    background:rgba(255,255,255,.02);font-size:13px;line-height:1.55}
+  .bti-body.on{display:block}
+  .bti-brow{display:grid;grid-template-columns:90px 1fr;gap:8px;padding:4px 0}
+  .bti-bk{color:var(--faint);font-family:var(--mono);font-size:11px;
+    letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+  .bti-bv{color:var(--text)}
+
   @media (max-width:880px){
     .cls{grid-template-columns:1fr;gap:40px;padding:48px 22px 70px}
     .topbar{padding:22px}
@@ -290,6 +309,11 @@
               <span class="pm" id="pathPM">–</span> Classification path (click to collapse)
             </button>
             <div class="timeline on" id="timeline"></div>
+          </div>
+
+          <div id="rBtiSection" class="bti-section" style="display:none">
+            <div class="lbl" style="margin-bottom:10px">Supporting BTI rulings</div>
+            <div id="rBtiList"></div>
           </div>
 
            <div style="margin-top:26px;display:flex;align-items:center;gap:18px">
@@ -486,6 +510,46 @@
       }
       $('rDefenseBody').innerHTML = b; show($('rDefense'), true);
     } else { show($('rDefense'), false); }
+
+    // BTI rulings
+    var btis = data.bti_refs || [];
+    if(btis.length){
+      var btiHtml = '';
+      for(var b=0;b<btis.length;b++){
+        var bti = btis[b];
+        var validYear = (bti.valid_to || '').substring(0,4) || '—';
+        var snip = (bti.description || '').substring(0,80);
+        if((bti.description||'').length > 80) snip += '…';
+        btiHtml += '<div class="bti-item">' +
+          '<div class="bti-head">' +
+            '<span class="bti-ref">' + esc(bti.bti_reference) + '</span>' +
+            '<span class="bti-meta">· ' + esc(bti.country) + ' · valid to ' + esc(validYear) + '</span>' +
+            '<span class="bti-snip">· ' + esc(snip) + '</span>' +
+            '<span class="bti-pm">+</span>' +
+          '</div>' +
+          '<div class="bti-body">' +
+            '<div class="bti-brow"><span class="bti-bk">Description</span><span class="bti-bv">' + esc(bti.description || '—') + '</span></div>' +
+            '<div class="bti-brow"><span class="bti-bk">GRI basis</span><span class="bti-bv">' + esc(bti.gri_justification || '—') + '</span></div>' +
+            '<div class="bti-brow"><span class="bti-bk">Valid</span><span class="bti-bv">' + esc(bti.valid_from || '—') + ' → ' + esc(bti.valid_to || '—') + '</span></div>' +
+            '<div class="bti-brow"><span class="bti-bk">Country</span><span class="bti-bv">' + esc(bti.country || '—') + '</span></div>' +
+            '<div class="bti-brow"><span class="bti-bk">Status</span><span class="bti-bv">' + esc(bti.status || '—') + '</span></div>' +
+          '</div>' +
+        '</div>';
+      }
+      $('rBtiList').innerHTML = btiHtml;
+      var btiHeads = $('rBtiList').querySelectorAll('.bti-head');
+      for(var bh=0;bh<btiHeads.length;bh++){
+        btiHeads[bh].addEventListener('click', function(){
+          var body = this.nextElementSibling;
+          var pm = this.querySelector('.bti-pm');
+          var open = body.classList.toggle('on');
+          pm.textContent = open ? '–' : '+';
+        });
+      }
+      show($('rBtiSection'), true);
+    } else {
+      show($('rBtiSection'), false);
+    }
 
     // classification path — open by default
     var labels = {

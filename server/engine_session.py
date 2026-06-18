@@ -21,6 +21,11 @@ from classifier import classify, trail_json, UNSURE        # noqa: E402
 from oracles import ClaudeOracle                            # noqa: E402
 from lookup import format_result, _clean_pipes, _duty_display   # noqa: E402
 
+try:
+    from bti_lookup import bti_for_code as _bti_for_code   # noqa: E402
+except ImportError:
+    def _bti_for_code(*_a, **_kw): return []               # bti.sqlite not yet ingested
+
 DB_PATH = ROOT / "data_taric.sqlite"
 MAX_ROUNDS = 8
 
@@ -202,6 +207,10 @@ def _serialize(conn, res, origin, sid) -> dict:
                                "regulation": d.get("regulation", ""),
                                "meaning": d.get("additional_code_meaning")}
                               for d in m.get("defense", [])]
+        try:
+            out["bti_refs"] = _bti_for_code(c)
+        except Exception:
+            out["bti_refs"] = []
     else:
         out["message"] = ("The engine reached a point it will not guess past. "
                            "This is by design — it never invents a code.")

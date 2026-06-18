@@ -35,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import engine_session as es          # noqa: E402
 import products_db as pdb            # noqa: E402
 import invoice_session as inv           # noqa: E402
+import optimize_session as opt_s        # noqa: E402
 import tempfile, os as _os              # noqa: E402
 from fastapi import UploadFile, File    # noqa: E402
 
@@ -61,6 +62,12 @@ class SaveIn(BaseModel):
 
 class DeleteIn(BaseModel):
     id: str
+
+
+class OptimizeIn(BaseModel):
+    description: str
+    current_code: str
+    origin: str = ""
 
 
 ROOT = HERE.parent
@@ -162,6 +169,22 @@ async def invoice_analyze(file: UploadFile = File(...), origin: str = ""):
             _os.unlink(tmp.name)
         except Exception:
             pass
+@app.get("/optimize")
+def optimize_page():
+    return FileResponse(HERE / "optimize.html")
+
+
+@app.post("/api/optimize")
+def optimize_endpoint(body: OptimizeIn):
+    description = body.description.strip()
+    current_code = body.current_code.strip()
+    if not description:
+        return {"error": "Product description is required."}
+    if not current_code:
+        return {"error": "Current HS/TARIC code is required."}
+    return opt_s.analyze(description, current_code, body.origin.strip())
+
+
 if __name__ == "__main__":
     import uvicorn
     print("AImport web app — open http://127.0.0.1:8000 in your browser")
