@@ -72,44 +72,41 @@ def _normalise_date(raw: str) -> str:
     return s   # fall through unchanged if no format matched
 
 
-def _open_csv(input_path: Path):
-    """Yield a text stream for the CSV, handling .zip or plain .csv."""
+def _iter_csv_streams(input_path: Path):
+    """Yield (name, text_stream) for each CSV in chronological order.
+
+    Handles three cases:
+      - a zip containing multiple CSVs (sorted alphabetically = chronologically)
+      - a zip containing a single CSV
+      - a plain .csv file
+    Processing in year order means newer rows overwrite older ones for the
+    same (bti_reference, language) primary key, so the DB reflects the most
+    recent known state of every ruling.
+    """
     if input_path.suffix.lower() == ".zip":
         zf = zipfile.ZipFile(input_path)
-        # Find the first .csv entry (skip macOS __MACOSX artefacts)
-        csv_names = [n for n in zf.namelist()
-                     if n.endswith(".csv") and not n.startswith("__MACOSX")]
+        csv_names = sorted(
+            n for n in zf.namelist()
+            if n.endswith(".csv") and not n.startswith("__MACOSX")
+        )
         if not csv_names:
             raise FileNotFoundError(f"No .csv found inside {input_path}")
-        raw = zf.open(csv_names[0])
-        return io.TextIOWrapper(raw, encoding="utf-8-sig", newline="")
+        for name in csv_names:
+            raw = zf.open(name)
+            yield name, io.TextIOWrapper(raw, encoding="utf-8-sig", newline="")
     else:
-        return open(input_path, encoding="utf-8-sig", newline="")
+        yield input_path.name, open(input_path, encoding="utf-8-sig", newline="")
 
 
-def ingest(input_path: Path, output_path: Path) -> None:
-    print(f"Input : {input_path}")
-    print(f"Output: {output_path}")
-
-    # ---- set up database ---------------------------------------------------
-    conn = sqlite3.connect(output_path)
-    conn.executescript(DDL)
-    conn.execute("DELETE FROM bti_reference")   # full refresh
-    conn.commit()
-
-    # ---- counters ----------------------------------------------------------
-    total_read   = 0
-    skipped_lang = 0
-    inserted     = 0
-    replaced     = 0
-    by_lang:  dict[str, int] = {}
-    by_status: dict[str, int] = {}
+def _ingest_stream(conn, fh, name, counters):
+    """Stream one CSV file into the open DB connection, updating counters in place."""
+    reader = csv.DictReader(fh)
+    reader.fieldnames = [n.strip().lstrip("﻿") for n in (reader.fieldnames or [])]
 
     BATCH = 2000
     batch: list[tuple] = []
 
     def flush():
-        nonlocal inserted, replaced
         if not batch:
             return
         conn.executemany("""
@@ -120,65 +117,94 @@ def ingest(input_path: Path, output_path: Path) -> None:
             VALUES (?,?,?,?,?,?,?,?,?,?,?)
         """, batch)
         conn.commit()
-        inserted += len(batch)
+        counters["inserted"] += len(batch)
         batch.clear()
 
-    # ---- stream the CSV ----------------------------------------------------
-    with _open_csv(input_path) as fh:
-        reader = csv.DictReader(fh)
-        # Strip BOM/whitespace from column names defensively
-        reader.fieldnames = [n.strip().lstrip("﻿") for n in (reader.fieldnames or [])]
+    file_read = 0
+    for row in reader:
+        counters["total_read"] += 1
+        file_read += 1
+        lang = (row.get("LANGUAGE") or "").strip().upper()
+        if lang not in KEEP_LANGUAGES:
+            counters["skipped_lang"] += 1
+            continue
 
-        for row in reader:
-            total_read += 1
-            lang = (row.get("LANGUAGE") or "").strip().upper()
-            if lang not in KEEP_LANGUAGES:
-                skipped_lang += 1
-                continue
+        code = _normalise_code(row.get("NOMENCLATURE_CODE", ""))
+        if not code:
+            counters["skipped_lang"] += 1
+            continue
 
-            code = _normalise_code(row.get("NOMENCLATURE_CODE", ""))
-            if not code:
-                skipped_lang += 1   # no usable code
-                continue
+        status = (row.get("STATUS") or "").strip().upper()
+        counters["by_status"][status] = counters["by_status"].get(status, 0) + 1
+        counters["by_lang"][lang]     = counters["by_lang"].get(lang, 0) + 1
 
-            status = (row.get("STATUS") or "").strip().upper()
-            by_status[status] = by_status.get(status, 0) + 1
-            by_lang[lang]     = by_lang.get(lang, 0) + 1
+        batch.append((
+            (row.get("BTI_REFERENCE") or "").strip(),
+            lang,
+            code,
+            _normalise_date(row.get("START_DATE_OF_VALIDITY", "")),
+            _normalise_date(row.get("END_DATE_OF_VALIDITY", "")),
+            status,
+            (row.get("ISSUING_COUNTRY") or "").strip().upper(),
+            (row.get("DESCRIPTION_OF_GOODS") or "").strip(),
+            (row.get("CLASSIFICATION_JUSTIFICATION") or "").strip(),
+            (row.get("KEYWORDS") or "").strip(),
+            (row.get("INVALIDATION_REASON") or "").strip(),
+        ))
 
-            batch.append((
-                (row.get("BTI_REFERENCE") or "").strip(),
-                lang,
-                code,
-                _normalise_date(row.get("START_DATE_OF_VALIDITY", "")),
-                _normalise_date(row.get("END_DATE_OF_VALIDITY", "")),
-                status,
-                (row.get("ISSUING_COUNTRY") or "").strip().upper(),
-                (row.get("DESCRIPTION_OF_GOODS") or "").strip(),
-                (row.get("CLASSIFICATION_JUSTIFICATION") or "").strip(),
-                (row.get("KEYWORDS") or "").strip(),
-                (row.get("INVALIDATION_REASON") or "").strip(),
-            ))
-
-            if len(batch) >= BATCH:
-                flush()
-
-            if total_read % 50_000 == 0:
-                print(f"  … {total_read:,} rows read, {inserted:,} inserted so far")
+        if len(batch) >= BATCH:
+            flush()
 
     flush()
+    return file_read
+
+
+def ingest(input_path: Path, output_path: Path) -> None:
+    print(f"Input : {input_path}")
+    print(f"Output: {output_path}")
+
+    # ---- set up database ---------------------------------------------------
+    conn = sqlite3.connect(output_path)
+    conn.executescript(DDL)
+    conn.execute("DELETE FROM bti_reference")   # full refresh (once, before all files)
+    conn.commit()
+
+    # ---- counters ----------------------------------------------------------
+    counters = {
+        "total_read": 0, "skipped_lang": 0, "inserted": 0,
+        "by_lang": {}, "by_status": {},
+    }
+
+    # ---- stream each CSV in chronological order ----------------------------
+    for name, fh in _iter_csv_streams(input_path):
+        before = counters["inserted"]
+        n = _ingest_stream(conn, fh, name, counters)
+        added = counters["inserted"] - before
+        print(f"  {name}: {n:,} rows → {added:,} upserted")
+
+    # ---- prune INVALID rulings and compact ---------------------------------
+    # We stored all statuses during ingestion (so chronological overwriting
+    # correctly reflects the current state of each ruling), but INVALID
+    # rulings are never surfaced by bti_for_code() and only waste space.
+    print("  Pruning INVALID rulings…")
+    conn.execute("DELETE FROM bti_reference WHERE status != 'VALID'")
+    conn.commit()
+    valid_count = conn.execute("SELECT COUNT(*) FROM bti_reference").fetchone()[0]
+    print("  Running VACUUM…")
+    conn.execute("VACUUM")
     conn.close()
 
     # ---- summary -----------------------------------------------------------
     print(f"\n{'─'*52}")
-    print(f"Rows read        : {total_read:>10,}")
-    print(f"Skipped (lang)   : {skipped_lang:>10,}")
-    print(f"Inserted/replaced: {inserted:>10,}")
-    print(f"\nBy language:")
-    for lang in sorted(by_lang):
-        print(f"  {lang:4s}: {by_lang[lang]:,}")
-    print(f"\nBy status:")
-    for st in sorted(by_status):
-        print(f"  {st or '(empty)':20s}: {by_status[st]:,}")
+    print(f"Rows read        : {counters['total_read']:>10,}")
+    print(f"Skipped (lang)   : {counters['skipped_lang']:>10,}")
+    print(f"Inserted/replaced: {counters['inserted']:>10,}")
+    print(f"VALID kept       : {valid_count:>10,}")
+    print(f"\nBy language (all rows, before prune):")
+    for lang in sorted(counters["by_lang"]):
+        print(f"  {lang:4s}: {counters['by_lang'][lang]:,}")
+    db_mb = output_path.stat().st_size / 1024 / 1024
+    print(f"\nDatabase size    : {db_mb:.0f} MB  (VALID rulings only)")
     print(f"{'─'*52}")
     print(f"Done → {output_path}")
 
