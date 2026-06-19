@@ -60,7 +60,26 @@
     text-transform:uppercase;cursor:pointer;transition:background .18s,border-color .18s}
   .btn:hover{background:var(--accent-dim);border-color:var(--accent)}
   .btn:disabled{opacity:.4;cursor:default}
+  /* primary action — solid teal, matches the landing "Request access" button */
+  .btn-primary{background:#2dd4bf;border:1px solid #2dd4bf;color:#0a0a0a;
+    font-weight:600;font-size:14.5px;letter-spacing:.02em;text-transform:none;padding:16px;
+    transition:background .18s,border-color .18s,transform .18s,box-shadow .18s}
+  .btn-primary:hover{background:#3ee6d2;border-color:#3ee6d2;transform:translateY(-1px);
+    box-shadow:0 6px 18px rgba(45,212,191,.25)}
   .inline-err{display:none;color:#c2607a;font-size:13px;margin-top:16px;line-height:1.5}
+
+  /* first-timer guidance + example chips */
+  .guide{color:var(--faint);font-size:14px;line-height:1.55;margin:0 0 22px}
+  .ex-label{color:var(--muted);font-size:12px;margin:0 0 10px}
+  .ex-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+  .chip{background:#1a1a1f;border:1px solid rgba(45,212,191,.3);color:var(--accent);
+    font-family:inherit;font-size:13px;padding:7px 13px;border-radius:999px;cursor:pointer;
+    transition:border-color .18s,background .18s}
+  .chip:hover{border-color:var(--accent);background:#1f1f26}
+  /* chapter hint is advanced/optional — de-emphasise vs required fields */
+  .field.optional .lbl{color:var(--muted)}
+  .field.optional .ipt{font-size:13px}
+  .field.optional .note{color:var(--muted)}
 
   /* ---- left: clarification flow ---- */
   .q-text{font-size:18px;color:#fff;line-height:1.5;margin:6px 0 12px;letter-spacing:-0.01em}
@@ -110,6 +129,16 @@
   .ghost .g-line.m{width:65%}
   .ghost-note{position:absolute;bottom:30px;left:32px;color:var(--faint);font-size:12px;
     letter-spacing:.12em;text-transform:uppercase}
+
+  /* empty-state preview: what the engine will return */
+  .preview-h{color:rgba(45,212,191,.85);font-size:11px;font-weight:600;letter-spacing:.2em;
+    text-transform:uppercase;margin-bottom:22px}
+  .preview-list{list-style:none;margin:0;padding:0}
+  .preview-list li{position:relative;padding:12px 0 12px 26px;color:var(--faint);
+    font-size:14.5px;line-height:1.5;border-bottom:1px solid rgba(255,255,255,.05)}
+  .preview-list li:last-child{border-bottom:0}
+  .preview-list li::before{content:"▸";position:absolute;left:0;top:12px;
+    color:var(--accent);font-size:13px}
 
   /* restart link at top */
   .restart-top{display:block;margin-bottom:20px;background:none;border:0;color:var(--faint);
@@ -230,20 +259,27 @@
 
     <!-- input view -->
     <div id="inputView">
+      <p class="guide">Describe what you're importing. The more detail — material, function, use — the more precise the classification.</p>
       <div class="lbl">Product description</div>
+      <div class="ex-label">Try an example:</div>
+      <div class="ex-row">
+        <button type="button" class="chip" data-desc="Steel mounting bracket for solar panels" data-origin="CN">Steel mounting bracket for solar panels</button>
+        <button type="button" class="chip" data-desc="Ceramic coffee mug, 350ml" data-origin="CN">Ceramic coffee mug, 350ml</button>
+        <button type="button" class="chip" data-desc="Cotton t-shirt, men's, knitted" data-origin="BD">Cotton t-shirt, men's, knitted</button>
+      </div>
       <textarea id="desc" placeholder="Describe the product as specifically as you can — material, function, intended use."></textarea>
       <div class="row2">
         <div class="field">
           <div class="lbl">Country of origin</div>
           <input id="origin" class="ipt" maxlength="2" placeholder="CN">
         </div>
-        <div class="field">
-          <div class="lbl">Chapter hint</div>
-          <input id="hint" class="ipt" placeholder="61">
-          <div class="note">Optional — if you already know the chapter.</div>
+        <div class="field optional">
+          <div class="lbl">Chapter hint (optional)</div>
+          <input id="hint" class="ipt" placeholder="e.g. 73">
+          <div class="note">Leave blank unless you already know the chapter.</div>
         </div>
       </div>
-      <button id="btnClassify" class="btn">Classify</button>
+      <button id="btnClassify" class="btn btn-primary">Classify →</button>
       <div id="inErr" class="inline-err"></div>
     </div>
 
@@ -306,15 +342,16 @@
       <div class="progress" id="progress"><div class="bar"></div></div>
 
       <div class="pad">
-        <!-- ghost placeholder -->
+        <!-- empty-state preview: what the engine returns -->
         <div id="ghost" class="ghost">
-          <div class="g-code">—— —— —— ——</div>
-          <div class="g-sub"></div>
-          <div class="g-div"></div>
-          <div class="g-line s"></div>
-          <div class="g-line m"></div>
-          <div class="g-line s"></div>
-          <div class="ghost-note">Awaiting classification</div>
+          <div class="preview-h">What you'll get</div>
+          <ul class="preview-list">
+            <li>A 10-digit CN/TARIC code</li>
+            <li>The GRI reasoning trail, step by step</li>
+            <li>The legal basis for each decision</li>
+            <li>Applicable duties and trade measures</li>
+            <li>A clarifying question if the description is ambiguous</li>
+          </ul>
         </div>
 
         <!-- filled result -->
@@ -411,6 +448,16 @@
     show(questionView, false); show(doneView, false); show(inputView, true);
     $('desc').focus();
   }
+
+  // ---- example chips: one-click fill (description + sensible origin) ----
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function(chip){
+    chip.addEventListener('click', function(){
+      $('desc').value = chip.getAttribute('data-desc') || '';
+      $('origin').value = chip.getAttribute('data-origin') || '';
+      $('inErr').style.display = 'none';
+      $('desc').focus();
+    });
+  });
 
   // ---- CLASSIFY ----
   $('btnClassify').addEventListener('click', function(){
