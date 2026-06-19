@@ -235,11 +235,16 @@
     --stat-angle:0deg;
     max-width:1100px;width:calc(100% - 48px);margin:0 auto;
     border-radius:20px;padding:64px 48px;
-    background:linear-gradient(135deg, rgba(30,30,36,.65) 0%, rgba(20,20,25,.55) 100%);
+    /* lighter graphite so the panel reads clearly against the near-black page */
+    background:linear-gradient(135deg, rgba(44,44,52,.72) 0%, rgba(28,28,34,.62) 100%);
     backdrop-filter:blur(24px) saturate(130%);
     -webkit-backdrop-filter:blur(24px) saturate(130%);
-    border:1px solid rgba(255,255,255,.08);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 16px 48px rgba(0,0,0,.4);
+    /* visible teal-tinted base frame — stays defined even if the animation
+       can't run (Safari/@property edge cases); the sheen rides on top */
+    border:1px solid rgba(45,212,191,.22);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
+               0 16px 48px rgba(0,0,0,.45),
+               0 0 28px rgba(45,212,191,.06);
     transition:filter .3s ease}
   /* travelling teal sheen, masked to a 1px ring. Static white border below
      stays visible; where mask is unsupported the panel keeps its base border. */
@@ -248,10 +253,10 @@
   @supports ((-webkit-mask-composite:xor) or (mask-composite:exclude)){
     .savings-panel::before{padding:1px;
       background:conic-gradient(from var(--stat-angle),
-        transparent 0%, transparent 30%,
-        rgba(45,212,191,.6) 50%,
-        rgba(45,212,191,.2) 62%,
-        transparent 78%, transparent 100%);
+        transparent 0%, transparent 28%,
+        rgba(45,212,191,.9) 50%,
+        rgba(45,212,191,.35) 64%,
+        transparent 80%, transparent 100%);
       -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite:xor;
       mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -263,10 +268,10 @@
     .savings-panel:hover{filter:brightness(1.04)}
     .savings-panel:hover::before{animation-duration:6s;
       background:conic-gradient(from var(--stat-angle),
-        transparent 0%, transparent 30%,
-        rgba(45,212,191,.85) 50%,
-        rgba(45,212,191,.3) 62%,
-        transparent 78%, transparent 100%)}
+        transparent 0%, transparent 28%,
+        rgba(45,212,191,1) 50%,
+        rgba(45,212,191,.45) 64%,
+        transparent 80%, transparent 100%)}
   }
   .savings .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center}
   .savings .snum{font-size:64px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-0.02em}
