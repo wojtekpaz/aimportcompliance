@@ -205,7 +205,8 @@ def _serialize(conn, res, origin, sid) -> dict:
             out["defense"] = [{"name": d.get("type_name", ""),
                                "rate": _duty_display(d),
                                "regulation": d.get("regulation", ""),
-                               "meaning": d.get("additional_code_meaning")}
+                               "meaning": d.get("additional_code_meaning"),
+                               "additional_code": d.get("additional_code")}
                               for d in m.get("defense", [])]
         try:
             out["bti_refs"] = _bti_for_code(c)
