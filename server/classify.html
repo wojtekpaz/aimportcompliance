@@ -190,7 +190,7 @@
 
 <div class="topbar">
   <a class="mark" href="/"><span class="sq"></span>Aimport Compliance</a>
-  <nav><a href="/">Home</a><a href="/classify" class="active">Classification</a><a href="/invoice">Invoice scan</a><a href="/products">Saved products</a></nav>
+  <nav><a href="/">Home</a><a href="/classify" class="active">Classification</a><a href="/invoice">Invoice scan</a><a href="/products">Saved products</a><a href="/optimize">Optimize</a></nav>
 </div>
 
 <main class="cls">
@@ -332,6 +332,14 @@
 
 
 
+<script>
+// access gate: redirect to landing if PIN was not entered this tab session
+(function() {
+  if (sessionStorage.getItem('aimport_access') !== 'granted') {
+    window.location.href = '/';
+  }
+})();
+</script>
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };

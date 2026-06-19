@@ -40,49 +40,200 @@ DB_PATH = ROOT / "data_taric.sqlite"
 MAX_FRAMINGS = 4   # cap on alternatives proposed and classified
 
 # ---------------------------------------------------------------------------
-# AI prompt — alternative defensible framings
+# AI prompt — alternative defensible framings (5-lens oracle)
 # ---------------------------------------------------------------------------
 
-_FRAMING_SYSTEM = """\
-You are a senior customs classification counsel with deep knowledge of the
-Harmonised System and the EU Combined Nomenclature. Your task is to identify
-alternative DEFENSIBLE legal framings of a product for customs classification
-purposes.
+OPTIMIZE_SYSTEM_PROMPT = """\
+You are a senior EU customs classification analyst operating within a deterministic
+GRI classification system. Your role is strictly bounded: you identify legally
+plausible alternative *product framings* — not codes. The deterministic engine will
+validate each framing you propose by running it through the GRI state machine.
+Codes are never your output; framings are.
 
-A defensible framing is one that:
-  - Emphasises a real, verifiable attribute of the goods (material composition,
-    principal function, state of presentation, essential character, or principal
-    use) that the current description underweights.
-  - Would cause a trained customs officer or tribunal to begin GRI analysis at a
-    different heading or subheading.
-  - Could be argued and upheld in a post-clearance audit or appeal.
+═══════════════════════════════════════════════════════════════
+CORE CONSTRAINT — READ BEFORE ANYTHING ELSE
+═══════════════════════════════════════════════════════════════
+Every alternative framing you propose must satisfy ALL of the following:
 
-This is NOT about finding lower duty rates. It is about identifying genuine
-legal ambiguity that arises from real product attributes. Do not invent
-attributes the goods do not have. Do not propose framings you would not be
-prepared to defend before a customs authority.
+1. It must describe the SAME physical object as the input product. You are not
+   proposing different products — you are identifying legitimate ways the SAME
+   product could be described that emphasise different legally relevant
+   characteristics.
 
-Return ONLY a JSON array — no prose, no markdown fences. Maximum 4 elements.
-Each element must be:
-{
-  "framing": "revised product description that foregrounds the attribute driving this alternative GRI path",
-  "rationale": "the GRI rule, legal principle, or CN note that makes this interpretation defensible",
-  "key_attribute": "the specific, verifiable product attribute that distinguishes this classification path"
-}
+2. It must be defensible under at least one GRI rule. Name the rule. If you
+   cannot name the rule, do not propose the framing.
 
-Return [] if no genuinely defensible alternatives exist. An empty array is
-the correct answer when the current classification is unambiguous.
+3. It must be the kind of framing a qualified customs broker or an expert customs
+   officer would recognise as legitimate. If a trained professional would call it
+   a stretch or a misrepresentation, discard it.
+
+4. It must be materially different from the current classification — i.e., it
+   must plausibly lead to a DIFFERENT 4-digit heading, or at minimum a different
+   6-digit subheading. Framings that would likely resolve to the same heading as
+   the original are not useful and should be omitted.
+
+5. It must not require misrepresentation of the product. The product's physical
+   form, materials, and function must remain accurately described. A framing that
+   requires omitting a legally material fact is not defensible — it is evasion.
+
+═══════════════════════════════════════════════════════════════
+YOUR ANALYTICAL TASK
+═══════════════════════════════════════════════════════════════
+Examine the product through exactly FIVE classification lenses, in order. For
+each lens, determine whether genuine ambiguity exists that a qualified expert
+would recognise. Only propose a framing where you find real ambiguity.
+
+LENS A — MATERIAL COMPOSITION
+Is there genuine ambiguity about what material defines this product's
+classification? This applies when:
+- The product is made of multiple materials and the "predominant" or
+  "essential character" material is not unambiguous from the description
+- A different accurate description of the material (e.g. "glass-fibre reinforced
+  polymer" vs "plastic" vs "composite") would place it under a different heading
+- GRI 2(b) or GRI 3(b) applies — the material giving essential character is
+  contestable
+
+LENS B — PRINCIPAL FUNCTION / INTENDED USE
+Is there genuine ambiguity about what function or use defines this product?
+This applies when:
+- The product has multiple functions and the "principal" function is arguable
+- The same object is used in different sectors (industrial vs consumer, medical
+  vs general purpose, agricultural vs industrial) and the use determines
+  classification
+- GRI 1 heading terms could be satisfied by more than one heading because the
+  product's function description is legitimately ambiguous
+- Section or Chapter Notes define the heading by use or user, and the use/user
+  is not fixed by the description
+
+LENS C — PROCESSING / TRANSFORMATION STAGE
+Is there genuine ambiguity about the processing stage that determines
+classification? This applies when:
+- The product could be legitimately described as semi-finished vs. finished,
+  and this distinction determines the heading (GRI 2(a) applies)
+- The product is an assembly/set that could be described either as components
+  or as the complete article
+- The degree of processing places the product on a boundary between two
+  headings (e.g., "roughly shaped" vs "machined", "prepared" vs "raw")
+
+LENS D — COMPOSITE GOODS / SETS / PARTS
+Is there genuine ambiguity arising from the product being composite, a set,
+or a part? This applies when:
+- GRI 3(b) essential character is genuinely contestable — a different reasoned
+  argument about which component gives essential character would be accepted
+  by a knowledgeable expert
+- The product could be described either as a complete article OR as a part of
+  a larger article, and the heading differs
+- GRI 5 applies and the packaging/container classification is genuinely arguable
+
+LENS E — DESCRIPTION SPECIFICITY / HEADING COMPETITION
+Is there a more or less specific heading that is genuinely defensible, where
+the current description does not clearly resolve the competition between them?
+This applies when:
+- GRI 3(a) applies — a more specific heading exists and the question is whether
+  the product's description satisfies it
+- The current description omits a characteristic that, if present, would
+  unambiguously place it under a specific subheading — and that characteristic
+  may or may not be present
+- Chapter Notes or Explanatory Notes contain language that is genuinely
+  ambiguous as to whether this product falls within or outside their scope
+
+═══════════════════════════════════════════════════════════════
+SELF-VALIDATION BEFORE OUTPUT
+═══════════════════════════════════════════════════════════════
+Before producing your output, for EACH proposed framing ask yourself:
+
+▸ Would a customs court accept this argument without calling it
+  misrepresentation? If no → discard.
+▸ Is the GRI rule I am citing actually triggered by this product and this
+  framing? If I am stretching the rule → discard.
+▸ Does this framing describe a product that is genuinely the same physical
+  object, just emphasising different characteristics? If I am describing a
+  different product → discard.
+▸ Am I certain this would lead to a different heading or subheading, not just
+  a different description of the same code? If unsure → flag it but still
+  include it with confidence = LOW.
+
+The correct output for a product with NO genuine classification ambiguity is
+zero alternatives. This is a valid and honest result. Do not invent ambiguity
+where none exists — a result of "this is the only defensible classification"
+is professionally valuable information.
+
+═══════════════════════════════════════════════════════════════
+OUTPUT FORMAT — STRICT JSON, NO PREAMBLE, NO MARKDOWN
+═══════════════════════════════════════════════════════════════
+Return ONLY a JSON object. No text before or after. No markdown fences.
+The schema is defined in the user message.
 """
 
-_FRAMING_USER = """\
-Product description: {description}
-Current HS/TARIC code: {current_code}
-Origin country: {origin}
+OPTIMIZE_USER_TEMPLATE = """\
+Analyse the following product for alternative defensible classifications.
 
-Identify alternative defensible framings of this product for EU customs
-classification purposes. Focus on genuine legal ambiguity grounded in verifiable
-product attributes, not on rate optimisation.
+PRODUCT DESCRIPTION: {product_description}
+CURRENT CLASSIFICATION: {current_code} ({current_code_description})
+CURRENT DUTY RATE: {current_duty}%
+COUNTRY OF ORIGIN: {origin}
+
+Return a JSON object with exactly this structure:
+
+{{
+  "analysis_summary": "<2-3 sentence expert summary of why this product's classification is or is not ambiguous — written as a customs expert would frame it>",
+
+  "original_assessment": {{
+    "defensibility": "<STRONG | ARGUABLE | WEAK>",
+    "defensibility_reasoning": "<1-2 sentences: on what legal basis is the current code defensible, and what is its strongest vulnerability if challenged>",
+    "strongest_challenge_vector": "<the single most credible argument a customs authority could use to challenge this classification, or null if none>"
+  }},
+
+  "alternatives": [
+    {{
+      "lens": "<A | B | C | D | E>",
+      "lens_label": "<MATERIAL | FUNCTION | PROCESSING_STAGE | COMPOSITE_PARTS | SPECIFICITY>",
+      "proposed_framing": "<The alternative product description to run through the classification engine. This must be a complete, self-contained description a broker could submit — not a reference to the original. Write it so the classification engine has no knowledge of the original and would classify it independently.>",
+      "gri_rule": "<The primary GRI rule that makes this framing legitimate: GRI-1 / GRI-2a / GRI-2b / GRI-3a / GRI-3b / GRI-3c / GRI-4 / GRI-5a / GRI-5b / GRI-6>",
+      "legal_basis": "<1-3 sentences: the specific legal reasoning that makes this framing defensible under the cited GRI rule — reference heading terms, chapter/section notes, or Explanatory Notes where relevant>",
+      "expected_heading_shift": "<The 4-digit heading you expect this framing to reach, with its title — e.g. '8479 – Machines and mechanical appliances having individual functions'. If uncertain at heading level, state the expected chapter.>",
+      "confidence": "<HIGH | MEDIUM | LOW>",
+      "confidence_reasoning": "<1 sentence: what would make this confidence rating change — what additional product fact would confirm or undermine this framing>",
+      "declarant_note": "<Optional. A factual note the declarant should be aware of — e.g. a documentation requirement, a Chapter Note exclusion to verify, or a circumstance under which this framing would NOT be defensible. Omit if not applicable.>"
+    }}
+  ],
+
+  "no_alternatives_reason": "<If alternatives array is empty, explain in 1-2 sentences why this product has no genuine classification ambiguity. Omit this field if alternatives are present.>"
+}}
+
+IMPORTANT CONSTRAINTS ON PROPOSED_FRAMING:
+- Each proposed_framing must be a standalone, complete product description (minimum 15 words, maximum 80 words)
+- It must not contain phrases like "alternatively classified as" or references to the original code
+- It must read naturally as a product description a broker would write on a customs declaration
+- It must be accurate to the physical product — do not add characteristics the product does not have
+- It must emphasise the characteristic that makes the alternative classification defensible (the material, the function, the processing stage, etc.)
+
+Return ONLY the JSON object. No preamble. No explanation outside the JSON.
 """
+
+
+def build_optimize_prompt(product_description: str, current_code: str,
+                          current_code_description: str, current_duty: str,
+                          origin: str) -> tuple[str, str]:
+    """Returns (system_prompt, user_message) ready for the oracle."""
+    user = OPTIMIZE_USER_TEMPLATE.format(
+        product_description=product_description,
+        current_code=current_code,
+        current_code_description=current_code_description or "description unavailable",
+        current_duty=current_duty if current_duty not in (None, "") else "unknown",
+        origin=origin or "not specified",
+    )
+    return OPTIMIZE_SYSTEM_PROMPT, user
+
+
+def parse_optimize_response(raw_json: str) -> dict:
+    """Strip any accidental markdown fences, parse, validate top-level keys."""
+    clean = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_json.strip())
+    data = json.loads(clean)
+    required = {"analysis_summary", "original_assessment", "alternatives"}
+    if not required.issubset(data.keys()):
+        raise ValueError(f"Missing required keys: {required - data.keys()}")
+    return data
 
 # ---------------------------------------------------------------------------
 # internal helpers
@@ -138,12 +289,12 @@ def _extract_defense(measures: dict | None) -> list:
 
 
 def _call_claude(oracle: ClaudeOracle, system: str, user: str,
-                 max_tokens: int = 1400) -> str:
+                 max_tokens: int = 1400, temperature: float = 0) -> str:
     """One raw Claude API call using the oracle's key + model. Returns '' on error."""
     body = {
         "model": oracle.model,
         "max_tokens": max_tokens,
-        "temperature": 0,
+        "temperature": temperature,
         "system": system,
         "messages": [{"role": "user", "content": user}],
     }
@@ -164,28 +315,27 @@ def _call_claude(oracle: ClaudeOracle, system: str, user: str,
         return ""
 
 
-def _propose_framings(oracle: ClaudeOracle, description: str,
-                      current_code: str, origin: str) -> list:
-    """Ask Claude for alternative defensible framings; returns list of dicts."""
-    user = _FRAMING_USER.format(
-        description=description,
+def _propose_framings(oracle: ClaudeOracle, description: str, current_code: str,
+                      current_code_description: str, current_duty: str,
+                      origin: str) -> dict | None:
+    """Ask Claude for the 5-lens analysis. Returns the parsed object or None."""
+    system, user = build_optimize_prompt(
+        product_description=description,
         current_code=current_code,
-        origin=origin or "not specified",
+        current_code_description=current_code_description,
+        current_duty=current_duty,
+        origin=origin,
     )
-    raw = _call_claude(oracle, _FRAMING_SYSTEM, user)
+    raw = _call_claude(oracle, system, user, max_tokens=4000, temperature=0.2)
     if not raw:
-        return []
+        return None
     try:
-        cleaned = (raw.strip()
-                   .removeprefix("```json").removeprefix("```")
-                   .removesuffix("```").strip())
-        result = json.loads(cleaned)
-        if not isinstance(result, list):
-            return []
-        return [f for f in result
-                if isinstance(f, dict) and (f.get("framing") or "").strip()]
+        data = parse_optimize_response(raw)
     except (json.JSONDecodeError, ValueError):
-        return []
+        return None
+    if not isinstance(data.get("alternatives"), list):
+        data["alternatives"] = []
+    return data
 
 
 # ---------------------------------------------------------------------------
@@ -231,15 +381,26 @@ def analyze(description: str, current_code: str, origin: str) -> dict:
     except RuntimeError as e:
         return {"error": str(e)}
 
-    # --- propose alternative framings ----------------------------------------
-    framings = _propose_framings(oracle, description, current_code, origin)
+    # --- run the 5-lens analysis ---------------------------------------------
+    duty_for_prompt = ""
+    if orig_duty and orig_duty.get("rate"):
+        duty_for_prompt = re.sub(r"[%\s]+$", "", str(orig_duty["rate"]))
 
-    # --- classify each framing, discard non-classifiable / same code ---------
+    analysis = _propose_framings(
+        oracle, description, current_code,
+        orig_cn_desc, duty_for_prompt, origin,
+    )
+    if analysis is None:
+        return {"error": "The analysis could not be completed. Please try again."}
+
+    proposed = analysis.get("alternatives", [])
+
+    # --- classify each proposed framing, discard non-classifiable / same code -
     alternatives = []
     seen_codes = {code_norm}
 
-    for framing_obj in framings[:MAX_FRAMINGS]:
-        framing_text = (framing_obj.get("framing") or "").strip()
+    for framing_obj in proposed[:MAX_FRAMINGS]:
+        framing_text = (framing_obj.get("proposed_framing") or "").strip()
         if not framing_text:
             continue
         try:
@@ -278,12 +439,18 @@ def analyze(description: str, current_code: str, origin: str) -> dict:
                     "code_spaced": _space_code(alt_code),
                     "cn_description": alt_cn_desc,
                     "framing": framing_text,
-                    "rationale": framing_obj.get("rationale", ""),
-                    "key_attribute": framing_obj.get("key_attribute", ""),
+                    "lens": framing_obj.get("lens", ""),
+                    "lens_label": framing_obj.get("lens_label", ""),
+                    "gri_rule": framing_obj.get("gri_rule", ""),
+                    "legal_basis": framing_obj.get("legal_basis", ""),
+                    "expected_heading_shift": framing_obj.get("expected_heading_shift", ""),
+                    "confidence": framing_obj.get("confidence", ""),
+                    "confidence_reasoning": framing_obj.get("confidence_reasoning", ""),
+                    "declarant_note": framing_obj.get("declarant_note", ""),
                     "duty": alt_duty,
                     "defense": alt_defense,
                     "trail": trail,
-                    "legal_basis": alt_duty.get("regulation", "") if alt_duty else "",
+                    "regulation": alt_duty.get("regulation", "") if alt_duty else "",
                 })
             finally:
                 conn.close()
@@ -298,7 +465,10 @@ def analyze(description: str, current_code: str, origin: str) -> dict:
             "cn_description": orig_cn_desc,
             "duty": orig_duty,
             "defense": orig_defense,
+            "assessment": analysis.get("original_assessment", {}),
         },
+        "analysis_summary": analysis.get("analysis_summary", ""),
         "alternatives": alternatives,
-        "framings_proposed": len(framings),
+        "framings_proposed": len(proposed),
+        "no_alternatives_reason": analysis.get("no_alternatives_reason", ""),
     }

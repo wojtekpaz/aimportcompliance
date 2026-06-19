@@ -195,6 +195,52 @@
     font-family:var(--mono);font-size:11px;letter-spacing:.06em;cursor:pointer;padding:0}
   .restart:hover{color:var(--accent)}
 
+  /* analysis summary banner */
+  .summary{margin-bottom:26px;padding:18px 22px;border-left:2px solid var(--accent);
+           background:rgba(0,212,200,.05)}
+  .summary .sl{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+               color:var(--accent);margin-bottom:8px}
+  .summary p{margin:0;color:var(--text);font-size:13.5px;line-height:1.6}
+
+  /* defensibility / confidence badges */
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;
+         letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line)}
+  .badge.strong,.badge.high{color:var(--accent);border-color:rgba(0,212,200,.4);background:rgba(0,212,200,.06)}
+  .badge.arguable,.badge.medium{color:var(--amber);border-color:rgba(217,164,65,.4);background:rgba(217,164,65,.06)}
+  .badge.weak,.badge.low{color:var(--red);border-color:rgba(194,96,122,.4);background:rgba(194,96,122,.06)}
+
+  /* original-card assessment block */
+  .oc-assess{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+  .oc-assess .oa-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .oc-assess .oa-k{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .oc-assess .oa-text{color:var(--muted);font-size:12.5px;line-height:1.6;margin:0 0 8px}
+  .oc-assess .oa-text:last-child{margin:0}
+  .oc-assess .oa-text b{color:var(--faint);font-weight:600;font-size:10px;letter-spacing:.12em;
+                        text-transform:uppercase;display:block;margin-bottom:3px}
+
+  /* alt-card head chips row */
+  .ac-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .lens-chip{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.06em;
+             color:var(--accent);border:1px solid rgba(0,212,200,.35);padding:3px 10px}
+  .lens-chip .lc-label{color:var(--faint);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.14em}
+
+  /* gri rule + expected heading rows */
+  .ac-gri{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--accent);
+          border:1px solid rgba(0,212,200,.3);padding:2px 8px;margin-bottom:12px;letter-spacing:.04em}
+  .ac-expect{font-size:12.5px;color:var(--muted);margin-bottom:16px;line-height:1.55}
+  .ac-expect .el{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+                 color:var(--faint);display:block;margin-bottom:4px}
+  .ac-expect .ev{color:var(--text);font-family:var(--mono);font-size:12.5px}
+
+  .ac-confnote{font-size:12px;color:var(--faint);margin-top:12px;line-height:1.55;font-style:italic}
+
+  /* declarant note callout */
+  .declarant{margin-top:12px;border-left:3px solid var(--amber);background:rgba(217,164,65,.06);
+             padding:10px 14px;font-size:12.5px;line-height:1.6}
+  .declarant .dn-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+                       color:var(--amber);margin-bottom:4px}
+  .declarant .dn-text{color:var(--text)}
+
   @media (max-width:900px){
     .cls{grid-template-columns:1fr;gap:40px;padding:48px 22px 70px}
     .topbar{padding:22px}
@@ -303,6 +349,7 @@
 
         <!-- results -->
         <div id="resultContent" style="display:none">
+          <div id="summaryCard"></div>
           <div id="origCard"></div>
           <div id="altSection"></div>
           <div class="disclaimer">
@@ -320,6 +367,14 @@
   </div>
 </main>
 
+<script>
+// access gate: redirect to landing if PIN was not entered this tab session
+(function() {
+  if (sessionStorage.getItem('aimport_access') !== 'granted') {
+    window.location.href = '/';
+  }
+})();
+</script>
 <script>
 (function(){
   var $ = function(id){ return document.getElementById(id); };
@@ -396,30 +451,59 @@
     return esc(duty.rate);
   }
 
+  function badge(value){
+    var v = String(value || '').toLowerCase();
+    return '<span class="badge ' + esc(v) + '">' + esc(String(value || '—')) + '</span>';
+  }
+
   function render(data){
     var orig = data.original || {};
     var alts = data.alternatives || [];
 
-    // ---- original card ----
+    // ---- analysis summary banner ----
+    $('summaryCard').innerHTML = data.analysis_summary
+      ? '<div class="summary"><div class="sl">Expert assessment</div><p>' +
+          esc(data.analysis_summary) + '</p></div>'
+      : '';
+
+    // ---- original card (+ defensibility assessment) ----
     var origDuty = orig.duty ? dutyStr(orig.duty) : '—';
     var origLegal = orig.duty && orig.duty.regulation ? esc(orig.duty.regulation) : '—';
+    var a = orig.assessment || {};
+    var assessHtml = '';
+    if(a.defensibility || a.defensibility_reasoning || a.strongest_challenge_vector){
+      assessHtml = '<div class="oc-assess">' +
+        (a.defensibility
+          ? '<div class="oa-row"><span class="oa-k">Defensibility</span>' + badge(a.defensibility) + '</div>'
+          : '') +
+        (a.defensibility_reasoning
+          ? '<p class="oa-text"><b>Basis &amp; vulnerability</b>' + esc(a.defensibility_reasoning) + '</p>'
+          : '') +
+        (a.strongest_challenge_vector
+          ? '<p class="oa-text"><b>Strongest challenge vector</b>' + esc(a.strongest_challenge_vector) + '</p>'
+          : '') +
+        '</div>';
+    }
     $('origCard').innerHTML =
       '<div class="orig-card">' +
         '<div class="oc-label">Current classification</div>' +
         '<div class="oc-code">' + esc(orig.code_spaced || orig.code) + '</div>' +
         '<div class="oc-desc">' + esc(orig.cn_description || orig.input_description) + '</div>' +
         '<div class="oc-duty">Duty: ' + origDuty + (origLegal !== '—' ? ' &nbsp;·&nbsp; ' + origLegal : '') + '</div>' +
+        assessHtml +
       '</div>';
 
     // ---- alternatives section ----
     var altHtml = '';
     if(!alts.length){
       var proposed = data.framings_proposed || 0;
-      var noMsg = proposed === 0
-        ? 'The AI found no alternative defensible framings for this product. The current classification appears unambiguous.'
-        : 'The AI proposed ' + proposed + ' alternative framing' + (proposed===1?'':'s') +
-          ', but none classified to a distinct declarable code under the GRI engine. ' +
-          'The current classification appears to be the correct and unique result.';
+      var noMsg = data.no_alternatives_reason
+        ? data.no_alternatives_reason
+        : (proposed === 0
+            ? 'The AI found no alternative defensible framings for this product. The current classification appears unambiguous.'
+            : 'The AI proposed ' + proposed + ' alternative framing' + (proposed===1?'':'s') +
+              ', but none classified to a distinct declarable code under the GRI engine. ' +
+              'The current classification appears to be the correct and unique result.');
       altHtml = '<div class="no-alts"><div class="na-title">No validated alternatives found</div>' +
                 esc(noMsg) + '</div>';
     } else {
@@ -449,13 +533,36 @@
     var code = esc(alt.code_spaced || alt.code);
     var desc = esc(alt.cn_description || '');
     var duty = dutyStr(alt.duty);
-    var legal = alt.legal_basis ? esc(alt.legal_basis) : (alt.duty && alt.duty.regulation ? esc(alt.duty.regulation) : '—');
-    var legalHtml = legal !== '—'
-      ? '<a href="https://eur-lex.europa.eu/search.html?text=' + encodeURIComponent(alt.legal_basis || alt.duty.regulation) + '&scope=EURLEX" target="_blank" rel="noopener">' + legal + '</a>'
+    var reg = alt.regulation || (alt.duty && alt.duty.regulation) || '';
+    var legalHtml = reg
+      ? '<a href="https://eur-lex.europa.eu/search.html?text=' + encodeURIComponent(reg) + '&scope=EURLEX" target="_blank" rel="noopener">' + esc(reg) + '</a>'
       : '<span style="color:var(--faint)">—</span>';
 
-    var attr = alt.key_attribute
-      ? '<div class="ac-attr"><span class="at-label">Deciding attribute</span><span>' + esc(alt.key_attribute) + '</span></div>'
+    // chips: lens + confidence
+    var chips = '';
+    if(alt.lens_label){
+      chips += '<span class="lens-chip"><span class="lc-label">Lens ' + esc(alt.lens || '') + '</span>' +
+               esc(String(alt.lens_label).replace(/_/g, ' ')) + '</span>';
+    }
+    if(alt.confidence){
+      chips += badge(alt.confidence);
+    }
+    var chipsHtml = chips ? '<div class="ac-chips">' + chips + '</div>' : '';
+
+    var griHtml = alt.gri_rule ? '<div class="ac-gri">' + esc(alt.gri_rule) + '</div>' : '';
+
+    var expectHtml = alt.expected_heading_shift
+      ? '<div class="ac-expect"><span class="el">Expected heading shift</span>' +
+          '<span class="ev">' + esc(alt.expected_heading_shift) + '</span></div>'
+      : '';
+
+    var confNote = alt.confidence_reasoning
+      ? '<div class="ac-confnote">' + esc(alt.confidence_reasoning) + '</div>'
+      : '';
+
+    var declHtml = alt.declarant_note
+      ? '<div class="declarant"><div class="dn-label">Declarant note</div>' +
+          '<div class="dn-text">' + esc(alt.declarant_note) + '</div></div>'
       : '';
 
     var defHtml = '';
@@ -484,17 +591,21 @@
       '<div class="ac-head">' +
         '<div class="ac-code">' + code + '</div>' +
         (desc ? '<div class="ac-desc">' + desc + '</div>' : '') +
-        attr +
+        chipsHtml +
       '</div>' +
       '<div class="ac-body">' +
+        griHtml +
         '<div class="ac-framing"><span class="fl">Alternative framing used</span>' + esc(alt.framing) + '</div>' +
-        (alt.rationale
-          ? '<div class="ac-rationale"><div class="rl">Why this is defensible</div>' + esc(alt.rationale) + '</div>'
+        (alt.legal_basis
+          ? '<div class="ac-rationale"><div class="rl">Why this is defensible</div>' + esc(alt.legal_basis) + '</div>'
           : '') +
+        expectHtml +
         '<div class="ac-metrics">' +
           '<div class="ac-metric"><div class="mk">Duty rate</div><div class="mv rate">' + esc(duty) + '</div></div>' +
           '<div class="ac-metric"><div class="mk">Legal basis</div><div class="mv">' + legalHtml + '</div></div>' +
         '</div>' +
+        confNote +
+        declHtml +
         defHtml +
         pathSection +
       '</div>' +

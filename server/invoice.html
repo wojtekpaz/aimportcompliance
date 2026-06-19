@@ -101,6 +101,7 @@
     <a href="/classify">Classification</a>
     <a href="/invoice" class="active">Invoice scan</a>
     <a href="/products">Saved products</a>
+    <a href="/optimize">Optimize</a>
   </nav>
 </div>
 
@@ -142,6 +143,14 @@
   <div id="results"></div>
 </div>
 
+<script>
+// access gate: redirect to landing if PIN was not entered this tab session
+(function() {
+  if (sessionStorage.getItem('aimport_access') !== 'granted') {
+    window.location.href = '/';
+  }
+})();
+</script>
 <script>
 (function(){
   var $=function(id){return document.getElementById(id);};

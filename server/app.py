@@ -75,7 +75,7 @@ ROOT = HERE.parent
 
 @app.get("/")
 def index():
-    return FileResponse(ROOT / "landing.html")
+    return FileResponse(ROOT / "index.html")
 
 
 @app.get("/classify")
