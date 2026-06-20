@@ -56,7 +56,7 @@ def _ocr_startup_check():
     else:
         log.warning("OCR fallback DISABLED — %s. Scanned/image-only invoices "
                     "will report as unreadable. Install tesseract-ocr + "
-                    "poppler-utils (see nixpacks.toml).", detail)
+                    "poppler-utils (see railpack.json).", detail)
 
 
 class ClassifyIn(BaseModel):
