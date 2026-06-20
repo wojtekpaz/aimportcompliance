@@ -32,15 +32,31 @@ from fastapi.responses import FileResponse, PlainTextResponse, Response
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import logging                         # noqa: E402
 import engine_session as es          # noqa: E402
 import products_db as pdb            # noqa: E402
 import invoice_session as inv           # noqa: E402
+import invoice_ocr as ocr               # noqa: E402
 import optimize_session as opt_s        # noqa: E402
 import tempfile, os as _os              # noqa: E402
 from fastapi import UploadFile, File    # noqa: E402
 
 app = FastAPI(title="AImport", docs_url="/api/docs")
 HERE = Path(__file__).resolve().parent
+log = logging.getLogger("uvicorn.error")
+
+
+@app.on_event("startup")
+def _ocr_startup_check():
+    """OCR silently no-ops if the tesseract binary is missing from the deployed
+    container, so fail loud at boot rather than mysteriously at upload time."""
+    ok, detail = ocr.tesseract_status()
+    if ok:
+        log.info("OCR fallback ready (%s).", detail)
+    else:
+        log.warning("OCR fallback DISABLED — %s. Scanned/image-only invoices "
+                    "will report as unreadable. Install tesseract-ocr + "
+                    "poppler-utils (see nixpacks.toml).", detail)
 
 
 class ClassifyIn(BaseModel):
@@ -100,6 +116,9 @@ def health():
     except Exception as e:
         info["ok"] = False
         info["db_error"] = str(e)
+    ocr_ok, ocr_detail = ocr.tesseract_status()
+    info["ocr_available"] = ocr_ok
+    info["ocr"] = ocr_detail
     if not info["key_present"]:
         info["ok"] = False
         info["warning"] = "ANTHROPIC_API_KEY not set — classification will fail."

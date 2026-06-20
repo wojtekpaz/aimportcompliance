@@ -22,9 +22,14 @@ import pdfplumber
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import engine_session as es   # noqa: E402
+import invoice_ocr as ocr     # noqa: E402  (Tier 2 / 2.5 OCR fallback)
 
 import sqlite3
 DB_PATH = es.DB_PATH
+
+# Tier-1 confidence floor: a digital invoice yields plenty of words. Below this
+# the page is almost certainly an image-only scan -> hand off to OCR (Tier 2).
+TIER1_MIN_WORDS = 15
 
 # ---- deterministic PDF extraction -----------------------------------------
 
@@ -141,6 +146,65 @@ def _table_fallback(pdf_path, items, meta):
                     return
 
 
+# ---- tiered extraction with an honest floor -------------------------------
+
+def _tier1_word_count(pdf_path):
+    """The Tier-1 confidence signal: how many words the text layer yields.
+    Image-only PDFs return ~0 here, which is what triggers OCR."""
+    try:
+        with pdfplumber.open(pdf_path) as pdf:
+            return sum(len(p.extract_words()) for p in pdf.pages)
+    except Exception:
+        return 0
+
+
+def extract_with_fallback(pdf_path):
+    """Three-tier strategy. Returns (items, meta, status) where status is one of
+    'ok' (text layer), 'ocr_used' (recovered by OCR), or 'unreadable'.
+
+    Tier 1 (pdfplumber) is unchanged and is accepted whenever it yields a real
+    text layer AND at least one parsed line item — so digital invoices behave
+    exactly as before. Otherwise we fall through to OCR. The empty-vs-unreadable
+    distinction is the whole point of the honest floor: a readable PDF with no
+    line-item table is 'ok' with 0 items; an image we could not read is
+    'unreadable'."""
+    items, meta = extract_line_items(pdf_path)
+    wc = _tier1_word_count(pdf_path)
+
+    # Tier 1 — accept today's happy path untouched.
+    if wc >= TIER1_MIN_WORDS and items:
+        return items, meta, "ok"
+
+    # Tier 2 — OCR (primary path for real scans, not just a fallback).
+    ocr_ok = ocr.tesseract_available()
+    if ocr_ok:
+        oitems, ometa = ocr.extract_line_items_ocr(pdf_path)
+    else:
+        oitems, ometa = [], {"origin": "", "invoice_no": "", "ocr_mean_conf": 0.0}
+
+    # Accept OCR output only if it's actually usable: at least one parsed code,
+    # or a mean confidence above the floor. A pile of low-confidence money-ish
+    # rows with gibberish descriptions is a failed read, not line items —
+    # emitting it would be the confidently-wrong failure mode we're avoiding.
+    if oitems:
+        has_code = any(it.get("code") for it in oitems)
+        if has_code or ometa.get("ocr_mean_conf", 0.0) >= ocr.OCR_MIN_CONF:
+            merged = dict(ometa)
+            # prefer anything Tier 1 already parsed from the (sparse) text layer
+            merged["origin"] = meta.get("origin") or ometa.get("origin", "")
+            merged["invoice_no"] = meta.get("invoice_no") or ometa.get("invoice_no", "")
+            return oitems, merged, "ocr_used"
+
+    # Tier 3 — honest failure. Keep any Tier-1 items even if sparse...
+    if items:
+        return items, meta, "ok"
+    # ...a readable text layer with no parseable table is a genuine empty invoice...
+    if wc >= TIER1_MIN_WORDS:
+        return [], meta, "ok"
+    # ...otherwise we simply could not read the file.
+    return [], (ometa if ocr_ok else meta), "unreadable"
+
+
 # ---- code validity check --------------------------------------------------
 
 def _code_is_valid(code):
@@ -159,15 +223,42 @@ def _code_is_valid(code):
 
 def analyze_item(item, origin):
     declared = (item.get("code") or "").strip()
+    low = item.get("low_confidence") or []          # subset of {"code","value"}
+    code_uncertain = bool(item.get("code_uncertain"))
     flags = []
 
-    if not declared:
+    # Tier 2.5 — never silently trust a shaky OCR read. A low-confidence code is
+    # treated as "declared code uncertain, re-derive from description": the engine
+    # reclassifies from the description anyway, so a garbled code becomes a flag,
+    # not a corruption. We do NOT raise MALFORMED/MISMATCH off an unreliable read.
+    if not declared and code_uncertain:
+        cc = item.get("code_conf")
+        conf_txt = f" ({cc:.0f}% conf)" if isinstance(cc, (int, float)) else ""
+        flags.append({"type": "LOW_CONFIDENCE_CODE", "severity": "medium",
+                      "message": "Declared code couldn't be read reliably from "
+                                 f"the scan{conf_txt}; re-deriving from the "
+                                 "description below — please confirm."})
+    elif not declared:
         flags.append({"type": "MISSING_CODE", "severity": "high",
                       "message": "No commodity code declared on this line."})
+    elif code_uncertain:
+        cc = item.get("code_conf")
+        conf_txt = f" ({cc:.0f}% conf)" if isinstance(cc, (int, float)) else ""
+        flags.append({"type": "LOW_CONFIDENCE_CODE", "severity": "medium",
+                      "message": f"Scan read the code as {declared}{conf_txt}, but "
+                                 "OCR confidence is low; treating it as uncertain "
+                                 "and re-deriving from the description."})
     elif not _code_is_valid(declared):
+        # A code that doesn't exist in the tariff DB is almost certainly an OCR
+        # error (or a genuine bad declaration) — flag it, never feed it on.
         flags.append({"type": "MALFORMED_CODE", "severity": "high",
                       "message": f"Declared code {declared} is not a valid "
                                  f"CN commodity code."})
+
+    if "value" in low:
+        val = item.get("value") or item.get("qty") or ""
+        flags.append({"type": "LOW_CONFIDENCE_VALUE", "severity": "medium",
+                      "message": f"Check this figure — scan unclear: {val}".strip()})
 
     engine_code = None
     try:
@@ -184,7 +275,8 @@ def analyze_item(item, origin):
                                      "confirm the code under audit."})
         elif status == "classified":
             engine_code = result.get("code")
-            if declared and engine_code and engine_code != declared.ljust(10, "0"):
+            if declared and not code_uncertain and engine_code \
+                    and engine_code != declared.ljust(10, "0"):
                 flags.append({
                     "type": "CODE_MISMATCH", "severity": "high",
                     "message": f"Declared {declared}, but the description "
@@ -212,12 +304,31 @@ def analyze_item(item, origin):
 
     return {"row": item["row"], "description": item["description"],
             "declared_code": declared, "engine_code": engine_code,
-            "qty": item.get("qty", ""), "flags": flags, "status": status}
+            "qty": item.get("qty", ""), "value": item.get("value", ""),
+            "low_confidence": low, "flags": flags, "status": status}
+
+
+UNREADABLE_MESSAGE = ("Couldn't read line items from this PDF. It may be a "
+                      "low-quality scan or photo. Try a clearer copy, or add "
+                      "items manually.")
 
 
 def analyze_invoice(pdf_path, origin_override=""):
-    items, meta = extract_line_items(pdf_path)
+    items, meta, extraction_status = extract_with_fallback(pdf_path)
     origin = (origin_override or meta.get("origin") or "").upper()
+
+    # Tier 3 — honest failure. A failed read is NOT a "0 line items" empty
+    # invoice; the UI must be able to tell them apart.
+    if extraction_status == "unreadable":
+        return {
+            "summary": {"total": 0, "issues": 0, "ok": 0, "origin": origin,
+                        "invoice_no": meta.get("invoice_no", ""),
+                        "extraction_status": "unreadable"},
+            "items": [], "meta": meta,
+            "extraction_status": "unreadable",
+            "message": UNREADABLE_MESSAGE,
+        }
+
     results = [analyze_item(it, origin) for it in items]
     summary = {
         "total": len(results),
@@ -225,5 +336,8 @@ def analyze_invoice(pdf_path, origin_override=""):
         "ok": sum(1 for r in results if r["status"] == "ok"),
         "origin": origin,
         "invoice_no": meta.get("invoice_no", ""),
+        "extraction_status": extraction_status,
+        "ocr_mean_conf": meta.get("ocr_mean_conf", 0.0),
     }
-    return {"summary": summary, "items": results, "meta": meta}
+    return {"summary": summary, "items": results, "meta": meta,
+            "extraction_status": extraction_status}

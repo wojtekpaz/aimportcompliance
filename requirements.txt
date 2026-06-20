@@ -6,3 +6,9 @@ pdfplumber>=0.11
 fastapi>=0.110
 uvicorn>=0.27
 python-multipart>=0.0.9
+
+# OCR fallback for image-only / scanned invoices (Milestone Zero)
+# System packages also required: tesseract-ocr, poppler-utils
+pytesseract>=0.3.10
+pdf2image>=1.17
+Pillow>=10.0
