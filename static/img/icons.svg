@@ -1,0 +1,80 @@
+<!-- AImport icon sprite (§9). Thin-line, 1.9px stroke, rounded, currentColor.
+     Reference: <svg class="icon"><use href="/static/img/icons.svg#document"/></svg>
+     Colour is set by the host element's `color`; amber is reserved (warning/action). -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <defs>
+    <g id="_base" fill="none" stroke="currentColor" stroke-width="1.9"
+       stroke-linecap="round" stroke-linejoin="round"></g>
+  </defs>
+
+  <symbol id="container" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="6.5" width="18" height="11" rx="1.5"/>
+    <path d="M7 6.5v11M11 6.5v11M15 6.5v11M19 6.5v11"/>
+  </symbol>
+
+  <symbol id="customs-stamp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="9.5" r="6"/>
+    <path d="M9.3 9.3l1.9 1.9 3.5-3.7"/>
+    <path d="M5.5 19.5h13"/>
+  </symbol>
+
+  <symbol id="document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 3h7l5 5v13H6z"/>
+    <path d="M13 3v5h5"/>
+    <path d="M9 13h6M9 16.5h6"/>
+  </symbol>
+
+  <symbol id="scanner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/>
+    <path d="M3.5 12h17"/>
+  </symbol>
+
+  <symbol id="code-bracket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8.5 6.5 4 12l4.5 5.5"/>
+    <path d="M15.5 6.5 20 12l-4.5 5.5"/>
+  </symbol>
+
+  <symbol id="shield-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3l7 2.5v5c0 4.6-3 8-7 9.5-4-1.5-7-4.9-7-9.5v-5z"/>
+    <path d="M9 11.8l2.2 2.2 3.8-4"/>
+  </symbol>
+
+  <symbol id="route-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="6" cy="6.5" r="2.2"/>
+    <circle cx="18" cy="17.5" r="2.2"/>
+    <path d="M6 8.7v4.3a3 3 0 0 0 3 3h6"/>
+  </symbol>
+
+  <symbol id="port-crane" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 21V5l13 0"/>
+    <path d="M6 5l4 4"/>
+    <path d="M15 5v3"/>
+    <path d="M13 12.5h4v3.5h-4z"/>
+    <path d="M4 21h16"/>
+  </symbol>
+
+  <symbol id="carbon-molecule" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="2.4"/>
+    <circle cx="5" cy="7.5" r="1.8"/>
+    <circle cx="19" cy="7.5" r="1.8"/>
+    <circle cx="12" cy="20" r="1.8"/>
+    <path d="M10.2 10.6 6.4 8.6M13.8 10.6l3.8-2M12 14.4V18.2"/>
+  </symbol>
+
+  <symbol id="duty-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8"/>
+    <path d="M12 7.5v9M9.7 9.4c0-1.1 1-1.9 2.3-1.9s2.3.8 2.3 1.9c0 2.4-4.6 1.5-4.6 4 0 1.1 1 1.9 2.3 1.9s2.3-.8 2.3-1.9"/>
+  </symbol>
+
+  <symbol id="warning-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 4 21 19.5H3z"/>
+    <path d="M12 10v4.2"/>
+    <path d="M12 17.2h.01"/>
+  </symbol>
+
+  <symbol id="audit-node" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v3M12 18v3"/>
+    <circle cx="12" cy="12" r="3.2"/>
+    <path d="M12 8.8V6M12 18v-2.8"/>
+  </symbol>
+</svg>

@@ -1,0 +1,13 @@
+<!-- AImport mark — customs blue variant (for light/inverse contexts). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="AImport">
+  <rect x="2.5" y="2.5" width="27" height="27" rx="7" fill="#1E4F8A"/>
+  <g stroke="#F7F5EF" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 22 L14 16 L19 19 L24 11"/>
+  </g>
+  <g fill="#F7F5EF">
+    <circle cx="8" cy="22" r="2.2"/>
+    <circle cx="14" cy="16" r="2.2"/>
+    <circle cx="19" cy="19" r="2.2"/>
+  </g>
+  <circle cx="24" cy="11" r="2.6" fill="#D8A342"/>
+</svg>
