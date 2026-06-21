@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "engine"))
 from classifier import classify, trail_json, UNSURE        # noqa: E402
 from oracles import ClaudeOracle                            # noqa: E402
 from lookup import format_result, _clean_pipes, _duty_display   # noqa: E402
+from legal import legal_info                                   # noqa: E402
 
 try:
     from bti_lookup import bti_for_code as _bti_for_code   # noqa: E402
@@ -172,6 +173,15 @@ def _run(sid: str) -> dict:
         conn.close()
 
 
+def _legal(item) -> dict:
+    """Deterministic legal-basis bundle (CELEX link + measure status + OJ) for
+    a measure item from lookup(). Pure DB-derived; the LLM is never involved."""
+    valid = item.get("valid") or (None, None)
+    return legal_info(item.get("regulation", ""),
+                      validity_end=valid[1],
+                      legal_oj=item.get("legal_oj"))
+
+
 def _serialize(conn, res, origin, sid) -> dict:
     out = {"status": res.status, "session_id": sid,
            "confidence": res.confidence, "hint_conflict": res.hint_conflict,
@@ -201,10 +211,12 @@ def _serialize(conn, res, origin, sid) -> dict:
             if primary:
                 out["duty"] = {"rate": _duty_display(primary),
                                "name": primary.get("type_name", ""),
-                               "regulation": primary.get("regulation", "")}
+                               "regulation": primary.get("regulation", ""),
+                               "legal": _legal(primary)}
             out["defense"] = [{"name": d.get("type_name", ""),
                                "rate": _duty_display(d),
                                "regulation": d.get("regulation", ""),
+                               "legal": _legal(d),
                                "meaning": d.get("additional_code_meaning"),
                                "additional_code": d.get("additional_code")}
                               for d in m.get("defense", [])]

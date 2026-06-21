@@ -163,6 +163,11 @@
   .r-row .v .reg{color:var(--muted);font-family:var(--mono);font-size:13px}
   .r-row .v a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
   .r-row .v a:hover{color:var(--accent)}
+  .lb-status{display:inline-block;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+             padding:1px 6px;border-radius:3px;margin-left:6px;font-family:var(--mono);vertical-align:middle}
+  .lb-inforce{color:#7fe0b0;border:1px solid #2f5f4a;background:rgba(60,140,100,.12)}
+  .lb-expired{color:#e0a87f;border:1px solid #5f432f;background:rgba(140,90,60,.12)}
+  .lb-oj{color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:3px}
 
   .defense{margin:20px 0;border-left:3px solid var(--amber);
            background:rgba(217,164,65,.06);padding:14px 16px}
@@ -575,13 +580,29 @@
       : esc(dutyRate);
     $('rOrigin').textContent = (data.origin || '—').toUpperCase();
 
-    // legal basis with EUR-Lex link
+    // legal basis: deterministic DB value + stable EUR-Lex CELEX link + status.
+    // The reference, link target and status all come from the server (tariff DB);
+    // nothing here is model-generated. Empty basis is shown honestly, not guessed.
     if(duty && duty.regulation){
-      var reg = duty.regulation;
-      var link = 'https://eur-lex.europa.eu/search.html?text=' + encodeURIComponent(reg) + '&scope=EURLEX';
-      $('rLegal').innerHTML = '<a href="' + link + '" target="_blank" rel="noopener">' + esc(reg) + '</a>';
+      var lg = duty.legal || {};
+      var reg = lg.reference || duty.regulation;
+      // CELEX link when the server could derive one; otherwise bare reference
+      // (we never fabricate a link for a reference we can't resolve).
+      var inner = lg.url
+        ? '<a href="' + esc(lg.url) + '" target="_blank" rel="noopener">' + esc(reg) + '</a>'
+        : esc(reg);
+      // honest in-force / no-longer-in-force badge from the measure's validity
+      // Status describes the MEASURE producing the duty (our only validity
+      // signal), not the regulation document — an old measure-generating reg can
+      // still be the live basis in TARIC. Scoped wording avoids overclaiming.
+      if(lg.status === 'expired')
+        inner += ' <span class="lb-status lb-expired" title="The tariff measure carrying this legal basis has an end date in the past">measure expired</span>';
+      else if(lg.status === 'in_force')
+        inner += ' <span class="lb-status lb-inforce" title="The tariff measure carrying this legal basis has no end date in the tariff data">measure in force</span>';
+      if(lg.oj) inner += '<div class="lb-oj">' + esc(lg.oj) + '</div>';
+      $('rLegal').innerHTML = inner;
     } else {
-      $('rLegal').textContent = '—';
+      $('rLegal').innerHTML = '<span style="color:var(--muted)">No legal basis on file</span>';
     }
 
     // trade defence — ABOVE duty div (moved in HTML)

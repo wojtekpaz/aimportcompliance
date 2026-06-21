@@ -14,6 +14,11 @@
     --accent-dim:rgba(0,212,200,.14); --amber:#d9a441; --red:#c2607a;
     --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   }
+  .lb-status{display:inline-block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+             padding:1px 6px;border-radius:3px;margin-left:5px;font-family:var(--mono);vertical-align:middle}
+  .lb-inforce{color:#7fe0b0;border:1px solid #2f5f4a;background:rgba(60,140,100,.12)}
+  .lb-expired{color:#e0a87f;border:1px solid #5f432f;background:rgba(140,90,60,.12)}
+  .lb-oj{color:var(--faint);font-family:var(--mono);font-size:10.5px;margin-top:2px}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
@@ -451,6 +456,23 @@
     return esc(duty.rate);
   }
 
+  // Deterministic legal-basis render: reference + stable EUR-Lex CELEX link +
+  // honest in-force/expired status, all server-derived from the tariff DB.
+  function legalHtml(duty){
+    if(!duty || !duty.regulation) return '<span style="color:var(--faint)">—</span>';
+    var lg = duty.legal || {};
+    var reg = lg.reference || duty.regulation;
+    var html = lg.url
+      ? '<a href="' + esc(lg.url) + '" target="_blank" rel="noopener">' + esc(reg) + '</a>'
+      : esc(reg);
+    if(lg.status === 'expired')
+      html += ' <span class="lb-status lb-expired" title="The tariff measure carrying this legal basis has an end date in the past">measure expired</span>';
+    else if(lg.status === 'in_force')
+      html += ' <span class="lb-status lb-inforce" title="The tariff measure carrying this legal basis has no end date in the tariff data">measure in force</span>';
+    if(lg.oj) html += '<div class="lb-oj">' + esc(lg.oj) + '</div>';
+    return html;
+  }
+
   function badge(value){
     var v = String(value || '').toLowerCase();
     return '<span class="badge ' + esc(v) + '">' + esc(String(value || '—')) + '</span>';
@@ -468,7 +490,7 @@
 
     // ---- original card (+ defensibility assessment) ----
     var origDuty = orig.duty ? dutyStr(orig.duty) : '—';
-    var origLegal = orig.duty && orig.duty.regulation ? esc(orig.duty.regulation) : '—';
+    var origLegal = legalHtml(orig.duty);
     var a = orig.assessment || {};
     var assessHtml = '';
     if(a.defensibility || a.defensibility_reasoning || a.strongest_challenge_vector){
@@ -489,7 +511,7 @@
         '<div class="oc-label">Current classification</div>' +
         '<div class="oc-code">' + esc(orig.code_spaced || orig.code) + '</div>' +
         '<div class="oc-desc">' + esc(orig.cn_description || orig.input_description) + '</div>' +
-        '<div class="oc-duty">Duty: ' + origDuty + (origLegal !== '—' ? ' &nbsp;·&nbsp; ' + origLegal : '') + '</div>' +
+        '<div class="oc-duty">Duty: ' + origDuty + (orig.duty && orig.duty.regulation ? ' &nbsp;·&nbsp; ' + origLegal : '') + '</div>' +
         assessHtml +
       '</div>';
 
@@ -533,10 +555,7 @@
     var code = esc(alt.code_spaced || alt.code);
     var desc = esc(alt.cn_description || '');
     var duty = dutyStr(alt.duty);
-    var reg = alt.regulation || (alt.duty && alt.duty.regulation) || '';
-    var legalHtml = reg
-      ? '<a href="https://eur-lex.europa.eu/search.html?text=' + encodeURIComponent(reg) + '&scope=EURLEX" target="_blank" rel="noopener">' + esc(reg) + '</a>'
-      : '<span style="color:var(--faint)">—</span>';
+    var legalCell = legalHtml(alt.duty);
 
     // chips: lens + confidence
     var chips = '';
@@ -602,7 +621,7 @@
         expectHtml +
         '<div class="ac-metrics">' +
           '<div class="ac-metric"><div class="mk">Duty rate</div><div class="mv rate">' + esc(duty) + '</div></div>' +
-          '<div class="ac-metric"><div class="mk">Legal basis</div><div class="mv">' + legalHtml + '</div></div>' +
+          '<div class="ac-metric"><div class="mk">Legal basis</div><div class="mv">' + legalCell + '</div></div>' +
         '</div>' +
         confNote +
         declHtml +

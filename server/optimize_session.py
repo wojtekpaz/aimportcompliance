@@ -35,6 +35,7 @@ sys.path.insert(0, str(ROOT / "engine"))
 from classifier import classify                                         # noqa: E402
 from oracles import ClaudeOracle                                       # noqa: E402
 from lookup import lookup as _lookup, _clean_pipes, _duty_display      # noqa: E402
+from legal import legal_info                                           # noqa: E402
 
 DB_PATH = ROOT / "data_taric.sqlite"
 MAX_FRAMINGS = 4   # cap on alternatives proposed and classified
@@ -267,10 +268,14 @@ def _extract_duty_info(measures: dict | None) -> dict | None:
                    duties[0] if duties else None)
     if not primary:
         return None
+    valid = primary.get("valid") or (None, None)
     return {
         "rate": _duty_display(primary),
         "name": primary.get("type_name", ""),
         "regulation": primary.get("regulation", ""),
+        "legal": legal_info(primary.get("regulation", ""),
+                            validity_end=valid[1],
+                            legal_oj=primary.get("legal_oj")),
     }
 
 

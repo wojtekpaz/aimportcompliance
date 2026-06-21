@@ -183,6 +183,26 @@
   var $ = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s==null?'':s)
     .replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  // Stable EUR-Lex CELEX link from a stored "<Type> NNNN/YY" reference (mirrors
+  // engine/legal.py). Returns null for references we can't map — we never
+  // fabricate a link. Saved snapshots carry no validity, so no status here.
+  function eurlexUrl(reg){
+    var m = /^\s*([A-Za-z]+)\s+0*(\d+)\s*\/\s*(\d{2})\s*$/.exec(reg||'');
+    if(!m) return null;
+    var letter = {regulation:'R',decision:'D',directive:'L'}[m[1].toLowerCase()];
+    if(!letter) return null;
+    var yy = parseInt(m[3],10), year = yy>=70 ? 1900+yy : 2000+yy;
+    var num = ('000'+m[2]).slice(-4);
+    return 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex:3'+year+letter+num;
+  }
+  function legalBasisHtml(reg){
+    if(!reg) return '';
+    var url = eurlexUrl(reg);
+    var inner = url
+      ? '<a href="'+esc(url)+'" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:underline">'+esc(reg)+'</a>'
+      : esc(reg);
+    return '<div style="margin-top:16px;font-size:12px;color:var(--muted);font-family:var(--mono)">Legal basis: '+inner+'</div>';
+  }
   function ago(ts){
     var d = Math.floor(Date.now()/1000) - ts;
     if(d < 60) return 'just now';
@@ -243,7 +263,7 @@
         html += '<tr class="detail"><td colspan="7"><div class="detail-inner">' +
           '<div class="dlbl">Classification path — frozen at save</div>' +
           trailHtml(p.trail) + defenseHtml(p.defense) +
-          (p.duty_regulation ? '<div style="margin-top:16px;font-size:12px;color:var(--muted);font-family:var(--mono)">Legal basis: '+esc(p.duty_regulation)+'</div>' : '') +
+          legalBasisHtml(p.duty_regulation) +
           '</div></td></tr>';
       }
     }
