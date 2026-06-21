@@ -3,873 +3,481 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Aimport Compliance — EU Tariff Classification</title>
-<meta name="description" content="Aimport classifies goods under EU tariff codes by walking the CN tree and applying the GRI rules at each branch. Every code arrives with the path and the legal basis behind it.">
+<title>AImport — The AI workforce for import compliance</title>
+<meta name="description" content="AImport classifies TARIC codes, documents every decision, and prepares customs-ready outputs — from product data to defensible classifications. Every code arrives with its path and legal basis.">
 <link rel="canonical" href="https://aimport.co">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://aimport.co">
-<meta property="og:title" content="Aimport Compliance — EU Tariff Classification">
-<meta property="og:description" content="Classification that follows the same legal reasoning a customs authority uses, with a full audit trail. The engine walks the CN tree and applies the GRI rules at each branch.">
+<meta property="og:title" content="AImport — The AI workforce for import compliance">
+<meta property="og:description" content="Classify TARIC codes, document every decision, and prepare customs-ready outputs. AImport supports and documents classification decisions — it never files on your behalf.">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#12121b; --line:#1c1c26;
-    --text:#ececf0; --muted:#9a9aa8; --faint:#bcbcc6; --accent:#00d4c8;
-    --accent-dim:rgba(0,212,200,.12); --accent-line:rgba(0,212,200,.4);
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
-    --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
-    line-height:1.7;letter-spacing:-0.005em;-webkit-font-smoothing:antialiased}
-  ::selection{background:rgba(0,212,200,.22);color:#fff}
-  a{color:inherit;text-decoration:none}
-  :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+<link rel="icon" href="/static/img/mark.svg" type="image/svg+xml">
 
-  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+<!-- Self-hosted fonts: preload the above-the-fold faces, swap to avoid layout shift -->
+<link rel="preload" href="/static/fonts/inter-tight-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
 
-  /* ---- nav ---- */
-  .nav{position:sticky;top:0;z-index:20;background:rgba(10,10,15,.82);
-    backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line)}
-  .nav .row{display:flex;align-items:center;justify-content:space-between;height:68px}
-  .logo{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-0.01em}
-  .logo .sq{width:9px;height:9px;background:var(--accent);box-shadow:0 0 9px rgba(0,212,200,.6)}
-  .btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--sans);
-    font-size:13.5px;font-weight:600;letter-spacing:.02em;padding:10px 18px;border-radius:0;
-    border:1px solid var(--accent-line);color:var(--accent);background:transparent;
-    transition:background .2s,border-color .2s,color .2s}
-  .btn:hover{background:var(--accent-dim);border-color:var(--accent)}
-  .btn-lg{padding:15px 26px;font-size:14.5px}
-  .btn-solid{background:var(--accent);color:#04201e;border-color:var(--accent)}
-  .btn-solid:hover{background:#1ae0d4;color:#04201e}
-  .link-ghost{cursor:pointer;color:var(--faint);font-size:14px;font-weight:500;
-    border-bottom:1px solid transparent;transition:color .2s,border-color .2s;padding-bottom:2px}
-  .link-ghost:hover{color:var(--accent);border-color:var(--accent-line)}
-
-  /* ---- hero ---- */
-  .hero{padding:120px 0}
-  .hero h1{font-size:72px;line-height:1.1;font-weight:700;letter-spacing:-0.025em;
-    margin:0 0 26px;max-width:15ch}
-  .hero h1 .em{color:var(--accent)}
-  .hero .sub{font-size:20px;line-height:1.6;color:#9ca3af;max-width:54ch;margin:0 0 38px;font-weight:400}
-  .hero .cta-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
-  .hero .proof{margin-top:30px;font-size:13px;color:var(--muted);font-family:var(--mono);letter-spacing:.08em}
-
-  /* ---- section base ---- */
-  section{padding:100px 0}
-  .kicker{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--accent);margin:0 0 22px}
-  h2{font-size:32px;line-height:1.15;font-weight:600;letter-spacing:-0.02em;margin:0 0 28px}
-
-  /* ---- problem (two-column) ---- */
-  .problem{background:#0d0d10;border-top:1px solid rgba(255,255,255,.06);padding:100px 0}
-  .problem .pgrid{display:grid;grid-template-columns:55fr 45fr;gap:60px;align-items:center;
-    max-width:1100px;margin:0 auto;padding:0 28px}
-  .problem .kicker{font-size:12px;letter-spacing:.15em}
-  .problem .p-left{border-left:2px solid rgba(45,212,191,.2);padding-left:20px}
-  .problem .p-left p{font-size:18px;line-height:1.8;color:var(--muted);margin:0 0 22px}
-  .problem .p-left p:last-child{margin:0}
-  .problem code{font-family:var(--mono);font-size:.92em;color:var(--faint)}
-  .problem .p-quote .rule{width:40px;height:2px;background:#2dd4bf;border:0;margin:0 0 20px}
-  .problem .p-quote .q{font-size:30px;font-weight:500;color:#2dd4bf;line-height:1.4;margin:0}
-
-  /* ---- stat break ---- */
-  .statbreak{border-top:1px solid rgba(255,255,255,.06);padding:100px 0;text-align:center}
-  .statbreak .sb-label{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
-    color:var(--accent);margin:0 0 22px}
-  .statbreak .sb-statement{font-size:32px;font-weight:600;line-height:1.35;color:#fff;
-    max-width:680px;margin:0 auto;letter-spacing:-0.01em}
-  .statbreak .sb-source{margin-top:12px;font-size:14px;color:#6b7280}
-
-  /* ---- how it works ---- */
-  .how{border-top:1px solid rgba(255,255,255,.06)}
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:36px;margin-top:8px}
-  .step .num{display:block;font-family:var(--mono);font-size:40px;font-weight:700;color:var(--accent);margin-bottom:12px}
-  .step .lbl{font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.01em;margin-bottom:10px}
-  .step p{margin:0;font-size:16px;line-height:1.7;color:#9ca3af}
-  .step{padding-top:20px;border-top:1px solid rgba(255,255,255,.08)}
-
-  /* ---- demo / classification trail ---- */
-  .demo{border-top:1px solid rgba(255,255,255,.06)}
-  .trail{background:var(--panel-2);border:1px solid var(--line);margin-top:8px;
-    box-shadow:0 0 0 1px rgba(0,212,200,.05) inset}
-  .trail-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
-    padding:16px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
-  .trail-head .th-l{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
-  .trail-head .th-r{font-family:var(--mono);font-size:12px;color:var(--muted)}
-  .trail-head .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);
-    box-shadow:0 0 6px rgba(0,212,200,.6);margin-right:8px;vertical-align:middle}
-
-  .trail-input{padding:20px 24px;border-bottom:1px solid var(--line)}
-  .trail-input .il{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
-    color:var(--muted);margin-bottom:8px}
-  .trail-input .iv{font-family:var(--mono);font-size:15px;color:var(--text)}
-
-  .trail-steps{padding:8px 24px 12px}
-  .tstep{display:grid;grid-template-columns:128px 1fr;gap:20px;padding:20px 0;
-    border-bottom:1px solid var(--line);position:relative}
-  .tstep:last-child{border-bottom:0}
-  .tstep .gri{font-family:var(--mono)}
-  .tstep .gri .rule{display:inline-block;font-size:11px;color:var(--accent);
-    border:1px solid var(--accent-line);padding:3px 9px;letter-spacing:.04em}
-  .tstep .gri .act{display:block;font-size:11px;color:var(--muted);margin-top:8px;letter-spacing:.04em;text-transform:uppercase}
-  .tstep .pick{font-family:var(--mono);font-size:15px;color:var(--text);margin-bottom:6px}
-  .tstep .pick b{color:var(--accent);font-weight:600}
-  .tstep .why{font-size:14px;color:var(--muted);line-height:1.6}
-
-  .trail-final{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;
-    padding:22px 24px;border-top:1px solid var(--accent-line);background:rgba(0,212,200,.05)}
-  .trail-final .fl{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
-  .trail-final .code{font-family:var(--mono);font-size:30px;letter-spacing:.06em;color:var(--accent);line-height:1}
-  .trail-final .desc{font-family:var(--mono);font-size:13px;color:var(--muted)}
-
-  .clarify{margin-top:20px;border-left:3px solid rgba(45,212,191,.4);background:#0f1a18;
-    padding:16px 20px}
-  .clarify .cl{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    color:#2dd4bf;margin-bottom:8px}
-  .clarify p{margin:0;font-size:14.5px;line-height:1.65;color:var(--faint)}
-  .clarify code{font-family:var(--mono);color:var(--text)}
-
-  /* ---- who for (tilt cards) ---- */
-  .who{border-top:1px solid rgba(255,255,255,.06)}
-  .who-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
-  .tcard{position:relative;background:#1a1a1f;border:1px solid rgba(255,255,255,.07);
-    border-radius:16px;padding:36px;overflow:hidden;transform:perspective(800px) rotateX(0) rotateY(0);
-    transition:transform .4s ease;will-change:transform}
-  .tcard .glow{position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:0;opacity:0;
-    background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%),rgba(0,212,200,.06),transparent 60%);
-    transition:opacity .4s ease}
-  .tcard:hover .glow{opacity:1}
-  .tcard .tnum{position:relative;z-index:1;font-family:var(--mono);font-size:48px;font-weight:600;
-    color:var(--accent);opacity:.9;line-height:1;margin-bottom:20px}
-  .tcard h3{position:relative;z-index:1;font-size:20px;font-weight:600;color:#fff;margin:0 0 14px}
-  .tcard p{position:relative;z-index:1;font-size:15px;line-height:1.7;color:#a0a0a8;margin:0 0 12px}
-  .tcard p:last-child{margin:0}
-  .who-close{border-top:1px solid var(--line);margin-top:40px;padding-top:28px;
-    font-size:17px;color:var(--faint);max-width:60ch}
-
-  /* ---- access ---- */
-  .access{border-top:1px solid rgba(255,255,255,.06);text-align:center}
-  .access .inner{max-width:54ch;margin:0 auto}
-  .access h2{margin-bottom:18px}
-  .access p{font-size:17px;line-height:1.7;color:var(--faint);margin:0 0 30px}
-  .access .respond{margin-top:18px;font-size:14px;color:var(--muted);font-family:var(--mono)}
-
-  /* ---- footer ---- */
-  footer{border-top:1px solid var(--line);padding:30px 0}
-  footer .row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-  footer .row span,footer .row a{font-size:13.5px;color:var(--muted);font-family:var(--mono)}
-  footer .row a:hover{color:var(--accent)}
-
-  /* ---- scroll progress rail (left) ---- */
-  .rail{position:fixed;top:0;left:18px;width:4px;height:100vh;z-index:40;pointer-events:none}
-  .rail .track{stroke:var(--line);stroke-width:2}
-  .rail .fill{stroke:url(#railGrad);stroke-width:2;stroke-dasharray:1;stroke-dashoffset:1;
-    transition:stroke-dashoffset .12s linear}
-
-  /* ---- FAQ ---- */
-  .faq{border-top:1px solid rgba(255,255,255,.06)}
-  .faq-list{margin-top:8px;border-top:1px solid var(--line)}
-  .faq-item{border-bottom:1px solid var(--line)}
-  .faq-item summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;
-    justify-content:space-between;gap:28px;padding:24px 0;font-size:18px;font-weight:500;
-    color:var(--text);transition:color .2s}
-  .faq-item summary::-webkit-details-marker{display:none}
-  .faq-item summary:hover{color:var(--accent)}
-  .faq-item .mk{flex:none;width:16px;height:16px;position:relative;margin-top:7px}
-  .faq-item .mk::before,.faq-item .mk::after{content:"";position:absolute;background:var(--accent);transition:transform .2s}
-  .faq-item .mk::before{top:7px;left:0;width:16px;height:2px}
-  .faq-item .mk::after{top:0;left:7px;width:2px;height:16px}
-  .faq-item[open] .mk::after{transform:scaleY(0)}
-  .faq-item .ans{padding:0 0 26px;max-width:66ch}
-  .faq-item .ans p{margin:0;font-size:16px;line-height:1.75;color:var(--faint)}
-  .faq-item .ans code{font-family:var(--mono);font-size:.92em;color:var(--text)}
-
-  /* ---- what aimport does ---- */
-  .does{border-top:1px solid rgba(255,255,255,.06)}
-  .does .intro{font-size:28px;font-weight:600;color:#fff;line-height:1.3;
-    max-width:600px;margin:18px 0 60px;letter-spacing:-0.01em}
-  .feat-rows{display:flex;flex-direction:column}
-  .feat-row{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;
-    padding:80px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-  .feat-row:first-child{padding-top:0}
-  .feat-row:nth-child(even) .feat-mock{order:2}
-  .feat-row:nth-child(even) .feat-copy{order:1}
-  .feat-row.dim{border-bottom:0}
-  .feat-row.dim .feat-mock{opacity:.5}
-
-  .feat-mock{background:#141418;border:1px solid rgba(255,255,255,.08);
-    border-radius:12px;padding:24px;font-family:var(--mono);font-size:13px;
-    line-height:1.7;color:var(--faint)}
-  .feat-mock .m-label{font-size:10px;font-weight:600;letter-spacing:.16em;
-    text-transform:uppercase;color:var(--muted);margin-bottom:14px}
-  .feat-mock .m-block{margin-bottom:16px}
-  .feat-mock .m-block:last-child{margin-bottom:0}
-  .feat-mock .m-line{display:block}
-  .feat-mock .t{color:var(--accent)}
-  .feat-mock .dim{color:var(--muted)}
-  .feat-mock .m-divider{border:0;border-top:1px solid rgba(255,255,255,.07);margin:16px 0}
-  .feat-mock .m-final{color:var(--accent);font-size:18px;letter-spacing:.05em}
-
-  .feat-copy .f-num{font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--accent)}
-  .feat-copy h3{font-size:24px;font-weight:600;color:#fff;margin:14px 0 12px;letter-spacing:-0.01em}
-  .feat-copy .f-desc{font-size:16px;line-height:1.75;color:#9ca3af;margin:0 0 18px}
-  .feat-copy .f-detail{font-size:15px;line-height:1.7;color:#d7d7de;margin:0}
-  .feat-copy .f-detail.muted{color:#a6a6b0}
-  .feat-copy .f-badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.12em;
-    text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-line);
-    border-radius:999px;padding:4px 12px;background:transparent;margin:12px 0 4px}
-
-  /* ---- savings band ---- */
-  /* stats band: graphite liquid-glass panel with travelling teal border */
-  @property --stat-angle{ syntax:'<angle>'; initial-value:0deg; inherits:false; }
-  @keyframes rotate-stat-border{ to{ --stat-angle:360deg; } }
-  .savings{background:transparent;padding:80px 0}
-  .savings-panel{position:relative;isolation:isolate;
-    --stat-angle:0deg;
-    max-width:1100px;width:calc(100% - 48px);margin:0 auto;
-    border-radius:20px;padding:64px 48px;
-    /* lighter graphite so the panel reads clearly against the near-black page */
-    background:linear-gradient(135deg, rgba(44,44,52,.72) 0%, rgba(28,28,34,.62) 100%);
-    backdrop-filter:blur(24px) saturate(130%);
-    -webkit-backdrop-filter:blur(24px) saturate(130%);
-    /* visible teal-tinted base frame — stays defined even if the animation
-       can't run (Safari/@property edge cases); the sheen rides on top */
-    border:1px solid rgba(45,212,191,.22);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
-               0 16px 48px rgba(0,0,0,.45),
-               0 0 28px rgba(45,212,191,.06);
-    transition:filter .3s ease}
-  /* travelling teal sheen, masked to a 1px ring. Static white border below
-     stays visible; where mask is unsupported the panel keeps its base border. */
-  .savings-panel::before{content:"";position:absolute;inset:0;border-radius:20px;
-    z-index:-1;pointer-events:none}
-  @supports ((-webkit-mask-composite:xor) or (mask-composite:exclude)){
-    .savings-panel::before{padding:1px;
-      background:conic-gradient(from var(--stat-angle),
-        transparent 0%, transparent 28%,
-        rgba(45,212,191,.9) 50%,
-        rgba(45,212,191,.35) 64%,
-        transparent 80%, transparent 100%);
-      -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite:xor;
-      mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite:exclude;
-      animation:rotate-stat-border 10s linear infinite}
-  }
-  /* interactive frame: intensify + speed up on hover (pointer devices only) */
-  @media (hover:hover){
-    .savings-panel:hover{filter:brightness(1.04)}
-    .savings-panel:hover::before{animation-duration:6s;
-      background:conic-gradient(from var(--stat-angle),
-        transparent 0%, transparent 28%,
-        rgba(45,212,191,1) 50%,
-        rgba(45,212,191,.45) 64%,
-        transparent 80%, transparent 100%)}
-  }
-  .savings .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center}
-  .savings .snum{font-size:64px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-0.02em}
-  .savings .slabel{font-size:14px;font-weight:500;color:#fff;margin-top:8px}
-  .savings .ssource{font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5}
-  .savings .sclose{text-align:center;max-width:600px;margin:40px auto 0;
-    font-size:16px;font-weight:400;color:#fff;line-height:1.6}
-  .savings .sfoot{text-align:center;font-size:13px;color:#6b7280;margin:14px auto 0;
-    max-width:640px;line-height:1.6}
-
-  /* ---- nav actions + pin triggers ---- */
-  .nav-actions{display:flex;align-items:center;gap:20px}
-  .nav-classify{cursor:pointer;color:var(--faint);font-size:14px;font-weight:500;
-    letter-spacing:.01em;border-bottom:1px solid transparent;
-    transition:color .2s,border-color .2s;padding-bottom:2px}
-  .nav-classify:hover{color:var(--accent);border-color:var(--accent-line)}
-  .f-try{display:inline-block;margin-top:20px;cursor:pointer;color:var(--accent);
-    font-size:15px;font-weight:600;letter-spacing:.01em;border-bottom:1px solid transparent;
-    transition:border-color .2s,opacity .2s;padding-bottom:2px}
-  .f-try:hover{border-color:var(--accent-line)}
-
-  /* ---- pin modal ---- */
-  .pin-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;
-    justify-content:center;padding:24px;background:rgba(0,0,0,.75);
-    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-  .pin-overlay.open{display:flex}
-  .pin-card{position:relative;background:#1a1a1f;border:1px solid rgba(255,255,255,.1);
-    border-radius:16px;padding:48px;max-width:360px;width:100%;text-align:center;
-    box-shadow:0 0 40px rgba(0,0,0,.4)}
-  .pin-card .pin-label{font-size:11px;font-weight:600;letter-spacing:.15em;
-    text-transform:uppercase;color:var(--accent)}
-  .pin-card h3{font-size:22px;font-weight:600;color:#fff;margin:12px 0 0;letter-spacing:-0.01em}
-  .pin-card .pin-sub{font-size:14px;line-height:1.6;color:#9ca3af;margin:8px 0 0}
-  .pin-input{display:block;width:120px;margin:28px auto 0;font-family:var(--mono);
-    font-size:24px;letter-spacing:.3em;text-align:center;color:#fff;background:#0f0f12;
-    border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:12px 12px 12px 18px;
-    outline:none;transition:border-color .2s,box-shadow .2s}
-  .pin-input::placeholder{color:#4b4b55;letter-spacing:.2em}
-  .pin-input:focus{border-color:#2dd4bf}
-  .pin-input.flash{border-color:#2dd4bf;box-shadow:0 0 0 3px rgba(45,212,191,.25)}
-  .pin-error{margin:16px 0 0;font-size:13.5px;line-height:1.6;color:#f87171;min-height:1.2em;
-    opacity:0;transition:opacity .25s ease}
-  .pin-error.show{opacity:1}
-  .pin-error a{color:var(--accent);border-bottom:1px solid var(--accent-line)}
-  .pin-close{position:absolute;top:16px;right:18px;cursor:pointer;width:28px;height:28px;
-    display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1;
-    color:#6b7280;background:transparent;border:0;transition:color .2s;font-family:var(--sans)}
-  .pin-close:hover{color:#fff}
-
-  /* ---- responsive ---- */
-  @media (max-width:768px){
-    .rail{left:7px}
-    .problem .pgrid{grid-template-columns:1fr;gap:32px}
-    .problem .p-quote{order:-1}
-    .problem .p-quote .q{font-size:24px}
-    .statbreak{padding:72px 0}
-    .statbreak .sb-statement{font-size:24px}
-    .hero{padding:80px 0 64px}
-    .hero h1{font-size:48px}
-    .hero .sub{font-size:18px}
-    .steps{grid-template-columns:1fr;gap:0}
-    .step{padding:24px 0}
-    .who-cards{grid-template-columns:1fr}
-    section{padding:64px 0}
-    .tstep{grid-template-columns:1fr;gap:10px}
-    .does .intro{font-size:22px;margin-bottom:40px}
-    .feat-row{grid-template-columns:1fr;gap:28px;padding:48px 0}
-    .feat-row:first-child{padding-top:0}
-    .feat-row:nth-child(even) .feat-mock,
-    .feat-row:nth-child(even) .feat-copy{order:0}
-    .feat-mock{order:0}
-    .feat-copy{order:1}
-    .feat-mock{width:90%;margin:0 auto}
-    .savings .sgrid{grid-template-columns:1fr;gap:48px}
-    .savings .snum{font-size:54px}
-    .savings-panel{padding:40px 24px;width:calc(100% - 32px);
-      backdrop-filter:blur(16px) saturate(130%);
-      -webkit-backdrop-filter:blur(16px) saturate(130%)}
-    .nav-actions{gap:14px}
-    .pin-card{padding:36px 28px}
-  }
-  @media (max-width:375px){
-    .wrap{padding:0 18px}
-    .hero h1{font-size:36px}
-    .hero .cta-row{gap:16px}
-    h2{font-size:26px}
-    .trail-final .code{font-size:24px}
-    .trail-head,.trail-input,.trail-steps,.trail-final{padding-left:18px;padding-right:18px}
-  }
-  @media (prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto}
-    *{transition:none!important}
-    .rail .fill{transition:none}
-    /* settle the stats panel to a static teal border, no travelling sheen */
-    .savings-panel::before{animation:none;background:none}
-    .savings-panel{border-color:rgba(45,212,191,.25)}
-  }
-</style>
+<link rel="stylesheet" href="/static/css/design-tokens.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/marketing.css">
 </head>
 <body>
 
-<!-- ===== SCROLL PROGRESS RAIL ===== -->
-<svg class="rail" viewBox="0 0 4 1000" preserveAspectRatio="none" aria-hidden="true">
-  <defs>
-    <linearGradient id="railGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#00d4c8" stop-opacity=".12"/>
-      <stop offset=".5" stop-color="#00d4c8" stop-opacity=".65"/>
-      <stop offset="1" stop-color="#00d4c8" stop-opacity="1"/>
-    </linearGradient>
-  </defs>
-  <line class="track" x1="2" y1="0" x2="2" y2="1000"/>
-  <line class="fill" id="railFill" x1="2" y1="0" x2="2" y2="1000" pathLength="1"/>
-</svg>
-
 <!-- ===== NAV ===== -->
 <header class="nav">
-  <div class="wrap row">
-    <a class="logo" href="/"><span class="sq"></span>Aimport Compliance</a>
-    <div class="nav-actions">
-      <a class="btn" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access</a>
-      <a class="nav-classify" href="#" data-pin-trigger>Classification ↗</a>
+  <div class="container nav__row">
+    <a class="wordmark" href="/" aria-label="AImport home">
+      <img src="/static/img/mark.svg" alt="">
+      <span><span class="wordmark__ai">AI</span>mport</span>
+    </a>
+    <nav class="nav__links" aria-label="Platform">
+      <a class="nav__link" href="#platform">Platform</a>
+      <a class="nav__link" href="#provenance">Audit trail</a>
+      <a class="nav__link" href="#verticals">Who it's for</a>
+      <a class="nav__link" href="#faq">FAQ</a>
+    </nav>
+    <div class="nav__actions">
+      <a class="nav__link" href="#" data-pin-trigger>Access code</a>
+      <a class="btn btn--primary" href="mailto:leo.goerg@aimport.co?subject=AImport%20demo%20request">Book a demo</a>
     </div>
   </div>
 </header>
 
-<!-- ===== HERO ===== -->
-<div class="wrap">
-  <section class="hero">
-    <h1>Every CN code has a reason. <span class="em">Aimport shows you the reasoning.</span></h1>
-    <p class="sub">The engine walks the tariff tree from the top, applies the GRI rules at each branch, and shows the facts behind every decision.</p>
-    <div class="cta-row">
-      <a class="btn btn-solid btn-lg" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access →</a>
-      <a class="link-ghost" href="#demo">See how it works ↓</a>
-    </div>
-    <div class="proof">In pilot with a small group of customs brokers. Access by invitation.</div>
-  </section>
-</div>
+<main>
 
-<!-- ===== PROBLEM ===== -->
-<section class="problem">
-  <div class="pgrid">
-    <div class="p-left">
-      <p class="kicker">The problem</p>
-      <p>You run a product description through most tools and get back ten digits with none of the reasoning behind them. When a client asks why heading <code>7308</code> and not <code>7326</code>, you answer from memory.</p>
-      <p>An auditor asks the same question with more on the line. You know a GRI rule settled it. You cannot show which rule, or at which step. So you rebuild the argument by hand.</p>
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <!-- Ambient background layer: a faint GRI decision-flow constellation. Sits behind
+       all hero content (z-index 0, pointer-events none); never intercepts clicks.
+       Additive — the existing grid/placeholder below is untouched. -->
+  <div class="hero-ambient" aria-hidden="true">
+    <svg viewBox="0 0 640 480" preserveAspectRatio="xMidYMid meet" focusable="false">
+      <!-- static scaffold: gate nodes + connecting edges (faint, softly blurred) -->
+      <g class="hero-ambient__scaffold" fill="none" stroke="var(--color-ink-line)" stroke-width="1">
+        <line x1="60" y1="250" x2="175" y2="250"/>
+        <line x1="175" y1="250" x2="300" y2="205"/>
+        <line x1="300" y1="205" x2="435" y2="205"/>
+        <line x1="435" y1="205" x2="512" y2="205"/>
+        <line class="hero-ambient__reject-edge" x1="175" y1="250" x2="305" y2="345" stroke="var(--color-reject)"/>
+        <line class="hero-ambient__reject-edge" x1="435" y1="205" x2="442" y2="330" stroke="var(--color-reject)"/>
+        <circle cx="60"  cy="250" r="4"/>
+        <circle cx="175" cy="250" r="5"/>
+        <circle cx="300" cy="205" r="4"/>
+        <circle cx="435" cy="205" r="5"/>
+        <circle cx="305" cy="345" r="4" stroke="var(--color-reject)"/>
+        <circle cx="442" cy="330" r="4" stroke="var(--color-reject)"/>
+      </g>
+      <!-- focal flow: traveling token, a rejected pulse, and the accepted chip -->
+      <g class="hero-ambient__flow">
+        <circle class="hero-ambient__reject-pulse" cx="0" cy="0" r="3.5" fill="var(--color-reject)"/>
+        <circle class="hero-ambient__token" cx="0" cy="0" r="4.5" fill="var(--color-brand)"/>
+        <g class="hero-ambient__chip">
+          <rect x="506" y="189" width="86" height="32" rx="9"
+                fill="none" stroke="var(--color-brand)" stroke-width="1.25"/>
+          <path class="hero-ambient__check" d="M516 205 l4 5 l9 -12"
+                fill="none" stroke="var(--color-brand)" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <g stroke="var(--color-brand)" stroke-width="1.5" stroke-linecap="round" opacity="0.7">
+            <line x1="540" y1="200" x2="560" y2="200"/>
+            <line x1="540" y1="206" x2="576" y2="206"/>
+            <line x1="540" y1="212" x2="552" y2="212"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="container hero__grid">
+    <div>
+      <span class="hero__eyebrow"><span class="dot"></span>EU CN / TARIC · GRI 1–6</span>
+      <h1>The <span class="accent">AI workforce</span> for import compliance.</h1>
+      <p class="hero__sub">Classify TARIC codes, document every decision, and prepare customs-ready outputs — from product data to defensible classifications.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary btn--lg" href="mailto:leo.goerg@aimport.co?subject=AImport%20demo%20request">Book a demo</a>
+        <a class="btn btn--secondary btn--lg" href="#platform">Explore the platform</a>
+      </div>
+      <p class="hero__note">AImport supports and documents your decisions. You stay the declarant — it files nothing on your behalf.</p>
     </div>
-    <div class="p-quote">
-      <hr class="rule">
-      <p class="q">The ten digits were never the hard part. The reasoning behind them is what you defend.</p>
+    <!-- ILLUSTRATION: hero — see assets/ILLUSTRATION_BRIEF.md#hero
+         prompt base + "a single clean amber thread tracing an ordered path through a calm
+         field of floating muted-blue customs containers and document planes, resolving into
+         one highlighted node — a clear path through complexity." -->
+    <figure class="illus-slot" data-ratio="4/3" aria-hidden="true">
+      <span class="illus-slot__tag">Illustration · hero (4:3)</span>
+    </figure>
+  </div>
+</section>
+
+<!-- ===== PLATFORM MODULES ===== -->
+<section class="section section--soft" id="platform">
+  <div class="container">
+    <div class="section__head">
+      <p class="kicker">The platform</p>
+      <h2>One engine. The workflows customs teams run every day.</h2>
+      <p>Each module is built on the same deterministic engine — it picks from the headings the tariff database supplies and never invents a code.</p>
+    </div>
+    <div class="modules__grid">
+
+      <article class="module">
+        <div class="module__icon"><svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#code-bracket"/></svg></div>
+        <h3>TARIC classification</h3>
+        <p>Walk the CN tree from the top and apply the GRI rules at each branch to reach a defensible ten-digit code — with the path it took.</p>
+        <div class="module__meta">GRI 1–6 · CN / TARIC · live</div>
+      </article>
+
+      <article class="module">
+        <div class="module__icon"><svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#audit-node"/></svg></div>
+        <h3>Audit trail</h3>
+        <p>Every decision recorded in order, with the legal basis behind each branch — a record you can read in an audit instead of rebuilding from memory.</p>
+        <div class="module__meta">Exportable record · live</div>
+      </article>
+
+      <article class="module">
+        <div class="module__icon"><svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#duty-coin"/></svg></div>
+        <h3>Duty optimization</h3>
+        <p>Surface legally defensible alternative classifications for the same product, each with the GRI rule that supports it and a rating of how it holds up.</p>
+        <div class="module__meta">Defensibility-rated · live</div>
+      </article>
+
+      <article class="module">
+        <div class="module__icon"><svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#document"/></svg></div>
+        <h3>Product database</h3>
+        <p>Save each classification with its full reasoning trail. When the same product returns, the answer — and its legal basis — is already there.</p>
+        <div class="module__meta">Searchable · CSV export · live</div>
+      </article>
+
     </div>
   </div>
 </section>
 
-<!-- ===== STAT BREAK ===== -->
-<section class="statbreak">
-  <div class="wrap">
-    <p class="sb-label">Across the EU</p>
-    <p class="sb-statement">Billions in annual EU customs penalties trace back to classification errors</p>
-    <p class="sb-source">European Commission and OLAF customs enforcement reporting</p>
+<!-- ===== ★ SIGNATURE: PROVENANCE / DATA VIEW ===== -->
+<section class="section" id="provenance">
+  <div class="container">
+    <div class="section__head">
+      <p class="kicker">What the audit trail looks like</p>
+      <h2>One product, every decision on the record.</h2>
+      <p>The classification and the reasoning that produced it, side by side — the way you would defend it to an auditor.</p>
+    </div>
+
+    <div class="signature__grid">
+
+      <!-- TARIC classification card (sample values clearly marked illustrative) -->
+      <div class="taric-card">
+        <div class="taric-card__head">
+          <span class="label">TARIC classification</span>
+          <span class="illustrative-tag">Illustrative example</span>
+        </div>
+        <div class="taric-card__body">
+          <div class="taric-card__product">Steel mounting bracket for solar panels
+            <span class="origin">· origin CN</span></div>
+
+          <div class="taric-card__code">
+            <span class="digits">7308 90 98 90</span>
+            <span class="desc">Other · structures of iron or steel</span>
+          </div>
+
+          <div class="taric-card__row">
+            <div class="taric-stat">
+              <span class="k">Confidence</span>
+              <span class="v confidence">High
+                <span class="bar"><i style="width:88%"></i></span>
+              </span>
+            </div>
+            <div class="taric-stat">
+              <span class="k">Risk flag</span>
+              <span class="flag flag--review">
+                <svg class="icon icon--amber" aria-hidden="true"><use href="/static/img/icons.svg#warning-triangle"/></svg>
+                Check anti-dumping
+              </span>
+            </div>
+          </div>
+
+          <div class="taric-card__sources">
+            <svg class="icon" aria-hidden="true" style="width:18px;height:18px"><use href="/static/img/icons.svg#shield-check"/></svg>
+            <span><b>5 sources attached</b> — section &amp; chapter notes, GRI 1 &amp; 6, EBTI comparables</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit-trail line — ordered checkpoints (the one place numbering is used) -->
+      <div class="audit">
+        <p class="audit__lead">The same classification as an ordered, connected path — each checkpoint carries the fact or rule that moved it forward.</p>
+        <ol class="audit__list">
+          <li class="audit__step">
+            <span class="node">1</span>
+            <div class="title">Product data</div>
+            <div class="meta">Steel mounting bracket for solar panels · origin CN</div>
+            <p class="why">The description and origin you enter — the only inputs the engine reasons from.</p>
+          </li>
+          <li class="audit__step">
+            <span class="node">2</span>
+            <div class="title">Classification</div>
+            <div class="meta">Section XV → Ch. 73 → 7308 → 7308 90 · GRI 1, GRI 6</div>
+            <p class="why">The engine walks each branch and applies the rule that decides it, choosing only from headings the tariff database supplies.</p>
+          </li>
+          <li class="audit__step">
+            <span class="node">3</span>
+            <div class="title">Legal source</div>
+            <div class="meta">Section &amp; chapter notes · GRI 1 and 6 · EBTI comparables</div>
+            <p class="why">Each branch is tied to the legal basis behind it, with binding rulings on comparable goods shown alongside.</p>
+          </li>
+          <li class="audit__step">
+            <span class="node">4</span>
+            <div class="title">Decision</div>
+            <div class="meta">7308 90 98 90 — declarant confirms or overrides</div>
+            <p class="why">You stay the declarant. Accept the path or override a branch; either way the trail records the choice.</p>
+          </li>
+          <li class="audit__step">
+            <span class="node">5</span>
+            <div class="title">Exportable report</div>
+            <div class="meta">Full trail exported as PDF / CSV</div>
+            <p class="why">The complete reasoning leaves as a customs-ready record — ready to attach to a declaration or an audit file.</p>
+          </li>
+        </ol>
+      </div>
+
+    </div>
   </div>
 </section>
 
 <!-- ===== HOW IT WORKS ===== -->
-<section class="how">
-  <div class="wrap">
-    <p class="kicker">How Aimport works</p>
-    <div class="steps">
-      <div class="step">
-        <div class="num">01</div>
-        <div class="lbl">Walk the tree</div>
+<section class="section section--soft">
+  <div class="container">
+    <div class="section__head">
+      <p class="kicker">How AImport works</p>
+      <h2>The same reasoning a customs authority uses.</h2>
+    </div>
+    <div class="how__grid">
+      <div class="how__item">
+        <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#route-line"/></svg>
+        <h3>Walk the tree</h3>
         <p>The engine reads your description and starts at the top of the CN tree, where a customs officer starts.</p>
       </div>
-      <div class="step">
-        <div class="num">02</div>
-        <div class="lbl">Apply the rules</div>
-        <p>At each branch the GRI rules decide which heading applies. The engine picks from the headings the database supplies and never invents one.</p>
+      <div class="how__item">
+        <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#customs-stamp"/></svg>
+        <h3>Apply the rules</h3>
+        <p>At each branch the GRI rules decide which heading applies. The engine picks from the headings the database supplies — and asks a question rather than guess when a deciding fact is missing.</p>
       </div>
-      <div class="step">
-        <div class="num">03</div>
-        <div class="lbl">Show the path</div>
-        <p>You get the ten-digit CN code, the path the engine took, and the legal basis behind each branch.</p>
+      <div class="how__item">
+        <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#shield-check"/></svg>
+        <h3>Show the path</h3>
+        <p>You get the ten-digit code, the path the engine took, and the legal basis behind each branch — ready to defend.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== DEMO: CLASSIFICATION TRAIL ===== -->
-<section class="demo" id="demo">
-  <div class="wrap">
-    <p class="kicker">What the audit trail looks like</p>
-    <h2>One product, every decision on the record.</h2>
-
-    <div class="trail">
-      <div class="trail-head">
-        <div class="th-l"><span class="dot"></span>Classification trail</div>
-        <div class="th-r">EU CN / TARIC · GRI 1–6</div>
-      </div>
-
-      <div class="trail-input">
-        <div class="il">Product</div>
-        <div class="iv">Steel mounting bracket for solar panels, origin China</div>
-      </div>
-
-      <div class="trail-steps">
-        <div class="tstep">
-          <div class="gri">
-            <span class="rule">GRI 1</span>
-            <span class="act">Section → Chapter</span>
-          </div>
-          <div>
-            <div class="pick">Section XV → Chapter <b>73</b>, articles of iron or steel</div>
-            <div class="why">An article of iron or steel falls in Section XV under the section and chapter notes. The bracket carries no function that pulls it into a machinery chapter.</div>
-          </div>
-        </div>
-
-        <div class="tstep">
-          <div class="gri">
-            <span class="rule">GRI 1</span>
-            <span class="act">Heading</span>
-          </div>
-          <div>
-            <div class="pick">Heading <b>7308</b>, structures and parts of structures, of iron or steel</div>
-            <div class="why">A mounting frame that holds solar panels is a part of a structure, which heading 7308 names. Heading 7326 covers other articles of steel and yields to the heading that describes the goods.</div>
-          </div>
-        </div>
-
-        <div class="tstep">
-          <div class="gri">
-            <span class="rule">GRI 6</span>
-            <span class="act">Subheading</span>
-          </div>
-          <div>
-            <div class="pick">Subheading <b>7308 90</b>, other structures and parts</div>
-            <div class="why">No subheading names bridges, towers, doors, or panels with an insulating core, so the bracket resolves to the residual subheading at the same level.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="trail-final">
-        <div>
-          <div class="fl">Declarable code</div>
-          <div class="code">7308 90 98 90</div>
-        </div>
-        <div class="desc">Other · structures of iron or steel</div>
-      </div>
+<!-- ===== VERTICALS WE SERVE ===== -->
+<section class="section" id="verticals">
+  <div class="container">
+    <div class="section__head">
+      <p class="kicker">Who it's for</p>
+      <h2>Built for the teams that carry the classification.</h2>
     </div>
 
-    <div class="clarify">
-      <div class="cl">If the description were ambiguous</div>
-      <p>Leave the metal out and the engine asks one question before it commits: <code>steel or aluminium?</code> Aluminium structures move to heading <code>7610</code>, and the path changes at the first branch. The engine asks rather than guess.</p>
+    <div class="verticals__grid">
+      <div class="vtablist" role="tablist" aria-label="Verticals we serve" aria-orientation="vertical">
+        <button class="vtab" role="tab" id="vtab-ff" aria-controls="vp-ff" aria-selected="true" tabindex="0">
+          <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#port-crane"/></svg> Freight forwarders
+        </button>
+        <button class="vtab" role="tab" id="vtab-br" aria-controls="vp-br" aria-selected="false" tabindex="-1">
+          <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#customs-stamp"/></svg> Customs brokers
+        </button>
+        <button class="vtab" role="tab" id="vtab-im" aria-controls="vp-im" aria-selected="false" tabindex="-1">
+          <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#container"/></svg> Importers
+        </button>
+        <button class="vtab" role="tab" id="vtab-mf" aria-controls="vp-mf" aria-selected="false" tabindex="-1">
+          <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#scanner"/></svg> Manufacturers
+        </button>
+        <button class="vtab" role="tab" id="vtab-tc" aria-controls="vp-tc" aria-selected="false" tabindex="-1">
+          <svg class="icon" aria-hidden="true"><use href="/static/img/icons.svg#shield-check"/></svg> Trade-compliance teams
+        </button>
+      </div>
+
+      <div class="vstage">
+        <!-- Freight forwarders -->
+        <div class="vpanel is-active" id="vp-ff" role="tabpanel" aria-labelledby="vtab-ff" tabindex="0">
+          <!-- ILLUSTRATION: vertical/freight — reuse #classification or a per-vertical scene (1:1) -->
+          <figure class="illus-slot" data-ratio="1/1" aria-hidden="true"><span class="illus-slot__tag">Illustration · freight forwarders (1:1)</span></figure>
+          <p class="vpanel__caption">Move goods faster without guessing at codes — every line arrives pre-classified with the reasoning attached, so handovers carry their own evidence.</p>
+        </div>
+        <!-- Customs brokers -->
+        <div class="vpanel" id="vp-br" role="tabpanel" aria-labelledby="vtab-br" tabindex="0" hidden>
+          <figure class="illus-slot" data-ratio="1/1" aria-hidden="true"><span class="illus-slot__tag">Illustration · customs brokers (1:1)</span></figure>
+          <p class="vpanel__caption">You carry the classification reasoning in your head. AImport lays it out in the order you would defend it — read the path, check the rule at each branch, sign off or override.</p>
+        </div>
+        <!-- Importers -->
+        <div class="vpanel" id="vp-im" role="tabpanel" aria-labelledby="vtab-im" tabindex="0" hidden>
+          <figure class="illus-slot" data-ratio="1/1" aria-hidden="true"><span class="illus-slot__tag">Illustration · importers (1:1)</span></figure>
+          <p class="vpanel__caption">The same answer every time, whoever runs the classification. One rule set applied to every product, with a trail an audit can read instead of guessing at.</p>
+        </div>
+        <!-- Manufacturers -->
+        <div class="vpanel" id="vp-mf" role="tabpanel" aria-labelledby="vtab-mf" tabindex="0" hidden>
+          <figure class="illus-slot" data-ratio="1/1" aria-hidden="true"><span class="illus-slot__tag">Illustration · manufacturers (1:1)</span></figure>
+          <p class="vpanel__caption">Classification follows from what your product is — its material, function, and degree of processing. See which facts drive the heading before the goods ship.</p>
+        </div>
+        <!-- Trade-compliance teams -->
+        <div class="vpanel" id="vp-tc" role="tabpanel" aria-labelledby="vtab-tc" tabindex="0" hidden>
+          <figure class="illus-slot" data-ratio="1/1" aria-hidden="true"><span class="illus-slot__tag">Illustration · trade-compliance teams (1:1)</span></figure>
+          <p class="vpanel__caption">Document defensible decisions at scale. A classification trail in GRI order, the same structure used to assess whether a code holds up under scrutiny.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ===== WHAT AIMPORT DOES ===== -->
-<section class="does">
-  <div class="wrap">
-    <p class="kicker">What Aimport does</p>
-    <p class="intro">One engine. Four workflows customs teams run every day.</p>
-
-    <div class="feat-rows">
-
-      <!-- Row 1 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-block">
-            <div class="m-label">Product</div>
-            <span class="m-line">Steel mounting bracket, solar panels</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">GRI-1</span>&nbsp;&nbsp;Section XV → Chapter 73</span>
-            <span class="m-line dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Articles of iron or steel</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">GRI-1</span>&nbsp;&nbsp;7308 → Structures and parts</span>
-            <span class="m-line dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mounting function confirmed</span>
-          </div>
-          <hr class="m-divider">
-          <div class="m-block">
-            <div class="m-label">Declarable code</div>
-            <span class="m-line m-final">7308 90 98 90</span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">01</div>
-          <h3>Tariff classification</h3>
-          <p class="f-desc">The engine reads your product description and walks the CN tree from the top, applying the GRI rules at each branch. You get the ten-digit code, the path the engine took, and the legal basis for each decision.</p>
-          <p class="f-detail">When the description is ambiguous, the engine asks one question rather than committing to a guess.</p>
-          <a class="f-try" href="#" data-pin-trigger>Try the live engine →</a>
-        </div>
-      </div>
-
-      <!-- Row 2 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-label">Invoice · extracted products</div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">①</span> Steel angle brackets × 500</span>
-            <span class="m-line dim">&nbsp;&nbsp;→ pre-classified: <span class="t">7308 90</span></span>
-            <span class="m-line dim">&nbsp;&nbsp;confidence: high</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">②</span> Aluminium extrusion profiles × 200</span>
-            <span class="m-line dim">&nbsp;&nbsp;→ pre-classified: <span class="t">7604 29</span></span>
-            <span class="m-line dim">&nbsp;&nbsp;confidence: high</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">③</span> Rubber sealing strips × 1000</span>
-            <span class="m-line dim">&nbsp;&nbsp;→ needs clarification</span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">02</div>
-          <h3>Invoice reading</h3>
-          <p class="f-desc">Upload a commercial invoice and the engine extracts each line item, pre-classifies it, and flags anything that needs a second look. A ten-product invoice takes seconds instead of an hour.</p>
-          <p class="f-detail">The engine uses coordinate-based extraction — it reads the actual position of words on the page, not table structure, so it handles real-world invoice layouts that break every other tool.</p>
-        </div>
-      </div>
-
-      <!-- Row 3 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-label">Saved classifications</div>
-          <div class="m-block">
-            <span class="m-line">Steel mounting bracket</span>
-            <span class="m-line"><span class="t">7308 90 98 90</span> <span class="dim">· classified 12 Jun</span></span>
-            <span class="m-line dim">GRI path: XV → 73 → 7308 → 7308 90</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line">Aluminium window frame</span>
-            <span class="m-line"><span class="t">7610 10 00 00</span> <span class="dim">· classified 8 Jun</span></span>
-            <span class="m-line dim">GRI path: XV → 76 → 7610 → 7610 10</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line">Hydraulic pump assembly</span>
-            <span class="m-line"><span class="t">8413 60 39 00</span> <span class="dim">· classified 3 Jun</span></span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">03</div>
-          <h3>Product database</h3>
-          <p class="f-desc">Every classification is saved with the full reasoning trail. When the same product comes through again, the answer is already there — with the legal basis that supports it.</p>
-          <p class="f-detail">In an audit, you're not reconstructing decisions from memory. You're reading a record of exactly what rule applied and why.</p>
-        </div>
-      </div>
-
-      <!-- Row 4 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-label">Classification analysis</div>
-          <div class="m-block">
-            <span class="m-line">Current: <span class="t">7308 90 98 90</span> <span class="dim">· duty 3.7%</span></span>
-          </div>
-          <hr class="m-divider">
-          <div class="m-block">
-            <span class="m-line dim">Alternative (GRI-3b)</span>
-            <span class="m-line"><span class="t">7326 90 98 90</span> <span class="dim">· duty 2.7%</span></span>
-            <span class="m-line dim">Essential character: fastening function</span>
-            <span class="m-line">Defensibility: <span class="t">ARGUABLE</span></span>
-          </div>
-          <div class="m-block">
-            <span class="m-line dim">Alternative (GRI-1)</span>
-            <span class="m-line"><span class="t">7318 15 69 00</span> <span class="dim">· duty 3.7%</span></span>
-            <span class="m-line dim">Bolts and screws, steel</span>
-            <span class="m-line">Defensibility: <span class="t">STRONG</span></span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">04</div>
-          <h3>Duty optimization</h3>
-          <p class="f-desc">The engine surfaces alternative classifications that are legally defensible for the same product — each one with the GRI rule that supports it and a rating of how well it would hold up under customs scrutiny.</p>
-          <p class="f-detail">This is what customs consultants charge thousands for. The difference is that every alternative here is validated through the same GRI engine, not suggested by an LLM that might be wrong.</p>
-        </div>
-      </div>
-
-      <!-- Row 5 — in development -->
-      <div class="feat-row dim">
-        <div class="feat-mock">
-          <div class="m-label">Declaration draft</div>
-          <div class="m-block">
-            <span class="m-line">Procedure: <span class="t">4000</span></span>
-            <span class="m-line">CN code: <span class="t">7308 90 98 90</span></span>
-            <span class="m-line">Description: Steel mounting brackets</span>
-            <span class="m-line">Origin: <span class="t">CN</span></span>
-            <span class="m-line">Gross mass: 2450 kg</span>
-            <span class="m-line">Statistical value: €18,400</span>
-          </div>
-          <hr class="m-divider">
-          <div class="m-block">
-            <span class="m-line dim">Export to: WinSAD / Huzar XML</span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">05</div>
-          <span class="f-badge">In development</span>
-          <h3>Declaration filling</h3>
-          <p class="f-desc">Classification feeds directly into the declaration. The data the engine already gathered — code, description, origin, procedure — maps to the fields a customs broker fills by hand today.</p>
-          <p class="f-detail muted">Output targets WinSAD and Huzar XML — the formats Polish customs brokers already use.</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- ===== TIME AND COST SAVINGS BAND ===== -->
-<section class="savings">
-  <div class="savings-panel">
-    <div class="sgrid">
-      <div class="stat">
-        <div class="snum">90%</div>
-        <div class="slabel">less time per classification</div>
-        <div class="ssource">3–4 hours reduced to under 15 minutes · industry benchmark</div>
-      </div>
-      <div class="stat">
-        <div class="snum">18 min</div>
-        <div class="slabel">saved per product line</div>
-        <div class="ssource">manual average 20 min · AImport average 2 min</div>
-      </div>
-      <div class="stat">
-        <div class="snum">2–4×</div>
-        <div class="slabel">duty value in penalties for misclassification</div>
-        <div class="ssource">EU customs enforcement standard</div>
-      </div>
-    </div>
-    <p class="sclose">A broker handling 50 declarations a week recovers roughly 75 hours of classification time per month.</p>
-    <p class="sfoot">Based on Polish customs broker salary data (61 PLN/hr) and industry-reported time reductions.</p>
-  </div>
-</section>
-
-<!-- ===== WHO THIS IS FOR ===== -->
-<section class="who">
-  <div class="wrap">
-    <p class="kicker">Who this is for</p>
-    <div class="who-cards">
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">01</div>
-        <h3>Customs brokers</h3>
-        <p>You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p>
-        <p>Read the path, check the rule at each branch, sign off or override.</p>
-      </article>
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">02</div>
-        <h3>Importers</h3>
-        <p>You need the same answer every time, no matter who runs the classification.</p>
-        <p>Aimport applies one rule set to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p>
-      </article>
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">03</div>
-        <h3>Manufacturers</h3>
-        <p>Classification follows from what your product is: its material, its function, its degree of processing.</p>
-        <p>Aimport shows which facts drive the heading, so you know the classification before the goods ship.</p>
-      </article>
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">04</div>
-        <h3>Customs officers</h3>
-        <p>A declaration without reasoning is hard to audit.</p>
-        <p>Aimport produces a classification trail in GRI order, the same structure you use to assess whether a code holds up.</p>
-      </article>
-    </div>
-    <p class="who-close">When you want to see how it handles your product categories, you ask for access.</p>
+<!-- ===== STAT STATEMENT ===== -->
+<section class="section section--soft">
+  <div class="container section__head" style="max-width:48ch">
+    <p class="kicker">Across the EU</p>
+    <h2>Billions in annual EU customs penalties trace back to classification errors.</h2>
+    <p>European Commission and OLAF customs enforcement reporting. AImport exists to make every classification defensible before it reaches an officer.</p>
   </div>
 </section>
 
 <!-- ===== FAQ ===== -->
-<section class="faq">
-  <div class="wrap">
-    <p class="kicker">FAQ</p>
-    <h2>What brokers ask first.</h2>
-    <div class="faq-list">
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section__head">
+      <p class="kicker">FAQ</p>
+      <h2>What brokers ask first.</h2>
+    </div>
+    <div class="faq__list">
 
-      <details class="faq-item">
-        <summary>Does the model ever invent a code that isn't in the tariff?<span class="mk"></span></summary>
-        <div class="ans"><p>No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div>
+      <details class="faq__item">
+        <summary>Does the model ever invent a code that isn't in the tariff?<span class="faq__mk"></span></summary>
+        <div class="faq__ans"><p>No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div>
       </details>
 
-      <details class="faq-item">
-        <summary>What happens when my description leaves out a deciding fact?<span class="mk"></span></summary>
-        <div class="ans"><p>The engine stops at the branch where the facts run out and asks one question, the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div>
+      <details class="faq__item">
+        <summary>What happens when my description leaves out a deciding fact?<span class="faq__mk"></span></summary>
+        <div class="faq__ans"><p>The engine stops at the branch where the facts run out and asks one question, the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div>
       </details>
 
-      <details class="faq-item">
-        <summary>Can I override the engine at a branch?<span class="mk"></span></summary>
-        <div class="ans"><p>Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div>
+      <details class="faq__item">
+        <summary>Can I override the engine at a branch?<span class="faq__mk"></span></summary>
+        <div class="faq__ans"><p>Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div>
       </details>
 
-      <details class="faq-item">
-        <summary>Does it give me the duties and trade measures, or only the ten digits?<span class="mk"></span></summary>
-        <div class="ans"><p>Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div>
+      <details class="faq__item">
+        <summary>Does it give me the duties and trade measures, or only the ten digits?<span class="faq__mk"></span></summary>
+        <div class="faq__ans"><p>Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div>
       </details>
 
-      <details class="faq-item">
-        <summary>Does Aimport check existing binding tariff rulings?<span class="mk"></span></summary>
-        <div class="ans"><p>Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div>
+      <details class="faq__item">
+        <summary>Does AImport check existing binding tariff rulings?<span class="faq__mk"></span></summary>
+        <div class="faq__ans"><p>Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div>
       </details>
 
-      <details class="faq-item">
-        <summary>How does it handle parts, sets, and composite goods?<span class="mk"></span></summary>
-        <div class="ans"><p>The engine works through GRI 2 to 4 in order: unfinished and disassembled articles under GRI 2(a), composite goods and sets by their essential character under GRI 3(b), and the tie-break under GRI 3(c). The trail names the rule that settled the case, so you can defend the call.</p></div>
-      </details>
-
-      <details class="faq-item">
-        <summary>Who carries responsibility for the final classification?<span class="mk"></span></summary>
-        <div class="ans"><p>You do. The declarant signs the declaration and owns the result. Aimport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div>
+      <details class="faq__item">
+        <summary>Who carries responsibility for the final classification?<span class="faq__mk"></span></summary>
+        <div class="faq__ans"><p>You do. The declarant signs the declaration and owns the result. AImport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div>
       </details>
 
     </div>
   </div>
 </section>
 
-<!-- ===== ACCESS REQUEST ===== -->
-<section class="access">
-  <div class="wrap">
-    <div class="inner">
-      <p class="kicker">Request access</p>
+<!-- ===== CTA BAND ===== -->
+<section class="section cta-band">
+  <div class="container">
+    <div class="cta-band__inner">
+      <p class="kicker" style="display:inline-block">Book a demo</p>
       <h2>Bring your own product categories.</h2>
-      <p>Aimport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your product categories, write to us.</p>
-      <a class="btn btn-solid btn-lg" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Email contact@aimport.co</a>
-      <div class="respond">We respond to every request.</div>
+      <p>AImport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your categories, book a demo.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary btn--lg" href="mailto:leo.goerg@aimport.co?subject=AImport%20demo%20request">Book a demo</a>
+        <a class="btn btn--secondary btn--lg" href="#" data-pin-trigger>Have an access code?</a>
+      </div>
+      <p class="cta-band__note">We respond to every request · leo.goerg@aimport.co</p>
     </div>
   </div>
 </section>
+
+</main>
 
 <!-- ===== FOOTER ===== -->
-<footer>
-  <div class="wrap row">
-    <span>Aimport Compliance © 2026</span>
-    <a href="mailto:contact@aimport.co">contact@aimport.co</a>
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a class="wordmark" href="/" aria-label="AImport home">
+          <img src="/static/img/mark-blue.svg" alt="">
+          <span><span class="wordmark__ai">AI</span>mport</span>
+        </a>
+        <p class="footer__tag">EU tariff classification that follows the same legal reasoning a customs authority uses — with a full audit trail.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Product</h4>
+        <a href="#platform">Platform</a>
+        <a href="#provenance">Audit trail</a>
+        <a href="#verticals">Who it's for</a>
+        <a href="#" data-pin-trigger>Access code</a>
+      </div>
+      <div class="footer__col">
+        <h4>Company</h4>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:leo.goerg@aimport.co?subject=AImport%20demo%20request">Book a demo</a>
+        <a href="mailto:contact@aimport.co">Contact</a>
+      </div>
+      <div class="footer__col">
+        <h4>Legal &amp; contact</h4>
+        <a href="mailto:leo.goerg@aimport.co">leo.goerg@aimport.co</a>
+        <a href="mailto:contact@aimport.co">contact@aimport.co</a>
+        <span>Declarant stays responsible for filings</span>
+      </div>
+    </div>
+    <div class="footer__bar">
+      <span>AImport © 2026 · aimport.co</span>
+      <span>Built for import compliance · EU CN / TARIC</span>
+    </div>
   </div>
 </footer>
 
-<!-- scroll progress rail: fills top-to-bottom with scroll, eases via CSS transition -->
-<script>
-(function(){
-  var fill = document.getElementById('railFill');
-  if(!fill) return;
-  var doc = document.documentElement;
-  function update(){
-    var top = window.scrollY || doc.scrollTop || 0;
-    var max = (doc.scrollHeight - window.innerHeight);
-    var p = max > 0 ? top / max : 0;
-    if(p < 0) p = 0; if(p > 1) p = 1;
-    fill.style.strokeDashoffset = (1 - p).toFixed(4);
-  }
-  var ticking = false;
-  function onScroll(){
-    if(ticking) return;
-    ticking = true;
-    requestAnimationFrame(function(){ update(); ticking = false; });
-  }
-  window.addEventListener('scroll', onScroll, {passive:true});
-  window.addEventListener('resize', update, {passive:true});
-  update();
-})();
-</script>
-
-<!-- tilt cards: face the cursor, max 8deg, flat on touch devices -->
-<script>
-(function(){
-  if(window.matchMedia('(hover: none)').matches) return;
-  var MAX = 8;
-  document.querySelectorAll('.tcard').forEach(function(card){
-    card.addEventListener('mousemove', function(e){
-      var r = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width;
-      var py = (e.clientY - r.top) / r.height;
-      var rx = (0.5 - py) * 2 * MAX;
-      var ry = (px - 0.5) * 2 * MAX;
-      card.style.transition = 'transform .12s ease';
-      card.style.transform = 'perspective(800px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
-      card.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
-      card.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
-    });
-    card.addEventListener('mouseleave', function(){
-      card.style.transition = 'transform .4s ease';
-      card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
-    });
-  });
-})();
-</script>
-
-<!-- ===== PIN ACCESS MODAL ===== -->
+<!-- ===== PIN ACCESS MODAL (reskinned; logic untouched) ===== -->
 <div class="pin-overlay" id="pinOverlay" role="dialog" aria-modal="true" aria-labelledby="pinHeading">
   <div class="pin-card">
     <button class="pin-close" id="pinClose" type="button" aria-label="Close">×</button>
     <div class="pin-label">Demo access</div>
     <h3 id="pinHeading">Enter your access code</h3>
-    <p class="pin-sub">Received a code at Breakbulk or by email? Enter it below.</p>
+    <p class="pin-sub">Received a code at an event or by email? Enter it below to open the live engine.</p>
     <input class="pin-input" id="pinInput" type="text" inputmode="numeric"
       maxlength="4" placeholder="• • • •" autocomplete="off"
       aria-label="4-character access code">
     <p class="pin-error" id="pinError" aria-live="polite"></p>
   </div>
 </div>
+
+<!-- accessible vertical tabs: button activation + arrow-key roving focus, no layout shift -->
+<script>
+(function(){
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.vtab'));
+  if(!tabs.length) return;
+  function panelFor(tab){ return document.getElementById(tab.getAttribute('aria-controls')); }
+  function select(tab){
+    tabs.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      var p = panelFor(t);
+      if(p){ p.classList.toggle('is-active', on); if(on){ p.removeAttribute('hidden'); } else { p.setAttribute('hidden',''); } }
+    });
+  }
+  tabs.forEach(function(tab, i){
+    tab.addEventListener('click', function(){ select(tab); });
+    tab.addEventListener('keydown', function(e){
+      var next;
+      if(e.key === 'ArrowDown' || e.key === 'ArrowRight') next = tabs[(i+1) % tabs.length];
+      else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = tabs[(i-1+tabs.length) % tabs.length];
+      else if(e.key === 'Home') next = tabs[0];
+      else if(e.key === 'End') next = tabs[tabs.length-1];
+      if(next){ e.preventDefault(); select(next); next.focus(); }
+    });
+  });
+})();
+</script>
 
 <!-- pin gate: velvet rope, not a security system. Change ACCESS_PIN before deploy. -->
 <script>

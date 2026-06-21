@@ -29,6 +29,7 @@ from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, PlainTextResponse, Response
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -87,6 +88,11 @@ class OptimizeIn(BaseModel):
 
 
 ROOT = HERE.parent
+
+# Presentation-only: serve the redesign's static assets (CSS tokens, self-hosted
+# fonts, logo/icon SVGs, illustration placeholders). Additive — no existing route,
+# payload, or behaviour changes. See REDESIGN_PLAN.md / DO_NOT_TOUCH.md.
+app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 
 
 @app.get("/")
