@@ -49,6 +49,46 @@
 
 <!-- ===== HERO ===== -->
 <section class="hero">
+  <!-- Ambient background layer: a faint GRI decision-flow constellation. Sits behind
+       all hero content (z-index 0, pointer-events none); never intercepts clicks.
+       Additive — the existing grid/placeholder below is untouched. -->
+  <div class="hero-ambient" aria-hidden="true">
+    <svg viewBox="0 0 640 480" preserveAspectRatio="xMidYMid meet" focusable="false">
+      <!-- static scaffold: gate nodes + connecting edges (faint, softly blurred) -->
+      <g class="hero-ambient__scaffold" fill="none" stroke="var(--color-ink-line)" stroke-width="1">
+        <line x1="60" y1="250" x2="175" y2="250"/>
+        <line x1="175" y1="250" x2="300" y2="205"/>
+        <line x1="300" y1="205" x2="435" y2="205"/>
+        <line x1="435" y1="205" x2="512" y2="205"/>
+        <line class="hero-ambient__reject-edge" x1="175" y1="250" x2="305" y2="345" stroke="var(--color-reject)"/>
+        <line class="hero-ambient__reject-edge" x1="435" y1="205" x2="442" y2="330" stroke="var(--color-reject)"/>
+        <circle cx="60"  cy="250" r="4"/>
+        <circle cx="175" cy="250" r="5"/>
+        <circle cx="300" cy="205" r="4"/>
+        <circle cx="435" cy="205" r="5"/>
+        <circle cx="305" cy="345" r="4" stroke="var(--color-reject)"/>
+        <circle cx="442" cy="330" r="4" stroke="var(--color-reject)"/>
+      </g>
+      <!-- focal flow: traveling token, a rejected pulse, and the accepted chip -->
+      <g class="hero-ambient__flow">
+        <circle class="hero-ambient__reject-pulse" cx="0" cy="0" r="3.5" fill="var(--color-reject)"/>
+        <circle class="hero-ambient__token" cx="0" cy="0" r="4.5" fill="var(--color-brand)"/>
+        <g class="hero-ambient__chip">
+          <rect x="506" y="189" width="86" height="32" rx="9"
+                fill="none" stroke="var(--color-brand)" stroke-width="1.25"/>
+          <path class="hero-ambient__check" d="M516 205 l4 5 l9 -12"
+                fill="none" stroke="var(--color-brand)" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <g stroke="var(--color-brand)" stroke-width="1.5" stroke-linecap="round" opacity="0.7">
+            <line x1="540" y1="200" x2="560" y2="200"/>
+            <line x1="540" y1="206" x2="576" y2="206"/>
+            <line x1="540" y1="212" x2="552" y2="212"/>
+          </g>
+        </g>
+      </g>
+    </svg>
+  </div>
+
   <div class="container hero__grid">
     <div>
       <span class="hero__eyebrow"><span class="dot"></span>EU CN / TARIC · GRI 1–6</span>

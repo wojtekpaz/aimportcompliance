@@ -50,6 +50,10 @@
   --color-green-500: #6E8F75;  /* = base */
   --color-green-tint: #dde6df;
 
+  /* Reject / rejected-branch marker — desaturated warm grey-red (never alarm red).
+     Used only by the ambient hero graphic's rejected terminal. */
+  --color-reject: #a07d77;
+
   /* Panel ramp */
   --color-panel-2:  #ddd8cc;  /* deeper panel / inset */
   --color-panel-3:  #efece4;  /* lighter panel / card on canvas */

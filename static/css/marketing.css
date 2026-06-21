@@ -118,7 +118,9 @@
 }
 
 /* ---- Hero --------------------------------------------------------------- */
-.hero { padding-block: var(--space-9); }
+.hero { padding-block: var(--space-9); position: relative; }
+/* keep hero content above the ambient background layer */
+.hero > .container { position: relative; z-index: 1; }
 .hero__grid {
   display: grid; grid-template-columns: 1.15fr 0.85fr;
   gap: var(--space-8); align-items: center;
@@ -150,6 +152,99 @@
 @media (max-width: 900px) {
   .hero__grid { grid-template-columns: 1fr; gap: var(--space-7); }
   .hero h1 { font-size: var(--text-3xl); line-height: var(--leading-3xl); }
+}
+
+/* ---- Hero ambient background (GRI decision-flow constellation) ---------- */
+/* A quiet, slightly out-of-focus texture behind the hero. One cycle ~15s.
+   pointer-events:none so it never intercepts clicks. */
+.hero-ambient {
+  position: absolute; top: -48px; right: 0;
+  width: min(62vw, 780px); height: 560px;
+  z-index: 0; pointer-events: none;
+  opacity: 0.16;
+  /* fade the left edge so it never competes with the headline
+     (mask only uses the colour's alpha; any opaque token works) */
+  -webkit-mask: linear-gradient(to right, transparent 0%, var(--color-ink) 42%);
+          mask: linear-gradient(to right, transparent 0%, var(--color-ink) 42%);
+}
+.hero-ambient svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* scaffold sits softly out of focus; the flow layer is a touch sharper (focal) */
+.hero-ambient__scaffold { filter: blur(2.2px); opacity: 0.8; }
+.hero-ambient__flow { filter: blur(0.5px); }
+.hero-ambient__reject-pulse,
+.hero-ambient__reject-edge { opacity: 0.55; }
+
+.hero-ambient__token {
+  offset-path: path('M60 250 L175 250 L300 205 L435 205 L545 205');
+  offset-rotate: 0deg;
+  animation: hero-token 15s var(--ease-out) infinite;
+}
+.hero-ambient__reject-pulse {
+  offset-path: path('M175 250 L305 345');
+  offset-rotate: 0deg;
+  animation: hero-reject 15s var(--ease-out) infinite;
+}
+.hero-ambient__chip {
+  transform-box: fill-box; transform-origin: center;
+  opacity: 0; animation: hero-chip 15s var(--ease-out) infinite;
+}
+.hero-ambient__check {
+  stroke-dasharray: 21; stroke-dashoffset: 21;
+  animation: hero-check 15s var(--ease-out) infinite;
+}
+.hero-ambient__reject-edge { animation: hero-reject-edge 15s var(--ease-out) infinite; }
+
+@keyframes hero-token {
+  0%   { offset-distance: 0%;   opacity: 0; }
+  5%   { opacity: 1; }
+  58%  { offset-distance: 100%; opacity: 1; }
+  66%  { offset-distance: 100%; opacity: 0; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes hero-chip {
+  0%, 54% { opacity: 0; transform: translateY(5px) scale(0.95); }
+  64%     { opacity: 1; transform: translateY(0) scale(1); }
+  90%     { opacity: 1; transform: translateY(0) scale(1); }
+  100%    { opacity: 0; transform: translateY(0) scale(1); }
+}
+@keyframes hero-check {
+  0%, 60%  { stroke-dashoffset: 21; }
+  72%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes hero-reject {
+  0%, 20%  { offset-distance: 0%;   opacity: 0; }
+  26%      { opacity: 0.85; }
+  40%      { offset-distance: 100%; opacity: 0.85; }
+  46%      { offset-distance: 100%; opacity: 0; }
+  100%     { offset-distance: 100%; opacity: 0; }
+}
+@keyframes hero-reject-edge {
+  0%, 22%  { opacity: 0.5; }
+  30%      { opacity: 0.85; }
+  46%      { opacity: 0.22; }
+  60%, 100% { opacity: 0.5; }
+}
+
+/* Neutralise the hero illustration placeholder's chrome — the ambient layer now
+   occupies this area. DOM is left intact (it still reserves layout = no shift). */
+.hero .illus-slot { background: none; border: none; }
+.hero .illus-slot::before { display: none; }
+.hero .illus-slot__tag { display: none; }
+
+@media (max-width: 900px) {
+  .hero-ambient { opacity: 0.09; width: min(82vw, 520px); height: 420px; top: -24px; }
+}
+@media (max-width: 600px) {
+  .hero-ambient { display: none; }
+}
+
+/* Reduced motion: render the resolved/composed state, no animation. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-ambient__token { offset-distance: 100%; opacity: 1; animation: none; }
+  .hero-ambient__chip { opacity: 1; transform: none; animation: none; }
+  .hero-ambient__check { stroke-dashoffset: 0; animation: none; }
+  .hero-ambient__reject-pulse { opacity: 0; animation: none; }
+  .hero-ambient__reject-edge { opacity: 0.4; animation: none; }
 }
 
 /* ---- Illustration placeholder slots ------------------------------------ */
