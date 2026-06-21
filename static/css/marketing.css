@@ -6,7 +6,7 @@
 
 /* ---- Shared bits -------------------------------------------------------- */
 .kicker {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-caps);
@@ -28,10 +28,10 @@
 .section--soft { background: var(--surface-soft); border-block: 1px solid var(--border-hair); }
 .divider { border: 0; border-top: 1px solid var(--border-hair); }
 
-/* The mono "data" voice — load-bearing technical credibility */
-.mono { font-family: var(--font-mono); font-feature-settings: "tnum" 1; }
+/* Data voice — TARIC codes, confidence, source counts (now in the body font) */
+.mono { font-family: var(--font-body); font-feature-settings: "tnum" 1; }
 .code-chip {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: var(--text-sm);
   letter-spacing: var(--tracking-wide);
   color: var(--color-brand-700);
@@ -56,13 +56,13 @@
               transform var(--dur-fast) var(--ease-out);
 }
 .btn:active { transform: translateY(1px); }
-/* Primary = amber (rationed: this is the main action) */
+/* Primary = customs blue (founder direction: was amber) */
 .btn--primary {
-  background: var(--color-amber-500);
-  color: var(--text-on-amber);
-  border-color: var(--color-amber-500);
+  background: var(--color-brand);
+  color: var(--text-on-brand);
+  border-color: var(--color-brand);
 }
-.btn--primary:hover { background: var(--color-amber-600); border-color: var(--color-amber-600); }
+.btn--primary:hover { background: var(--color-brand-700); border-color: var(--color-brand-700); }
 /* Secondary = quiet outline in ink/brand */
 .btn--secondary {
   background: transparent;
@@ -125,7 +125,7 @@
 }
 .hero__eyebrow {
   display: inline-flex; align-items: center; gap: var(--space-2);
-  font-family: var(--font-mono); font-size: var(--text-xs);
+  font-family: var(--font-body); font-size: var(--text-xs);
   letter-spacing: var(--tracking-wide); color: var(--text-muted);
   border: 1px solid var(--border-hair); border-radius: var(--radius-pill);
   padding: var(--space-1) var(--space-3); margin-bottom: var(--space-5);
@@ -144,7 +144,7 @@
 }
 .hero__cta { margin-top: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
 .hero__note {
-  margin-top: var(--space-5); font-family: var(--font-mono);
+  margin-top: var(--space-5); font-family: var(--font-body);
   font-size: var(--text-xs); color: var(--text-muted); letter-spacing: var(--tracking-wide);
 }
 @media (max-width: 900px) {
@@ -165,7 +165,7 @@
 .illus-slot[data-ratio="16/9"] { aspect-ratio: 16 / 9; }
 .illus-slot img { width: 100%; height: 100%; object-fit: cover; }
 .illus-slot__tag {
-  font-family: var(--font-mono); font-size: var(--text-xs);
+  font-family: var(--font-body); font-size: var(--text-xs);
   color: var(--text-muted); letter-spacing: var(--tracking-wide);
   background: color-mix(in srgb, var(--color-white) 60%, transparent);
   border: 1px solid var(--border-hair); border-radius: var(--radius-pill);
@@ -234,7 +234,7 @@
 .module p { margin-top: var(--space-2); color: var(--text-secondary); font-size: var(--text-sm); }
 .module__meta {
   margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border-hair);
-  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted);
+  font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted);
   letter-spacing: var(--tracking-wide);
 }
 @media (max-width: 768px) { .modules__grid { grid-template-columns: 1fr; } }
@@ -254,11 +254,11 @@
   background: var(--surface-soft); border-bottom: 1px solid var(--border-hair);
 }
 .taric-card__head .label {
-  font-family: var(--font-mono); font-size: var(--text-xs);
+  font-family: var(--font-body); font-size: var(--text-xs);
   letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-muted);
 }
 .illustrative-tag {
-  font-family: var(--font-mono); font-size: var(--text-xs);
+  font-family: var(--font-body); font-size: var(--text-xs);
   color: var(--text-on-amber); background: var(--color-amber-tint);
   border: 1px solid var(--color-amber-500); border-radius: var(--radius-pill);
   padding: 2px var(--space-2);
@@ -270,23 +270,23 @@
   margin-top: var(--space-4); display: flex; align-items: baseline; gap: var(--space-3); flex-wrap: wrap;
 }
 .taric-card__code .digits {
-  font-family: var(--font-mono); font-weight: var(--weight-medium);
+  font-family: var(--font-body); font-weight: var(--weight-medium);
   font-size: var(--text-2xl); letter-spacing: var(--tracking-wide); color: var(--color-brand);
 }
-.taric-card__code .desc { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); }
+.taric-card__code .desc { font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted); }
 .taric-card__row { display: flex; gap: var(--space-5); flex-wrap: wrap; margin-top: var(--space-5); }
 .taric-stat { display: flex; flex-direction: column; gap: 2px; }
 .taric-stat .k {
-  font-family: var(--font-mono); font-size: var(--text-xs);
+  font-family: var(--font-body); font-size: var(--text-xs);
   letter-spacing: var(--tracking-caps); text-transform: uppercase; color: var(--text-faint);
 }
-.taric-stat .v { font-family: var(--font-mono); font-size: var(--text-md); color: var(--text-primary); }
+.taric-stat .v { font-family: var(--font-body); font-size: var(--text-md); color: var(--text-primary); }
 .confidence { display: inline-flex; align-items: center; gap: var(--space-2); }
 .confidence .bar { width: 64px; height: 6px; border-radius: var(--radius-pill); background: var(--color-panel-2); overflow: hidden; }
 .confidence .bar > i { display: block; height: 100%; background: var(--color-green-500); }
 .flag {
   display: inline-flex; align-items: center; gap: var(--space-2);
-  font-family: var(--font-mono); font-size: var(--text-xs); font-weight: var(--weight-medium);
+  font-family: var(--font-body); font-size: var(--text-xs); font-weight: var(--weight-medium);
   border-radius: var(--radius-pill); padding: 2px var(--space-3);
 }
 .flag--review { color: var(--color-amber-700); background: var(--color-amber-tint); border: 1px solid var(--color-amber-500); }
@@ -294,7 +294,7 @@
 .flag .icon { width: 15px; height: 15px; }
 .taric-card__sources {
   margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--border-hair);
-  font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-secondary);
+  font-family: var(--font-body); font-size: var(--text-sm); color: var(--text-secondary);
   display: flex; align-items: center; gap: var(--space-2);
 }
 .taric-card__sources b { color: var(--color-brand-700); font-weight: var(--weight-medium); }
@@ -314,12 +314,12 @@
   width: 24px; height: 24px; border-radius: 50%;
   display: grid; place-items: center;
   background: var(--surface-card); border: 2px solid var(--color-brand);
-  font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-brand);
+  font-family: var(--font-body); font-size: var(--text-xs); color: var(--color-brand);
 }
 .audit__step:last-child .node { background: var(--color-brand); color: var(--text-on-brand); }
 .audit__step .title { font-weight: var(--weight-medium); color: var(--text-primary); font-size: var(--text-base); }
 .audit__step .meta {
-  margin-top: 2px; font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted);
+  margin-top: 2px; font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted);
 }
 .audit__step .why { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary); max-width: 56ch; }
 
@@ -364,7 +364,7 @@
 .cta-band h2 { font-size: var(--text-2xl); }
 .cta-band p { margin-top: var(--space-4); color: var(--text-secondary); font-size: var(--text-md); }
 .cta-band .hero__cta { justify-content: center; }
-.cta-band__note { margin-top: var(--space-5); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); }
+.cta-band__note { margin-top: var(--space-5); font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted); }
 
 /* ---- Footer ------------------------------------------------------------- */
 .footer { position: relative; background: var(--color-ink); color: var(--color-canvas); overflow: hidden; padding-block: var(--space-8); }
@@ -378,7 +378,7 @@
 .footer__brand .wordmark .wordmark__ai { color: var(--color-brand-300); }
 .footer__tag { margin-top: var(--space-4); font-size: var(--text-sm); color: color-mix(in srgb, var(--color-canvas) 70%, transparent); max-width: 34ch; }
 .footer__col h4 {
-  font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase;
+  font-family: var(--font-body); font-size: var(--text-xs); text-transform: uppercase;
   letter-spacing: var(--tracking-caps); color: color-mix(in srgb, var(--color-canvas) 55%, transparent);
   margin-bottom: var(--space-4); font-weight: var(--weight-medium);
 }
@@ -387,7 +387,7 @@
 .footer__bar {
   margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid color-mix(in srgb, var(--color-canvas) 16%, transparent);
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);
-  font-family: var(--font-mono); font-size: var(--text-xs); color: color-mix(in srgb, var(--color-canvas) 60%, transparent);
+  font-family: var(--font-body); font-size: var(--text-xs); color: color-mix(in srgb, var(--color-canvas) 60%, transparent);
   position: relative; z-index: 1;
 }
 @media (max-width: 768px) { .footer__grid { grid-template-columns: 1fr 1fr; gap: var(--space-6); } }
@@ -408,14 +408,14 @@
   max-width: 380px; width: 100%; text-align: center;
 }
 .pin-card .pin-label {
-  font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase;
+  font-family: var(--font-body); font-size: var(--text-xs); text-transform: uppercase;
   letter-spacing: var(--tracking-caps); color: var(--color-brand);
 }
 .pin-card h3 { font-size: var(--text-lg); margin-top: var(--space-3); }
 .pin-sub { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--text-secondary); }
 .pin-input {
   display: block; width: 150px; margin: var(--space-6) auto 0;
-  font-family: var(--font-mono); font-size: var(--text-xl);
+  font-family: var(--font-body); font-size: var(--text-xl);
   letter-spacing: 0.3em; text-align: center; color: var(--text-primary);
   background: var(--surface-soft); border: 1px solid var(--border-strong);
   border-radius: var(--radius-md); padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
