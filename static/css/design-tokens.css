@@ -38,6 +38,7 @@
   --color-brand-tint-2: #d3deeb;
 
   /* Amber ramp (rationed) */
+  --color-amber-800: #7a5518;  /* warning TEXT on canvas — AA (≥4.5) */
   --color-amber-700: #b9842b;
   --color-amber-600: #c79232;  /* amber text on canvas — AA-safe vs base */
   --color-amber-500: #D8A342;  /* = base, for fills/borders */
@@ -64,6 +65,7 @@
   --text-faint:       var(--color-ink-45);
   --text-on-brand:    var(--color-white);
   --text-on-amber:    #2a2207;            /* dark ink on amber — AA */
+  --text-warn:        var(--color-amber-800);  /* readable warning text on canvas */
   --border-hair:      var(--color-ink-line);
   --border-strong:    var(--color-ink-line-2);
   --focus-ring:       var(--color-brand);
