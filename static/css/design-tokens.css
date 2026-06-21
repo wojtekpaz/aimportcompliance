@@ -1,0 +1,149 @@
+/* ============================================================================
+   AImport — design-tokens.css
+   THE single source of truth for the brand's visual system (§4 of the brief).
+
+   Rule: no raw hex, no raw px font-size, no ad-hoc shadow/radius/duration may
+   appear in any other stylesheet or template. Everything references a token
+   defined here. If you need a new value, add a named token here first.
+
+   Brand parameter (§0):  BRAND_NAME = "AImport"  ·  aimport.co
+   ========================================================================== */
+
+:root {
+  /* ---- 4.1 Color — base roles -------------------------------------------- */
+  --color-ink:    #111111;  /* authority text                  */
+  --color-canvas: #F7F5EF;  /* warm canvas / page background    */
+  --color-panel:  #E7E3DA;  /* soft surface / panels            */
+  --color-brand:  #1E4F8A;  /* customs blue — trust & structure */
+  --color-amber:  #D8A342;  /* RATIONED — actions & warnings only */
+  --color-green:  #6E8F75;  /* flow / success / CBAM            */
+  --color-white:  #FFFFFF;
+
+  /* ---- Derived tints & shades (named, never inline opacity) -------------- */
+  /* Ink ramp — for secondary/tertiary text on canvas (AA-checked) */
+  --color-ink-90: #1c1c1b;
+  --color-ink-70: #3f3e3a;  /* body-secondary on canvas — AA */
+  --color-ink-60: #565550;  /* muted but still AA on canvas  */
+  --color-ink-45: #74726b;  /* faint labels — large text / non-essential */
+  --color-ink-line:   #d8d3c7;  /* hairline borders on canvas */
+  --color-ink-line-2: #cfc9bb;  /* slightly stronger divider  */
+
+  /* Brand ramp */
+  --color-brand-900: #143a66;
+  --color-brand-700: #1a4576;
+  --color-brand-600: #1E4F8A;  /* = base */
+  --color-brand-500: #2a5e9e;
+  --color-brand-300: #7fa3c7;
+  --color-brand-tint:   #e4ebf3;  /* soft blue wash surface */
+  --color-brand-tint-2: #d3deeb;
+
+  /* Amber ramp (rationed) */
+  --color-amber-700: #b9842b;
+  --color-amber-600: #c79232;  /* amber text on canvas — AA-safe vs base */
+  --color-amber-500: #D8A342;  /* = base, for fills/borders */
+  --color-amber-tint: #f5ead2;
+
+  /* Green ramp */
+  --color-green-700: #4f6e57;
+  --color-green-600: #5d7d64;  /* green text on canvas — AA */
+  --color-green-500: #6E8F75;  /* = base */
+  --color-green-tint: #dde6df;
+
+  /* Panel ramp */
+  --color-panel-2:  #ddd8cc;  /* deeper panel / inset */
+  --color-panel-3:  #efece4;  /* lighter panel / card on canvas */
+
+  /* Semantic surface aliases (components reference these) */
+  --surface-page:     var(--color-canvas);
+  --surface-card:     var(--color-white);
+  --surface-soft:     var(--color-panel-3);
+  --surface-inset:    var(--color-panel);
+  --text-primary:     var(--color-ink);
+  --text-secondary:   var(--color-ink-70);
+  --text-muted:       var(--color-ink-60);
+  --text-faint:       var(--color-ink-45);
+  --text-on-brand:    var(--color-white);
+  --text-on-amber:    #2a2207;            /* dark ink on amber — AA */
+  --border-hair:      var(--color-ink-line);
+  --border-strong:    var(--color-ink-line-2);
+  --focus-ring:       var(--color-brand);
+
+  /* ---- 4.2 Typography ---------------------------------------------------- */
+  --font-display: "Inter Tight", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Modular scale — base 16px, ratio ~1.25, line-heights per step */
+  --text-xs:   0.8125rem;  /* 13px */
+  --text-sm:   0.9375rem;  /* 15px */
+  --text-base: 1rem;       /* 16px */
+  --text-md:   1.125rem;   /* 18px */
+  --text-lg:   1.375rem;   /* 22px */
+  --text-xl:   1.75rem;    /* 28px */
+  --text-2xl:  2.1875rem;  /* 35px */
+  --text-3xl:  2.6875rem;  /* 43px */
+  --text-4xl:  3.5rem;     /* 56px — hero display */
+
+  --leading-xs:   1.5;
+  --leading-sm:   1.6;
+  --leading-base: 1.65;
+  --leading-md:   1.6;
+  --leading-lg:   1.4;
+  --leading-xl:   1.2;
+  --leading-2xl:  1.12;
+  --leading-3xl:  1.08;
+  --leading-4xl:  1.04;
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semi:    600;
+  --weight-bold:    700;
+
+  --tracking-tight: -0.02em;
+  --tracking-snug:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:  0.04em;
+  --tracking-caps:  0.16em;  /* uppercase kickers/labels */
+
+  /* ---- 4.3 Spacing (4px base) ------------------------------------------- */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   24px;
+  --space-6:   32px;
+  --space-7:   48px;
+  --space-8:   64px;
+  --space-9:   96px;
+  --space-10: 128px;
+
+  /* Layout */
+  --container-max: 1120px;
+  --container-pad: var(--space-5);
+
+  /* ---- Radius ----------------------------------------------------------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* ---- Elevation — restrained, two tokens max --------------------------- */
+  --shadow-1: 0 1px 2px rgba(17, 17, 17, 0.04), 0 2px 8px rgba(17, 17, 17, 0.05);
+  --shadow-2: 0 4px 12px rgba(17, 17, 17, 0.06), 0 12px 32px rgba(20, 40, 70, 0.08);
+  /* focus/confirmation ring — a state ring, not elevation (keeps shadows to 2) */
+  --ring-success: 0 0 0 3px var(--color-green-tint);
+
+  /* ---- Motion ----------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 150ms;   /* micro-interactions */
+  --dur-base: 300ms;   /* reveals            */
+}
+
+/* Honour reduced motion globally for any animation that rides on tokens.
+   (Component sheets also guard their own non-essential motion.) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}
