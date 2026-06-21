@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AImport — EU Customs Classification</title>
+<style>
+  :root { --ink:#1a2233; --muted:#667; --line:#e3e7ee; --brand:#1f6feb;
+          --ok:#127a3d; --warn:#b25b00; --bg:#f6f8fb; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         color:var(--ink); background:var(--bg); }
+  .wrap { max-width:760px; margin:0 auto; padding:32px 20px 80px; }
+  header h1 { margin:0 0 4px; font-size:24px; letter-spacing:-.3px; }
+  header p { margin:0 0 24px; color:var(--muted); }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px;
+          padding:20px; box-shadow:0 1px 2px rgba(20,30,60,.04); margin-bottom:18px; }
+  label { display:block; font-weight:600; font-size:13px; margin:0 0 6px; }
+  textarea, input { width:100%; padding:11px 12px; border:1px solid var(--line);
+          border-radius:8px; font:inherit; color:var(--ink); background:#fff; }
+  textarea { resize:vertical; min-height:64px; }
+  .row { display:flex; gap:12px; margin-top:14px; }
+  .row > div { flex:1; }
+  button { cursor:pointer; border:0; border-radius:8px; font:inherit; font-weight:600; }
+  .primary { background:var(--brand); color:#fff; padding:12px 20px; margin-top:16px; }
+  .primary:disabled { opacity:.5; cursor:default; }
+  .hint { color:var(--muted); font-size:12px; font-weight:400; margin-top:4px; }
+  .q-opt { display:block; border:1px solid var(--line); border-radius:8px;
+           padding:12px 14px; margin:8px 0; cursor:pointer; background:#fff; }
+  .q-opt:hover { border-color:var(--brand); }
+  .q-opt input { width:auto; margin-right:10px; }
+  .code { font-size:30px; font-weight:700; letter-spacing:.5px; color:var(--ink); }
+  .badge { display:inline-block; font-size:12px; font-weight:700; padding:3px 9px;
+           border-radius:999px; vertical-align:middle; margin-left:10px; }
+  .badge.high { background:#e7f6ec; color:var(--ok); }
+  .badge.review { background:#fff1e0; color:var(--warn); }
+  .desc { color:var(--muted); margin:6px 0 16px; }
+  pre { background:#0f1320; color:#d6e2ff; padding:14px 16px; border-radius:8px;
+        overflow:auto; font-size:12.5px; line-height:1.45; }
+  details { margin-top:14px; }
+  summary { cursor:pointer; font-weight:600; color:var(--brand); }
+  .muted { color:var(--muted); }
+  .err { color:#b00020; }
+  .spinner { display:inline-block; width:16px; height:16px; border:2px solid #cdd6e4;
+             border-top-color:var(--brand); border-radius:50%; animation:spin .8s linear infinite;
+             vertical-align:middle; margin-right:8px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .step { font-size:13px; color:var(--muted); padding:2px 0; }
+  .step b { color:var(--ink); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>AImport</h1>
+    <p>EU customs HS-code classification — by legal reasoning, never a guess.</p>
+  </header>
+
+  <div class="card">
+    <label for="text">Describe your product</label>
+    <textarea id="text" placeholder="e.g. men's knitted t-shirt, 100% cotton, short sleeves"></textarea>
+    <div class="row">
+      <div>
+        <label for="origin">Country of origin <span class="hint">(2-letter code, optional)</span></label>
+        <input id="origin" maxlength="2" placeholder="CN" style="text-transform:uppercase">
+      </div>
+      <div>
+        <label for="hint">Chapter hint <span class="hint">(optional)</span></label>
+        <input id="hint" placeholder="e.g. 61">
+      </div>
+    </div>
+    <button id="go" class="primary">Classify</button>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const out = $("out");
+
+function esc(s){ return (s||"").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+function loading(msg){ out.innerHTML = `<div class="card"><span class="spinner"></span>${esc(msg)}</div>`; }
+
+async function post(url, body){
+  const r = await fetch(url, {method:"POST", headers:{"content-type":"application/json"},
+                              body: JSON.stringify(body)});
+  return r.json();
+}
+
+$("go").onclick = async () => {
+  const text = $("text").value.trim();
+  if(!text){ out.innerHTML = `<div class="card err">Please describe the product first.</div>`; return; }
+  loading("Reasoning through the legal classification…");
+  try {
+    const data = await post("/api/classify",
+      {text, origin: $("origin").value.trim(), hint: $("hint").value.trim()});
+    render(data);
+  } catch(e){ out.innerHTML = `<div class="card err">Could not reach the engine: ${esc(""+e)}</div>`; }
+};
+
+function render(data){
+  if(data.status === "needs_question") return renderQuestion(data);
+  if(data.status === "classified")     return renderResult(data);
+  if(data.status === "error")          { out.innerHTML = `<div class="card err">${esc(data.message)}</div>`; return; }
+  // needs_review / other
+  out.innerHTML = `<div class="card"><b>Needs expert review.</b>
+     <p class="muted">${esc(data.message||"The engine will not guess past this point.")}</p>
+     ${trailHTML(data.trail)}</div>`;
+}
+
+function renderQuestion(data){
+  const q = data.question;
+  const opts = q.options.map((o,i) => `
+    <label class="q-opt">
+      <input type="radio" name="qopt" value="${esc(o.id)}" ${i===0?"checked":""}>
+      ${esc(o.text)}
+    </label>`).join("");
+  out.innerHTML = `<div class="card">
+      <div style="font-weight:600;margin-bottom:6px">The AI needs one detail to continue</div>
+      <p class="muted" style="margin-top:0">${esc(q.ask)}</p>
+      ${opts}
+      <button id="ans" class="primary">Continue</button>
+    </div>`;
+  $("ans").onclick = async () => {
+    const picked = document.querySelector('input[name="qopt"]:checked');
+    if(!picked) return;
+    loading("Applying your answer and continuing the descent…");
+    try {
+      const next = await post("/api/answer",
+        {session_id: data.session_id, sig: data.sig, choice: picked.value});
+      render(next);
+    } catch(e){ out.innerHTML = `<div class="card err">Could not reach the engine: ${esc(""+e)}</div>`; }
+  };
+}
+
+function renderResult(data){
+  const cls = data.confidence === "high" ? "high" : "review";
+  const label = data.confidence === "high" ? "high confidence" : (data.confidence||"review");
+  out.innerHTML = `<div class="card">
+      <div><span class="code">${esc(data.code_spaced)}</span>
+           <span class="badge ${cls}">${esc(label)}</span></div>
+      <div class="desc">${esc(data.description)}</div>
+      ${data.hint_conflict ? `<p class="err">Note: your chapter hint conflicted with the
+          legal evidence; the engine kept the evidence-based path — please verify.</p>` : ""}
+      <label>Duties &amp; measures</label>
+      <pre>${esc(data.duty_text)}</pre>
+      ${trailHTML(data.trail)}
+    </div>`;
+}
+
+function trailHTML(trail){
+  if(!trail || !trail.length) return "";
+  const steps = trail.map(s => `<div class="step"><b>${esc(s.gri)}</b> · ${esc(s.action)}`
+      + (s.chosen ? ` → <b>${esc(s.chosen)}</b>` : "")
+      + (s.note ? ` <span class="muted">(${esc(s.note)})</span>` : "")
+      + `</div>`).join("");
+  return `<details><summary>Show legal audit trail (${trail.length} steps)</summary>
+            <div style="margin-top:8px">${steps}</div></details>`;
+}
+</script>
+</body>
+</html>
