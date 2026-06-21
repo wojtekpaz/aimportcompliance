@@ -3,99 +3,95 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Saved products — Aimport Compliance</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Saved products — AImport</title>
+<link rel="icon" href="/static/img/mark.svg" type="image/svg+xml">
+<link rel="preload" href="/static/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/css/design-tokens.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/product.css">
 <style>
+  /* Compatibility alias layer (see classify.html): legacy var names → new tokens
+     so the page markup + JS-generated HTML re-theme without touching the JS. */
   :root{
-    --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#101019; --line:#1c1c26;
-    --text:#eaeaea; --muted:#8b8b9a; --faint:#b0b0b0; --accent:#00d4c8;
-    --accent-dim:rgba(0,212,200,.14); --amber:#d9a441;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --bg:var(--surface-page); --panel:var(--surface-soft); --panel-2:var(--surface-card);
+    --line:var(--border-hair); --text:var(--text-primary); --muted:var(--text-muted);
+    --faint:var(--text-faint); --accent:var(--color-brand); --accent-dim:var(--color-brand-tint);
+    --amber:var(--color-amber-500); --mono:var(--font-mono);
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    line-height:1.6;letter-spacing:-0.005em;-webkit-font-smoothing:antialiased}
-  ::selection{background:rgba(0,212,200,.22);color:#fff}
-  a{color:inherit;text-decoration:none}
 
-  .topbar{display:flex;align-items:center;justify-content:space-between;
-          padding:26px 48px;border-bottom:1px solid var(--line)}
-  .mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--text)}
-  .mark .sq{width:8px;height:8px;background:var(--accent);display:block;box-shadow:0 0 8px rgba(0,212,200,.6)}
-  .topbar nav{display:flex;gap:28px}
-  .topbar nav a{color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .18s}
-  .topbar nav a:hover{color:var(--accent)}
-  .topbar nav a.active{color:var(--accent)}
-
-  .wrap{max-width:1180px;margin:0 auto;padding:56px 48px 90px}
-  h1{font-size:26px;font-weight:600;letter-spacing:-0.02em;margin:0 0 8px}
-  .sub{color:var(--muted);font-size:14px;margin-bottom:36px}
+  .wrap{max-width:1180px;margin:0 auto;padding:var(--space-8) var(--space-7) var(--space-9)}
+  h1{font-size:var(--text-2xl);line-height:var(--leading-2xl);margin-bottom:var(--space-2)}
+  .sub{color:var(--text-secondary);font-size:var(--text-base);margin-bottom:var(--space-7);max-width:70ch}
 
   /* stat strip */
-  .stats{display:flex;gap:48px;margin-bottom:38px;padding-bottom:30px;border-bottom:1px solid var(--line)}
-  .stat .n{font-family:var(--mono);font-size:30px;color:var(--accent);line-height:1}
-  .stat .l{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-top:8px}
+  .stats{display:flex;gap:var(--space-7);margin-bottom:var(--space-7);padding-bottom:var(--space-6);
+    border-bottom:1px solid var(--border-hair);flex-wrap:wrap}
+  .stat .n{font-family:var(--font-mono);font-size:var(--text-xl);color:var(--color-brand);line-height:1}
+  .stat .l{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--tracking-caps);
+    text-transform:uppercase;color:var(--text-faint);margin-top:var(--space-2)}
 
   /* controls */
-  .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:28px}
-  .control{display:flex;flex-direction:column;gap:7px}
-  .control .lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
-  .control input,.control select{background:var(--panel);color:var(--text);
-    border:1px solid rgba(255,255,255,.15);border-radius:0;padding:10px 12px;
-    font-family:var(--mono);font-size:13px;outline:none;transition:border-color .18s}
-  .control input:focus,.control select:focus{border-color:var(--accent)}
+  .controls{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:flex-end;margin-bottom:var(--space-6)}
+  .control{display:flex;flex-direction:column;gap:var(--space-2)}
+  .control .lbl{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--tracking-caps);
+    text-transform:uppercase;color:var(--text-muted)}
+  .control input,.control select{background:var(--surface-card);color:var(--text-primary);
+    border:1px solid var(--border-strong);border-radius:var(--radius-sm);padding:var(--space-3) var(--space-3);
+    font-family:var(--font-mono);font-size:var(--text-sm);outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+  .control input:focus,.control select:focus{border-color:var(--color-brand)}
   .control.search input{width:280px}
-  .control.search input::placeholder{color:#8a8a8a}
+  .control.search input::placeholder{color:var(--text-faint)}
   .spacer{flex:1}
-  .export{align-self:flex-end;background:transparent;border:1px solid rgba(0,212,200,.5);
-    color:var(--accent);padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.14em;
-    text-transform:uppercase;cursor:pointer;transition:background .18s}
-  .export:hover{background:var(--accent-dim)}
+  .export{align-self:flex-end;background:transparent;border:1px solid var(--border-strong);
+    color:var(--color-brand-700);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);
+    font-size:var(--text-xs);font-weight:var(--weight-semi);letter-spacing:var(--tracking-wide);
+    text-transform:uppercase;cursor:pointer;transition:background var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out)}
+  .export:hover{background:var(--color-brand-tint);border-color:var(--color-brand)}
 
   /* table */
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  thead th{text-align:left;padding:12px 14px;font-size:10px;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--line);font-weight:600}
-  tbody td{padding:14px;border-bottom:1px solid var(--line);vertical-align:top}
-  tbody tr.row{cursor:pointer;transition:background .14s}
-  tbody tr.row:hover{background:rgba(255,255,255,.02)}
-  .code{font-family:var(--mono);color:var(--accent);font-size:13.5px;white-space:nowrap}
-  .prod{color:var(--text);max-width:320px}
-  .prod .cn{color:var(--faint);font-size:12px;margin-top:3px}
-  .pill{display:inline-block;font-size:9.5px;font-weight:600;letter-spacing:.12em;
-    text-transform:uppercase;padding:2px 7px;border:1px solid currentColor;white-space:nowrap}
-  .pill.hi{color:var(--accent)} .pill.review{color:var(--amber)} .pill.ind{color:#818cf8}
-  .pill.def{color:var(--amber)}
-  .muted{color:var(--muted)}
-  .origin{font-family:var(--mono);color:var(--text)}
-  .del{background:none;border:0;color:var(--faint);cursor:pointer;font-size:16px;
-    line-height:1;padding:4px 8px;transition:color .15s}
-  .del:hover{color:#c2607a}
+  table{width:100%;border-collapse:collapse;font-size:var(--text-sm)}
+  thead th{text-align:left;padding:var(--space-3) var(--space-3);font-family:var(--font-mono);font-size:var(--text-xs);
+    letter-spacing:var(--tracking-wide);text-transform:uppercase;color:var(--text-faint);
+    border-bottom:1px solid var(--border-hair);font-weight:var(--weight-medium)}
+  tbody td{padding:var(--space-3);border-bottom:1px solid var(--border-hair);vertical-align:top}
+  tbody tr.row{cursor:pointer;transition:background var(--dur-fast) var(--ease-out)}
+  tbody tr.row:hover{background:var(--surface-soft)}
+  .code{font-family:var(--font-mono);color:var(--color-brand);font-size:var(--text-sm);white-space:nowrap}
+  .prod{color:var(--text-primary);max-width:320px}
+  .prod .cn{color:var(--text-faint);font-size:var(--text-xs);margin-top:3px}
+  .pill{display:inline-block;font-family:var(--font-mono);font-size:var(--text-xs);font-weight:var(--weight-medium);
+    letter-spacing:var(--tracking-wide);text-transform:uppercase;padding:2px var(--space-2);
+    border-radius:var(--radius-pill);border:1px solid currentColor;white-space:nowrap}
+  .pill.hi{color:var(--color-green-700)} .pill.review{color:var(--color-amber-700)} .pill.ind{color:var(--color-brand-700)}
+  .pill.def{color:var(--color-amber-700)}
+  .muted{color:var(--text-muted)}
+  .origin{font-family:var(--font-mono);color:var(--text-primary)}
+  .del{background:none;border:0;color:var(--text-faint);cursor:pointer;font-size:var(--text-md);
+    line-height:1;padding:var(--space-1) var(--space-2);transition:color var(--dur-fast) var(--ease-out)}
+  .del:hover{color:var(--text-warn)}
 
   /* expanded trail row */
-  tr.detail td{background:var(--panel);padding:0;border-bottom:1px solid var(--line)}
-  .detail-inner{padding:20px 24px}
-  .detail-inner .dlbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-    color:var(--accent);margin-bottom:14px}
-  .tl{position:relative;padding-left:20px;border-left:1px solid rgba(0,212,200,.35)}
-  .tl-item{position:relative;padding:6px 0}
+  tr.detail td{background:var(--surface-soft);padding:0;border-bottom:1px solid var(--border-hair)}
+  .detail-inner{padding:var(--space-5) var(--space-5)}
+  .detail-inner .dlbl{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--tracking-wide);
+    text-transform:uppercase;color:var(--color-brand);margin-bottom:var(--space-3)}
+  .tl{position:relative;padding-left:var(--space-5);border-left:1px solid var(--color-brand-tint-2)}
+  .tl-item{position:relative;padding:var(--space-2) 0}
   .tl-item::before{content:"";position:absolute;left:-24px;top:11px;width:6px;height:6px;
-    border-radius:50%;background:var(--accent)}
-  .tl-l{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--faint);text-transform:uppercase}
-  .tl-c{color:var(--text);font-size:13px;margin-top:2px}
-  .defbox{margin-top:18px;border-left:3px solid var(--amber);background:rgba(217,164,65,.06);
-    padding:12px 16px;font-size:13px}
-  .defbox .dn{color:var(--text)} .defbox .dr{color:var(--amber);font-family:var(--mono);margin-top:4px}
+    border-radius:50%;background:var(--color-brand)}
+  .tl-l{font-family:var(--font-mono);font-size:var(--text-xs);letter-spacing:var(--tracking-wide);color:var(--text-faint);text-transform:uppercase}
+  .tl-c{color:var(--text-primary);font-size:var(--text-sm);margin-top:2px}
+  .defbox{margin-top:var(--space-4);border-left:3px solid var(--color-amber-500);background:var(--color-amber-tint);
+    border-radius:var(--radius-sm);padding:var(--space-3) var(--space-4);font-size:var(--text-sm)}
+  .defbox .dn{color:var(--text-primary)} .defbox .dr{color:var(--color-amber-700);font-family:var(--font-mono);margin-top:var(--space-1)}
 
-  .empty{text-align:center;padding:80px 20px;color:var(--faint)}
-  .empty .big{font-size:15px;color:var(--muted);margin-bottom:8px}
+  .empty{text-align:center;padding:var(--space-9) var(--space-5);color:var(--text-faint)}
+  .empty .big{font-size:var(--text-md);color:var(--text-secondary);margin-bottom:var(--space-2)}
 
   @media (max-width:880px){
-    .wrap{padding:40px 20px 70px}.topbar{padding:22px}
-    .control.search input{width:100%}.stats{gap:28px}
+    .wrap{padding:var(--space-6) var(--space-5) var(--space-8)}
+    .control.search input{width:100%}.stats{gap:var(--space-6)}
     .prod{max-width:180px}
   }
 </style>
@@ -103,7 +99,7 @@
 <body>
 
 <div class="topbar">
-  <a class="mark" href="/"><span class="sq"></span>Aimport Compliance</a>
+  <a class="mark" href="/"><img src="/static/img/mark.svg" alt=""><span><span class="wordmark__ai">AI</span>mport</span></a>
   <nav><a href="/">Home</a><a href="/classify">Classification</a><a href="/invoice">Invoice scan</a><a href="/products" class="active">Saved products</a><a href="/optimize">Optimize</a></nav>
 </div>
 
@@ -227,7 +223,7 @@
     fetch('/api/products?' + params()).then(function(r){return r.json();})
       .then(function(data){ render(data); })
       .catch(function(){ $('rows').innerHTML =
-        '<tr><td colspan="7" style="color:#c2607a;padding:24px">Could not load saved products. Is the server running?</td></tr>'; });
+        '<tr><td colspan="7" style="color:var(--text-warn);padding:24px">Could not load saved products. Is the server running?</td></tr>'; });
   }
 
   function render(data){
