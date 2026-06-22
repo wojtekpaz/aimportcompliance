@@ -17,9 +17,9 @@
     --text:#eaeaea;
     --muted:#8b8b9a;
     --faint:#b0b0b0;
-    --accent:#00d4c8;
-    --accent-dim:rgba(0,212,200,.14);
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --accent:#1f6feb;
+    --accent-dim:rgba(31,111,235,.14);
+    --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -29,7 +29,7 @@
     font-weight:400;line-height:1.6;letter-spacing:-0.005em;
     -webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden;
   }
-  ::selection{background:rgba(0,212,200,.22);color:#fff}
+  ::selection{background:rgba(31,111,235,.22);color:#fff}
   a{color:inherit}
 
   /* ---- layout: left-aligned, spine lives in the left gutter ---- */
@@ -40,9 +40,9 @@
 
   /* ---- the SVG spine ---- */
   .spine{position:absolute;top:0;left:48px;width:50px;z-index:5;pointer-events:none;overflow:visible}
-  .spine .track{fill:none;stroke:rgba(0,212,200,.13);stroke-width:1.4}
+  .spine .track{fill:none;stroke:rgba(31,111,235,.13);stroke-width:1.4}
   .spine .thread{fill:none;stroke:var(--accent);stroke-width:1.7;stroke-linecap:round;
-        filter:drop-shadow(0 0 3px rgba(0,212,200,.55));}
+        filter:drop-shadow(0 0 3px rgba(31,111,235,.55));}
 
   /* ---- typography ---- */
   h1,h2,h3{font-weight:600;letter-spacing:-0.025em;margin:0}
@@ -53,7 +53,7 @@
   .mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.01em;
         font-size:15px;color:var(--text);text-decoration:none}
   .mark .sq{width:8px;height:8px;background:var(--accent);display:block;
-            box-shadow:0 0 8px rgba(0,212,200,.6)}
+            box-shadow:0 0 8px rgba(31,111,235,.6)}
 
   /* ---- top bar / nav ---- */
   .topbar{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;
@@ -72,7 +72,7 @@
        border:1px solid var(--accent);background:transparent;border-radius:0;
        padding:15px 30px;font-size:14.5px;font-weight:500;letter-spacing:.03em;
        text-decoration:none;transition:background .18s ease,color .18s ease}
-  .cta:hover{background:var(--accent-dim);color:#7df6ee}
+  .cta:hover{background:var(--accent-dim);color:#9cc1fb}
 
   .hero-grid{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
   .hero-grid text{font-family:var(--mono);font-size:13px;fill:var(--accent);opacity:0;
@@ -106,7 +106,7 @@
   .step p{color:var(--muted);font-size:14.5px;margin:0}
   .arrow{display:flex;align-items:center;justify-content:center;color:var(--accent);
          font-size:16px;opacity:.75;padding-top:2px;flex:0 0 36px}
-  .arrow::before{content:"";width:22px;height:1px;background:rgba(0,212,200,.4);
+  .arrow::before{content:"";width:22px;height:1px;background:rgba(31,111,235,.4);
                  display:block;margin-right:-3px}
 
   /* ---- output card ---- */
@@ -174,7 +174,7 @@
   /* ---- footer ---- */
   footer{position:relative;z-index:2;padding:40px 0 56px;margin-top:40px}
   .footrule{height:1px;background:var(--accent);opacity:.55;margin:0 40px 0 132px;
-            box-shadow:0 0 8px rgba(0,212,200,.4)}
+            box-shadow:0 0 8px rgba(31,111,235,.4)}
   .footin{max-width:1040px;padding:34px 40px 0 132px;display:flex;
           align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
   .footin .tag{color:var(--faint);font-size:13px;margin-top:10px}
@@ -226,7 +226,7 @@
   <svg class="hero-grid" id="heroGrid" aria-hidden="true">
     <defs>
       <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
-        <path d="M 46 0 L 0 0 0 46" fill="none" stroke="#00d4c8" stroke-width="0.5" opacity="0.05"/>
+        <path d="M 46 0 L 0 0 0 46" fill="none" stroke="#1f6feb" stroke-width="0.5" opacity="0.05"/>
       </pattern>
     </defs>
     <rect width="100%" height="100%" fill="url(#grid)"></rect>

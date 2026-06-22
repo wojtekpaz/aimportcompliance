@@ -10,21 +10,21 @@
 <style>
   :root{
     --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#101019; --line:#1c1c26;
-    --text:#eaeaea; --muted:#8b8b9a; --faint:#b0b0b0; --accent:#00d4c8;
-    --accent-dim:rgba(0,212,200,.14); --amber:#d9a441;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --text:#eaeaea; --muted:#8b8b9a; --faint:#b0b0b0; --accent:#1f6feb;
+    --accent-dim:rgba(31,111,235,.14); --amber:#d9a441;
+    --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
     line-height:1.6;letter-spacing:-0.005em;-webkit-font-smoothing:antialiased}
-  ::selection{background:rgba(0,212,200,.22);color:#fff}
+  ::selection{background:rgba(31,111,235,.22);color:#fff}
   a{color:inherit;text-decoration:none}
 
   .topbar{display:flex;align-items:center;justify-content:space-between;
           padding:26px 48px;border-bottom:1px solid var(--line)}
   .mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--text)}
-  .mark .sq{width:8px;height:8px;background:var(--accent);display:block;box-shadow:0 0 8px rgba(0,212,200,.6)}
+  .mark .sq{width:8px;height:8px;background:var(--accent);display:block;box-shadow:0 0 8px rgba(31,111,235,.6)}
   .topbar nav{display:flex;gap:28px}
   .topbar nav a{color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .18s}
   .topbar nav a:hover{color:var(--accent)}
@@ -50,7 +50,7 @@
   .control.search input{width:280px}
   .control.search input::placeholder{color:#8a8a8a}
   .spacer{flex:1}
-  .export{align-self:flex-end;background:transparent;border:1px solid rgba(0,212,200,.5);
+  .export{align-self:flex-end;background:transparent;border:1px solid rgba(31,111,235,.5);
     color:var(--accent);padding:10px 18px;font-size:11px;font-weight:600;letter-spacing:.14em;
     text-transform:uppercase;cursor:pointer;transition:background .18s}
   .export:hover{background:var(--accent-dim)}
@@ -80,7 +80,7 @@
   .detail-inner{padding:20px 24px}
   .detail-inner .dlbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;
     color:var(--accent);margin-bottom:14px}
-  .tl{position:relative;padding-left:20px;border-left:1px solid rgba(0,212,200,.35)}
+  .tl{position:relative;padding-left:20px;border-left:1px solid rgba(31,111,235,.35)}
   .tl-item{position:relative;padding:6px 0}
   .tl-item::before{content:"";position:absolute;left:-24px;top:11px;width:6px;height:6px;
     border-radius:50%;background:var(--accent)}

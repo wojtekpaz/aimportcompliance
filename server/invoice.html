@@ -10,9 +10,9 @@
 <style>
   :root{
     --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#101019; --line:#1c1c26;
-    --text:#eaeaea; --muted:#8b8b9a; --faint:#b0b0b0; --accent:#00d4c8;
-    --accent-dim:rgba(0,212,200,.14); --amber:#d9a441; --red:#c2607a;
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+    --text:#eaeaea; --muted:#8b8b9a; --faint:#b0b0b0; --accent:#1f6feb;
+    --accent-dim:rgba(31,111,235,.14); --amber:#d9a441; --red:#c2607a;
+    --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);
@@ -22,7 +22,7 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;
           padding:26px 48px;border-bottom:1px solid var(--line)}
   .mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
-  .mark .sq{width:8px;height:8px;background:var(--accent);box-shadow:0 0 8px rgba(0,212,200,.6)}
+  .mark .sq{width:8px;height:8px;background:var(--accent);box-shadow:0 0 8px rgba(31,111,235,.6)}
   .topbar nav{display:flex;gap:28px}
   .topbar nav a{color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .18s}
   .topbar nav a:hover{color:var(--accent)} .topbar nav a.active{color:var(--accent)}
@@ -47,7 +47,7 @@
     padding:10px 12px;font-family:var(--mono);font-size:13px;outline:none;text-transform:uppercase}
   .control input::placeholder{color:#8a8a8a}
   .control input:focus{border-color:var(--accent)}
-  .btn{background:transparent;border:1px solid rgba(0,212,200,.55);color:var(--accent);
+  .btn{background:transparent;border:1px solid rgba(31,111,235,.55);color:var(--accent);
     padding:13px 28px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
     cursor:pointer;transition:background .18s}
   .btn:hover{background:var(--accent-dim)} .btn:disabled{opacity:.4;cursor:default}
@@ -69,7 +69,7 @@
   /* results */
   .item{border:1px solid var(--line);background:var(--panel);margin-bottom:12px;padding:18px 20px}
   .item.issue{border-left:3px solid var(--amber)}
-  .item.ok{border-left:3px solid rgba(0,212,200,.4)}
+  .item.ok{border-left:3px solid rgba(31,111,235,.4)}
   .item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
   .item .rowno{font-family:var(--mono);font-size:11px;color:var(--faint)}
   .item .desc{color:var(--text);font-size:15px;margin:2px 0 4px}

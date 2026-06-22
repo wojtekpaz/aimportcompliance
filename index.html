@@ -19,16 +19,16 @@
 <style>
   :root{
     --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#12121b; --line:#1c1c26;
-    --text:#ececf0; --muted:#9a9aa8; --faint:#bcbcc6; --accent:#00d4c8;
-    --accent-dim:rgba(0,212,200,.12); --accent-line:rgba(0,212,200,.4);
-    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --text:#ececf0; --muted:#9a9aa8; --faint:#bcbcc6; --accent:#1f6feb;
+    --accent-dim:rgba(31,111,235,.12); --accent-line:rgba(31,111,235,.4);
+    --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
     --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
     line-height:1.7;letter-spacing:-0.005em;-webkit-font-smoothing:antialiased}
-  ::selection{background:rgba(0,212,200,.22);color:#fff}
+  ::selection{background:rgba(31,111,235,.22);color:#fff}
   a{color:inherit;text-decoration:none}
   :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
@@ -39,27 +39,63 @@
     backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line)}
   .nav .row{display:flex;align-items:center;justify-content:space-between;height:68px}
   .logo{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-0.01em}
-  .logo .sq{width:9px;height:9px;background:var(--accent);box-shadow:0 0 9px rgba(0,212,200,.6)}
+  .logo .sq{width:9px;height:9px;background:var(--accent);box-shadow:0 0 9px rgba(31,111,235,.6)}
   .btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--sans);
     font-size:13.5px;font-weight:600;letter-spacing:.02em;padding:10px 18px;border-radius:0;
     border:1px solid var(--accent-line);color:var(--accent);background:transparent;
     transition:background .2s,border-color .2s,color .2s}
   .btn:hover{background:var(--accent-dim);border-color:var(--accent)}
   .btn-lg{padding:15px 26px;font-size:14.5px}
-  .btn-solid{background:var(--accent);color:#04201e;border-color:var(--accent)}
-  .btn-solid:hover{background:#1ae0d4;color:#04201e}
+  .btn-solid{background:var(--accent);color:#ffffff;border-color:var(--accent)}
+  .btn-solid:hover{background:#4f86f0;color:#ffffff}
   .link-ghost{cursor:pointer;color:var(--faint);font-size:14px;font-weight:500;
     border-bottom:1px solid transparent;transition:color .2s,border-color .2s;padding-bottom:2px}
   .link-ghost:hover{color:var(--accent);border-color:var(--accent-line)}
 
   /* ---- hero ---- */
-  .hero{padding:120px 0}
+  .hero{padding:120px 0;position:relative;display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:44px;align-items:center}
+  .hero-copy{min-width:0;position:relative;z-index:1}
   .hero h1{font-size:72px;line-height:1.1;font-weight:700;letter-spacing:-0.025em;
     margin:0 0 26px;max-width:15ch}
   .hero h1 .em{color:var(--accent)}
   .hero .sub{font-size:20px;line-height:1.6;color:#9ca3af;max-width:54ch;margin:0 0 38px;font-weight:400}
   .hero .cta-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
   .hero .proof{margin-top:30px;font-size:13px;color:var(--muted);font-family:var(--mono);letter-spacing:.08em}
+  /* keep all hero text above the ambient flow animation */
+  .hero h1,.hero .sub,.hero .cta-row{position:relative;z-index:1}
+
+  /* ---- hero circular workflow orbit (right column · desktop only · behind text) ---- */
+  .hero-anim{width:100%;pointer-events:none}
+  .hero-anim svg{display:block;width:100%;height:auto;overflow:visible}
+  .hero-anim text{font-family:var(--sans);font-weight:400;letter-spacing:0.03em}
+
+  /* travelling 28px arc */
+  .ha-arc{animation:arc-travel 10s linear infinite}
+  @keyframes arc-travel{to{stroke-dashoffset:-911}}
+
+  /* chevron arrowhead leads the arc, tangent to the ring */
+  #ah{offset-path:path("M 300,65 A 145,145 0 1 1 299.999,65");offset-rotate:auto;
+    animation:ah-travel 10s linear infinite}
+  @keyframes ah-travel{from{offset-distance:3.07%}to{offset-distance:103.07%}}
+
+  /* terms sharpen as the arrow arrives, blur as it leaves (10s ÷ 5, staggered 20%) */
+  .ha-term{animation-duration:10s;animation-timing-function:linear;animation-iteration-count:infinite}
+  .ha-term1{animation-name:term1}
+  .ha-term2{animation-name:term2}
+  .ha-term3{animation-name:term3}
+  .ha-term4{animation-name:term4}
+  .ha-term5{animation-name:term5}
+  @keyframes term1{0%,18%{opacity:1;filter:blur(0)}24%,94%{opacity:.22;filter:blur(3px)}100%{opacity:1;filter:blur(0)}}
+  @keyframes term2{0%,14%{opacity:.22;filter:blur(3px)}20%,38%{opacity:1;filter:blur(0)}44%,100%{opacity:.22;filter:blur(3px)}}
+  @keyframes term3{0%,34%{opacity:.22;filter:blur(3px)}40%,58%{opacity:1;filter:blur(0)}64%,100%{opacity:.22;filter:blur(3px)}}
+  @keyframes term4{0%,54%{opacity:.22;filter:blur(3px)}60%,78%{opacity:1;filter:blur(0)}84%,100%{opacity:.22;filter:blur(3px)}}
+  @keyframes term5{0%,74%{opacity:.22;filter:blur(3px)}80%,98%{opacity:1;filter:blur(0)}100%{opacity:.22;filter:blur(3px)}}
+
+  @media (max-width:768px){.hero{grid-template-columns:1fr}.hero-anim{display:none}}
+  @media (prefers-reduced-motion:reduce){
+    .ha-arc,#ah,.ha-term{animation:none}
+    .ha-term{opacity:1;filter:blur(0)}}
 
   /* ---- section base ---- */
   section{padding:100px 0}
@@ -67,17 +103,120 @@
     color:var(--accent);margin:0 0 22px}
   h2{font-size:32px;line-height:1.15;font-weight:600;letter-spacing:-0.02em;margin:0 0 28px}
 
-  /* ---- problem (two-column) ---- */
-  .problem{background:#0d0d10;border-top:1px solid rgba(255,255,255,.06);padding:100px 0}
-  .problem .pgrid{display:grid;grid-template-columns:55fr 45fr;gap:60px;align-items:center;
-    max-width:1100px;margin:0 auto;padding:0 28px}
-  .problem .kicker{font-size:12px;letter-spacing:.15em}
-  .problem .p-left{border-left:2px solid rgba(45,212,191,.2);padding-left:20px}
-  .problem .p-left p{font-size:18px;line-height:1.8;color:var(--muted);margin:0 0 22px}
-  .problem .p-left p:last-child{margin:0}
-  .problem code{font-family:var(--mono);font-size:.92em;color:var(--faint)}
-  .problem .p-quote .rule{width:40px;height:2px;background:#2dd4bf;border:0;margin:0 0 20px}
-  .problem .p-quote .q{font-size:30px;font-weight:500;color:#2dd4bf;line-height:1.4;margin:0}
+  /* ---- how it works (feature rows + product-UI mocks) ---- */
+  .hiw{border-top:1px solid rgba(255,255,255,.06)}
+  .hiw .hiw-head{max-width:18ch;margin:0}
+  .hiw-rows{display:flex;flex-direction:column;margin-top:44px}
+  .hiw-row{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;
+    padding:60px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .hiw-row:first-child{padding-top:8px}
+  .hiw-row:last-child{border-bottom:0}
+  /* alternate sides: graphic right (01), graphic left (02), graphic right (03) */
+  .hiw-row:nth-child(even) .hiw-copy{order:2}
+  .hiw-row:nth-child(even) .hiw-mock{order:1}
+
+  .hiw-num{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  .hiw-copy h3{font-size:25px;font-weight:600;color:#fff;margin:14px 0 14px;
+    letter-spacing:-0.01em;line-height:1.25}
+  .hiw-line{font-size:16px;line-height:1.75;color:#9ca3af;margin:0}
+  .hiw-sub{font-size:14.5px;line-height:1.65;color:var(--muted);margin:16px 0 0;
+    padding-left:14px;border-left:1px solid var(--accent-line)}
+
+  /* shared mock-card chrome — same visual language as the existing .feat-mock cards */
+  .hiw-mock{background:#141418;border:1px solid rgba(255,255,255,.08);border-radius:12px;
+    padding:22px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--faint)}
+  .hiw-mock .mk-label{font-size:10px;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .hiw-mock .mk-code{font-size:20px;letter-spacing:.04em;color:#fff;font-weight:500}
+  .hiw-mock .mk-div{border:0;border-top:1px solid rgba(255,255,255,.07);margin:16px 0}
+
+  /* status marks — the product's existing semantic green/amber (as on classify & invoice) */
+  .pill{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.04em;
+    padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .pill-ok{color:#7fe0b0;border:1px solid #2f5f4a;background:rgba(60,140,100,.12)}
+  .mk-check{color:#7fe0b0;font-weight:700}
+  .mk-x{color:var(--muted);font-weight:700}
+  .mk-flag{color:#d9a341}
+
+  /* graphic 01 — result card */
+  .mk-result .mk-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mk-result .mk-trail{margin-top:18px;display:flex;flex-direction:column;gap:11px}
+  .mk-result .mk-step{display:flex;align-items:center;gap:10px;color:var(--text)}
+  .mk-result .mk-step.mk-reject{color:var(--muted);text-decoration:line-through;
+    text-decoration-color:rgba(255,255,255,.28)}
+  .mk-result .mk-cost{color:var(--text)}
+  .mk-result .mk-total{color:#fff;font-weight:500}
+  .mk-result .mk-legal{display:flex;flex-direction:column;gap:7px}
+  .mk-result .mk-legal-label{font-size:10px;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted)}
+  .mk-result .mk-legal-item{color:var(--text);font-size:12.5px;line-height:1.5}
+  .mk-result .mk-bti{align-self:flex-start;color:var(--accent);font-size:12.5px;
+    border-bottom:1px solid var(--accent-line);padding-bottom:1px;transition:border-color .2s}
+  .mk-result .mk-bti:hover{border-color:var(--accent)}
+
+  /* graphic 02 — invoice document (REVIEW): scanned + flagged inline */
+  .mk-invoice{padding:0;overflow:hidden;font-family:var(--sans)}
+  .mk-invoice .inv-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:13px 18px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02)}
+  .mk-invoice .inv-bar-l{font-size:10.5px;font-weight:600;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted)}
+  .mk-invoice .inv-bar-r{font-size:10.5px;font-weight:600;letter-spacing:.03em;color:#f59e0b;
+    border:1px solid rgba(245,158,11,.4);background:rgba(245,158,11,.1);
+    border-radius:999px;padding:3px 10px;white-space:nowrap}
+  .mk-invoice .inv-doc{padding:4px 18px 14px}
+  .mk-invoice .inv-row{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start;
+    padding:13px 0;border-top:1px solid rgba(255,255,255,.06)}
+  .mk-invoice .inv-row:first-child{border-top:0}
+  .mk-invoice .inv-desc{color:var(--text);font-size:13.5px;line-height:1.45;font-weight:400}
+  .mk-invoice .inv-right{display:flex;align-items:center;gap:10px;white-space:nowrap}
+  .mk-invoice .inv-code{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:12.5px;color:#fff;letter-spacing:.02em}
+  .mk-invoice .inv-status{font-weight:700;font-size:13px;line-height:1.45}
+  .mk-invoice .inv-status.ok{color:#7fe0b0}
+  .mk-invoice .inv-status.warn{color:#f59e0b}
+  .mk-invoice .weak{text-decoration:underline;text-decoration-style:wavy;
+    text-decoration-color:#f59e0b;text-decoration-thickness:2px;text-underline-offset:3px}
+  .mk-invoice .inv-flagtag{display:block;margin-top:7px;font-size:11px;font-weight:500;color:#f59e0b}
+
+  /* graphic 03 — client survey link card (constrained dropdowns, never free text) */
+  .mk-survey .survey-link{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:#0f0f12;border:1px solid var(--accent-line);border-radius:8px;
+    padding:11px 14px;margin-bottom:16px}
+  .mk-survey .link-url{color:var(--accent);font-size:13px;letter-spacing:.01em}
+  .mk-survey .copy-glyph{color:var(--muted);font-size:14px}
+  .mk-survey .survey-q{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:#0e0e15;border:1px solid rgba(255,255,255,.14);border-radius:7px;
+    padding:11px 13px;margin-bottom:10px}
+  .mk-survey .q-label{color:var(--text)}
+  .mk-survey .q-caret,.mk-survey .q-attach{color:var(--muted)}
+  .mk-survey .survey-foot{display:flex;align-items:center;gap:12px;margin-top:14px}
+  .mk-survey .ret{color:var(--muted);font-size:12px}
+
+  /* graphic 04 — export / deliverable card (DELIVER) */
+  .mk-export .exp-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mk-export .exp-code{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:18px;letter-spacing:.03em;color:#fff;font-weight:500}
+  .mk-export .exp-sub{margin-top:10px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .mk-export .exp-files{display:flex;flex-direction:column;gap:9px}
+  .mk-export .exp-file{display:flex;align-items:center;gap:11px;background:#0f0f12;
+    border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 12px}
+  .mk-export .exp-ext{flex:none;font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--accent);
+    border:1px solid var(--accent-line);border-radius:4px;padding:4px 7px}
+  .mk-export .exp-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .mk-export .exp-name{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    font-size:12.5px;color:#fff;letter-spacing:.01em}
+  .mk-export .exp-meta{font-size:11px;color:var(--muted)}
+  .mk-export .exp-foot{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+  .mk-export .exp-ret{font-size:11.5px;color:var(--muted)}
+
+  /* scroll-reveal: fade + 8px rise, graphic lightly trails the copy */
+  .hiw-reveal{opacity:0;transform:translateY(8px);transition:opacity .6s ease,transform .6s ease}
+  .hiw-reveal.in{opacity:1;transform:none}
+  .hiw-mock.hiw-reveal{transition-delay:.09s}
+  .hiw-mock.in .beat{animation:checkSettle .5s ease both}
+  @keyframes checkSettle{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+  @media (prefers-reduced-motion:reduce){.hiw-reveal{opacity:1;transform:none}.hiw-mock.in .beat{animation:none}}
 
   /* ---- stat break ---- */
   .statbreak{border-top:1px solid rgba(255,255,255,.06);padding:100px 0;text-align:center}
@@ -98,13 +237,13 @@
   /* ---- demo / classification trail ---- */
   .demo{border-top:1px solid rgba(255,255,255,.06)}
   .trail{background:var(--panel-2);border:1px solid var(--line);margin-top:8px;
-    box-shadow:0 0 0 1px rgba(0,212,200,.05) inset}
+    box-shadow:0 0 0 1px rgba(31,111,235,.05) inset}
   .trail-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
     padding:16px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
   .trail-head .th-l{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--faint)}
   .trail-head .th-r{font-family:var(--mono);font-size:12px;color:var(--muted)}
   .trail-head .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);
-    box-shadow:0 0 6px rgba(0,212,200,.6);margin-right:8px;vertical-align:middle}
+    box-shadow:0 0 6px rgba(31,111,235,.6);margin-right:8px;vertical-align:middle}
 
   .trail-input{padding:20px 24px;border-bottom:1px solid var(--line)}
   .trail-input .il{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
@@ -124,15 +263,15 @@
   .tstep .why{font-size:14px;color:var(--muted);line-height:1.6}
 
   .trail-final{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;
-    padding:22px 24px;border-top:1px solid var(--accent-line);background:rgba(0,212,200,.05)}
+    padding:22px 24px;border-top:1px solid var(--accent-line);background:rgba(31,111,235,.05)}
   .trail-final .fl{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
   .trail-final .code{font-family:var(--mono);font-size:30px;letter-spacing:.06em;color:var(--accent);line-height:1}
   .trail-final .desc{font-family:var(--mono);font-size:13px;color:var(--muted)}
 
-  .clarify{margin-top:20px;border-left:3px solid rgba(45,212,191,.4);background:#0f1a18;
+  .clarify{margin-top:20px;border-left:3px solid rgba(31,111,235,.4);background:#0f1a18;
     padding:16px 20px}
   .clarify .cl{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    color:#2dd4bf;margin-bottom:8px}
+    color:#1f6feb;margin-bottom:8px}
   .clarify p{margin:0;font-size:14.5px;line-height:1.65;color:var(--faint)}
   .clarify code{font-family:var(--mono);color:var(--text)}
 
@@ -143,7 +282,7 @@
     border-radius:16px;padding:36px;overflow:hidden;transform:perspective(800px) rotateX(0) rotateY(0);
     transition:transform .4s ease;will-change:transform}
   .tcard .glow{position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:0;opacity:0;
-    background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%),rgba(0,212,200,.06),transparent 60%);
+    background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%),rgba(31,111,235,.06),transparent 60%);
     transition:opacity .4s ease}
   .tcard:hover .glow{opacity:1}
   .tcard .tnum{position:relative;z-index:1;font-family:var(--mono);font-size:48px;font-weight:600;
@@ -226,6 +365,15 @@
     text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-line);
     border-radius:999px;padding:4px 12px;background:transparent;margin:12px 0 4px}
 
+  /* ---- pull quote: one-click client share ---- */
+  .quote{border-top:1px solid rgba(255,255,255,.06);text-align:center}
+  .quote .inner{max-width:760px;margin:0 auto}
+  .quote .qmark{font-size:52px;line-height:.7;color:var(--accent);opacity:.5;font-weight:700;margin-bottom:10px}
+  .quote blockquote{margin:0;font-size:30px;font-weight:500;line-height:1.42;color:#fff;letter-spacing:-0.01em}
+  .quote blockquote .em{color:var(--accent)}
+  .quote .qcap{margin:22px auto 0;max-width:60ch;font-size:14.5px;line-height:1.6;color:var(--muted)}
+  @media (max-width:768px){.quote blockquote{font-size:23px}}
+
   /* ---- savings band ---- */
   /* stats band: graphite liquid-glass panel with travelling teal border */
   @property --stat-angle{ syntax:'<angle>'; initial-value:0deg; inherits:false; }
@@ -241,10 +389,10 @@
     -webkit-backdrop-filter:blur(24px) saturate(130%);
     /* visible teal-tinted base frame — stays defined even if the animation
        can't run (Safari/@property edge cases); the sheen rides on top */
-    border:1px solid rgba(45,212,191,.22);
+    border:1px solid rgba(31,111,235,.22);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.08),
                0 16px 48px rgba(0,0,0,.45),
-               0 0 28px rgba(45,212,191,.06);
+               0 0 28px rgba(31,111,235,.06);
     transition:filter .3s ease}
   /* travelling teal sheen, masked to a 1px ring. Static white border below
      stays visible; where mask is unsupported the panel keeps its base border. */
@@ -254,8 +402,8 @@
     .savings-panel::before{padding:1px;
       background:conic-gradient(from var(--stat-angle),
         transparent 0%, transparent 28%,
-        rgba(45,212,191,.9) 50%,
-        rgba(45,212,191,.35) 64%,
+        rgba(31,111,235,.9) 50%,
+        rgba(31,111,235,.35) 64%,
         transparent 80%, transparent 100%);
       -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite:xor;
@@ -269,8 +417,8 @@
     .savings-panel:hover::before{animation-duration:6s;
       background:conic-gradient(from var(--stat-angle),
         transparent 0%, transparent 28%,
-        rgba(45,212,191,1) 50%,
-        rgba(45,212,191,.45) 64%,
+        rgba(31,111,235,1) 50%,
+        rgba(31,111,235,.45) 64%,
         transparent 80%, transparent 100%)}
   }
   .savings .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center}
@@ -310,8 +458,8 @@
     border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:12px 12px 12px 18px;
     outline:none;transition:border-color .2s,box-shadow .2s}
   .pin-input::placeholder{color:#4b4b55;letter-spacing:.2em}
-  .pin-input:focus{border-color:#2dd4bf}
-  .pin-input.flash{border-color:#2dd4bf;box-shadow:0 0 0 3px rgba(45,212,191,.25)}
+  .pin-input:focus{border-color:#1f6feb}
+  .pin-input.flash{border-color:#1f6feb;box-shadow:0 0 0 3px rgba(31,111,235,.25)}
   .pin-error{margin:16px 0 0;font-size:13.5px;line-height:1.6;color:#f87171;min-height:1.2em;
     opacity:0;transition:opacity .25s ease}
   .pin-error.show{opacity:1}
@@ -324,9 +472,10 @@
   /* ---- responsive ---- */
   @media (max-width:768px){
     .rail{left:7px}
-    .problem .pgrid{grid-template-columns:1fr;gap:32px}
-    .problem .p-quote{order:-1}
-    .problem .p-quote .q{font-size:24px}
+    .hiw-row{grid-template-columns:1fr;gap:28px;padding:48px 0}
+    .hiw-row:first-child{padding-top:8px}
+    .hiw-row:nth-child(even) .hiw-copy,
+    .hiw-row:nth-child(even) .hiw-mock{order:0}
     .statbreak{padding:72px 0}
     .statbreak .sb-statement{font-size:24px}
     .hero{padding:80px 0 64px}
@@ -367,7 +516,7 @@
     .rail .fill{transition:none}
     /* settle the stats panel to a static teal border, no travelling sheen */
     .savings-panel::before{animation:none;background:none}
-    .savings-panel{border-color:rgba(45,212,191,.25)}
+    .savings-panel{border-color:rgba(31,111,235,.25)}
   }
 </style>
 </head>
@@ -377,9 +526,9 @@
 <svg class="rail" viewBox="0 0 4 1000" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <linearGradient id="railGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#00d4c8" stop-opacity=".12"/>
-      <stop offset=".5" stop-color="#00d4c8" stop-opacity=".65"/>
-      <stop offset="1" stop-color="#00d4c8" stop-opacity="1"/>
+      <stop offset="0" stop-color="#1f6feb" stop-opacity=".12"/>
+      <stop offset=".5" stop-color="#1f6feb" stop-opacity=".65"/>
+      <stop offset="1" stop-color="#1f6feb" stop-opacity="1"/>
     </linearGradient>
   </defs>
   <line class="track" x1="2" y1="0" x2="2" y2="1000"/>
@@ -400,279 +549,195 @@
 <!-- ===== HERO ===== -->
 <div class="wrap">
   <section class="hero">
-    <h1>Every CN code has a reason. <span class="em">Aimport shows you the reasoning.</span></h1>
-    <p class="sub">The engine walks the tariff tree from the top, applies the GRI rules at each branch, and shows the facts behind every decision.</p>
-    <div class="cta-row">
-      <a class="btn btn-solid btn-lg" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access →</a>
-      <a class="link-ghost" href="#demo">See how it works ↓</a>
+    <div class="hero-copy">
+      <h1>Every CN code has a reason. <span class="em">Aimport shows you the reasoning.</span></h1>
+      <p class="sub">We automate the import compliance workflow — classification, documentation, and client communication — with a defensible reason behind every result.</p>
+      <div class="cta-row">
+        <a class="btn btn-solid btn-lg" href="#" data-pin-trigger>Try our free demo →</a>
+        <a class="link-ghost" href="#how">See how it works ↓</a>
+      </div>
     </div>
-    <div class="proof">In pilot with a small group of customs brokers. Access by invitation.</div>
+
+    <!-- circular GRI workflow orbit (right column) -->
+    <div class="hero-anim" aria-hidden="true">
+      <svg viewBox="0 0 600 420" role="img" aria-label="Workflow terms orbiting a classification ring">
+        <!-- dotted ring (always visible) -->
+        <path d="M 300,65 A 145,145 0 1 1 299.999,65" fill="none"
+              stroke="rgba(37,99,235,.12)" stroke-width="1" stroke-dasharray="4 9"/>
+
+        <!-- travelling blue arc (28px lit segment) -->
+        <path class="ha-arc" d="M 300,65 A 145,145 0 1 1 299.999,65" fill="none"
+              stroke="#2563eb" stroke-width="1.4" stroke-dasharray="28 883"/>
+
+        <!-- chevron arrowhead, leads the arc along the same path -->
+        <path id="ah" d="M-5,-3 L2,0 L-5,3" fill="none" stroke="#2563eb"
+              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- five workflow terms at fixed positions -->
+        <text class="ha-term ha-term1" x="300" y="65"  text-anchor="middle" fill="#93c5fd" font-size="13">GRI 1–6</text>
+        <text class="ha-term ha-term2" x="438" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Defensible Decisions</text>
+        <text class="ha-term ha-term3" x="388" y="318" text-anchor="middle" fill="#93c5fd" font-size="12">Invoice Scanning</text>
+        <text class="ha-term ha-term4" x="212" y="318" text-anchor="middle" fill="#93c5fd" font-size="13">Legal Reasoning</text>
+        <text class="ha-term ha-term5" x="162" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Product Description</text>
+      </svg>
+    </div>
   </section>
 </div>
 
-<!-- ===== PROBLEM ===== -->
-<section class="problem">
-  <div class="pgrid">
-    <div class="p-left">
-      <p class="kicker">The problem</p>
-      <p>You run a product description through most tools and get back ten digits with none of the reasoning behind them. When a client asks why heading <code>7308</code> and not <code>7326</code>, you answer from memory.</p>
-      <p>An auditor asks the same question with more on the line. You know a GRI rule settled it. You cannot show which rule, or at which step. So you rebuild the argument by hand.</p>
-    </div>
-    <div class="p-quote">
-      <hr class="rule">
-      <p class="q">The ten digits were never the hard part. The reasoning behind them is what you defend.</p>
+<!-- ===== HOW IT WORKS (features) ===== -->
+<section class="hiw" id="how">
+  <div class="wrap">
+    <p class="kicker">How it works</p>
+    <h2 class="hiw-head">From product data to a code you can defend.</h2>
+
+    <div class="hiw-rows">
+
+      <!-- 01 · CLASSIFY — graphic right -->
+      <div class="hiw-row">
+        <div class="hiw-copy hiw-reveal">
+          <div class="hiw-num">01 · Classify</div>
+          <h3>The code — and the reason behind it.</h3>
+          <p class="hiw-line">Describe a product. Aimport walks the GRI rules to the right CN/TARIC code, shows the reasoning, and saves it to your audit trail.</p>
+          <p class="hiw-sub">Add units and unit cost to see landed cost at the live duty rate.</p>
+        </div>
+        <div class="hiw-mock mk-result hiw-reveal">
+          <div class="mk-top">
+            <span class="mk-code">7308.30.00.00</span>
+            <span class="pill pill-ok"><span class="beat">✓</span> Defensible</span>
+          </div>
+          <div class="mk-trail">
+            <div class="mk-step"><span class="mk-check">✓</span> GRI 1 — heading</div>
+            <div class="mk-step"><span class="mk-check">✓</span> GRI 6 — subheading</div>
+            <div class="mk-step mk-reject"><span class="mk-x">✕</span> 7326 — rejected branch</div>
+          </div>
+          <hr class="mk-div">
+          <div class="mk-legal">
+            <div class="mk-legal-label">Legal basis</div>
+            <div class="mk-legal-item">Section XV Note 1 · CN Explanatory Note to 7308 90</div>
+            <a class="mk-bti" href="https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_home.jsp?Lang=en" target="_blank" rel="noopener">Comparable ruling — EBTI DE BTI 24681/23 ↗</a>
+          </div>
+          <hr class="mk-div">
+          <div class="mk-cost">250 units × €4.20 · duty 2.7% → <span class="mk-total">€1,078.35 landed</span></div>
+        </div>
+      </div>
+
+      <!-- 02 · REVIEW — graphic left -->
+      <div class="hiw-row">
+        <div class="hiw-copy hiw-reveal">
+          <div class="hiw-num">02 · Review</div>
+          <h3>Catch the risk before the auditor does.</h3>
+          <p class="hiw-line">Upload a client's invoice. Aimport verifies each code and flags descriptions that are incomplete or hard to defend.</p>
+        </div>
+        <div class="hiw-mock mk-invoice hiw-reveal">
+          <div class="inv-bar">
+            <span class="inv-bar-l">Commercial invoice · 3 of 4 items verified</span>
+            <span class="inv-bar-r">2 items flagged</span>
+          </div>
+          <div class="inv-doc">
+            <div class="inv-row">
+              <div class="inv-desc">Steel mounting brackets, hot-dip galvanised</div>
+              <div class="inv-right"><span class="inv-code">7308.90.98</span><span class="inv-status ok">✓</span></div>
+            </div>
+            <div class="inv-row">
+              <div class="inv-descwrap">
+                <div class="inv-desc"><span class="weak">Metal parts</span></div>
+                <div class="inv-flagtag">⚠ too vague to defend</div>
+              </div>
+              <div class="inv-right"><span class="inv-code">7326.90.98</span><span class="inv-status warn">⚠</span></div>
+            </div>
+            <div class="inv-row">
+              <div class="inv-descwrap">
+                <div class="inv-desc"><span class="weak">Machinery components</span></div>
+                <div class="inv-flagtag">⚠ missing material spec</div>
+              </div>
+              <div class="inv-right"><span class="inv-code">8431.49.00</span><span class="inv-status warn">⚠</span></div>
+            </div>
+            <div class="inv-row">
+              <div class="inv-desc">Plastic connectors, type A</div>
+              <div class="inv-right"><span class="inv-code">3926.90.98</span><span class="inv-status ok">✓</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 · RESOLVE — graphic right -->
+      <div class="hiw-row">
+        <div class="hiw-copy hiw-reveal">
+          <div class="hiw-num">03 · Resolve</div>
+          <h3>Let the client fill the gaps.</h3>
+          <p class="hiw-line">Missing a detail? Send a one-tap link. The client answers structured questions — and the completed file returns to you.</p>
+        </div>
+        <div class="hiw-mock mk-survey hiw-reveal">
+          <div class="survey-link">
+            <span class="link-url">app.aimport.co/s/ax93kf</span>
+            <span class="copy-glyph">⧉</span>
+          </div>
+          <div class="survey-q">
+            <span class="q-label">Primary material</span>
+            <span class="q-caret">▾</span>
+          </div>
+          <div class="survey-q">
+            <span class="q-label">Surface coating?</span>
+            <span class="q-caret">▾</span>
+          </div>
+          <div class="survey-q">
+            <span class="q-label">Certificate of origin</span>
+            <span class="q-attach">▾ / attach</span>
+          </div>
+          <div class="survey-foot">
+            <span class="pill pill-ok"><span class="beat">✓</span> Completed</span>
+            <span class="ret">→ returns to broker</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 · DELIVER — graphic left -->
+      <div class="hiw-row">
+        <div class="hiw-copy hiw-reveal">
+          <div class="hiw-num">04 · Deliver</div>
+          <h3>A defensible file, ready to hand over.</h3>
+          <p class="hiw-line">Aimport packages the code, its GRI reasoning, and the legal basis into export-ready files — formatted for your declaration software and ready to send to a customs officer.</p>
+          <p class="hiw-sub">One record, defensible end to end: from a product description to a filing anyone can follow.</p>
+        </div>
+        <div class="hiw-mock mk-export hiw-reveal">
+          <div class="exp-head">
+            <span class="exp-code">7308.90.98.90</span>
+            <span class="pill pill-ok"><span class="beat">✓</span> Ready to file</span>
+          </div>
+          <div class="exp-sub">Steel mounting bracket · GRI 1 → 6 · legal basis attached</div>
+          <hr class="mk-div">
+          <div class="exp-files">
+            <div class="exp-file">
+              <span class="exp-ext">PDF</span>
+              <span class="exp-info"><span class="exp-name">classification-report.pdf</span><span class="exp-meta">code · reasoning · legal basis</span></span>
+            </div>
+            <div class="exp-file">
+              <span class="exp-ext">XML</span>
+              <span class="exp-info"><span class="exp-name">declaration.xml</span><span class="exp-meta">imports into WinSAD / Huzar</span></span>
+            </div>
+            <div class="exp-file">
+              <span class="exp-ext">PDF</span>
+              <span class="exp-info"><span class="exp-name">audit-trail.pdf</span><span class="exp-meta">for the customs officer</span></span>
+            </div>
+          </div>
+          <div class="exp-foot">
+            <span class="pill pill-ok">Workflow complete</span>
+            <span class="exp-ret">↑ upload to your system · send to customs</span>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ===== STAT BREAK ===== -->
-<section class="statbreak">
+<!-- ===== QUOTE: ONE-CLICK CLIENT SHARE ===== -->
+<section class="quote">
   <div class="wrap">
-    <p class="sb-label">Across the EU</p>
-    <p class="sb-statement">Billions in annual EU customs penalties trace back to classification errors</p>
-    <p class="sb-source">European Commission and OLAF customs enforcement reporting</p>
-  </div>
-</section>
-
-<!-- ===== HOW IT WORKS ===== -->
-<section class="how">
-  <div class="wrap">
-    <p class="kicker">How Aimport works</p>
-    <div class="steps">
-      <div class="step">
-        <div class="num">01</div>
-        <div class="lbl">Walk the tree</div>
-        <p>The engine reads your description and starts at the top of the CN tree, where a customs officer starts.</p>
-      </div>
-      <div class="step">
-        <div class="num">02</div>
-        <div class="lbl">Apply the rules</div>
-        <p>At each branch the GRI rules decide which heading applies. The engine picks from the headings the database supplies and never invents one.</p>
-      </div>
-      <div class="step">
-        <div class="num">03</div>
-        <div class="lbl">Show the path</div>
-        <p>You get the ten-digit CN code, the path the engine took, and the legal basis behind each branch.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== DEMO: CLASSIFICATION TRAIL ===== -->
-<section class="demo" id="demo">
-  <div class="wrap">
-    <p class="kicker">What the audit trail looks like</p>
-    <h2>One product, every decision on the record.</h2>
-
-    <div class="trail">
-      <div class="trail-head">
-        <div class="th-l"><span class="dot"></span>Classification trail</div>
-        <div class="th-r">EU CN / TARIC · GRI 1–6</div>
-      </div>
-
-      <div class="trail-input">
-        <div class="il">Product</div>
-        <div class="iv">Steel mounting bracket for solar panels, origin China</div>
-      </div>
-
-      <div class="trail-steps">
-        <div class="tstep">
-          <div class="gri">
-            <span class="rule">GRI 1</span>
-            <span class="act">Section → Chapter</span>
-          </div>
-          <div>
-            <div class="pick">Section XV → Chapter <b>73</b>, articles of iron or steel</div>
-            <div class="why">An article of iron or steel falls in Section XV under the section and chapter notes. The bracket carries no function that pulls it into a machinery chapter.</div>
-          </div>
-        </div>
-
-        <div class="tstep">
-          <div class="gri">
-            <span class="rule">GRI 1</span>
-            <span class="act">Heading</span>
-          </div>
-          <div>
-            <div class="pick">Heading <b>7308</b>, structures and parts of structures, of iron or steel</div>
-            <div class="why">A mounting frame that holds solar panels is a part of a structure, which heading 7308 names. Heading 7326 covers other articles of steel and yields to the heading that describes the goods.</div>
-          </div>
-        </div>
-
-        <div class="tstep">
-          <div class="gri">
-            <span class="rule">GRI 6</span>
-            <span class="act">Subheading</span>
-          </div>
-          <div>
-            <div class="pick">Subheading <b>7308 90</b>, other structures and parts</div>
-            <div class="why">No subheading names bridges, towers, doors, or panels with an insulating core, so the bracket resolves to the residual subheading at the same level.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="trail-final">
-        <div>
-          <div class="fl">Declarable code</div>
-          <div class="code">7308 90 98 90</div>
-        </div>
-        <div class="desc">Other · structures of iron or steel</div>
-      </div>
-    </div>
-
-    <div class="clarify">
-      <div class="cl">If the description were ambiguous</div>
-      <p>Leave the metal out and the engine asks one question before it commits: <code>steel or aluminium?</code> Aluminium structures move to heading <code>7610</code>, and the path changes at the first branch. The engine asks rather than guess.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ===== WHAT AIMPORT DOES ===== -->
-<section class="does">
-  <div class="wrap">
-    <p class="kicker">What Aimport does</p>
-    <p class="intro">One engine. Four workflows customs teams run every day.</p>
-
-    <div class="feat-rows">
-
-      <!-- Row 1 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-block">
-            <div class="m-label">Product</div>
-            <span class="m-line">Steel mounting bracket, solar panels</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">GRI-1</span>&nbsp;&nbsp;Section XV → Chapter 73</span>
-            <span class="m-line dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Articles of iron or steel</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">GRI-1</span>&nbsp;&nbsp;7308 → Structures and parts</span>
-            <span class="m-line dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mounting function confirmed</span>
-          </div>
-          <hr class="m-divider">
-          <div class="m-block">
-            <div class="m-label">Declarable code</div>
-            <span class="m-line m-final">7308 90 98 90</span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">01</div>
-          <h3>Tariff classification</h3>
-          <p class="f-desc">The engine reads your product description and walks the CN tree from the top, applying the GRI rules at each branch. You get the ten-digit code, the path the engine took, and the legal basis for each decision.</p>
-          <p class="f-detail">When the description is ambiguous, the engine asks one question rather than committing to a guess.</p>
-          <a class="f-try" href="#" data-pin-trigger>Try the live engine →</a>
-        </div>
-      </div>
-
-      <!-- Row 2 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-label">Invoice · extracted products</div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">①</span> Steel angle brackets × 500</span>
-            <span class="m-line dim">&nbsp;&nbsp;→ pre-classified: <span class="t">7308 90</span></span>
-            <span class="m-line dim">&nbsp;&nbsp;confidence: high</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">②</span> Aluminium extrusion profiles × 200</span>
-            <span class="m-line dim">&nbsp;&nbsp;→ pre-classified: <span class="t">7604 29</span></span>
-            <span class="m-line dim">&nbsp;&nbsp;confidence: high</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line"><span class="t">③</span> Rubber sealing strips × 1000</span>
-            <span class="m-line dim">&nbsp;&nbsp;→ needs clarification</span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">02</div>
-          <h3>Invoice reading</h3>
-          <p class="f-desc">Upload a commercial invoice and the engine extracts each line item, pre-classifies it, and flags anything that needs a second look. A ten-product invoice takes seconds instead of an hour.</p>
-          <p class="f-detail">The engine uses coordinate-based extraction — it reads the actual position of words on the page, not table structure, so it handles real-world invoice layouts that break every other tool.</p>
-        </div>
-      </div>
-
-      <!-- Row 3 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-label">Saved classifications</div>
-          <div class="m-block">
-            <span class="m-line">Steel mounting bracket</span>
-            <span class="m-line"><span class="t">7308 90 98 90</span> <span class="dim">· classified 12 Jun</span></span>
-            <span class="m-line dim">GRI path: XV → 73 → 7308 → 7308 90</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line">Aluminium window frame</span>
-            <span class="m-line"><span class="t">7610 10 00 00</span> <span class="dim">· classified 8 Jun</span></span>
-            <span class="m-line dim">GRI path: XV → 76 → 7610 → 7610 10</span>
-          </div>
-          <div class="m-block">
-            <span class="m-line">Hydraulic pump assembly</span>
-            <span class="m-line"><span class="t">8413 60 39 00</span> <span class="dim">· classified 3 Jun</span></span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">03</div>
-          <h3>Product database</h3>
-          <p class="f-desc">Every classification is saved with the full reasoning trail. When the same product comes through again, the answer is already there — with the legal basis that supports it.</p>
-          <p class="f-detail">In an audit, you're not reconstructing decisions from memory. You're reading a record of exactly what rule applied and why.</p>
-        </div>
-      </div>
-
-      <!-- Row 4 -->
-      <div class="feat-row">
-        <div class="feat-mock">
-          <div class="m-label">Classification analysis</div>
-          <div class="m-block">
-            <span class="m-line">Current: <span class="t">7308 90 98 90</span> <span class="dim">· duty 3.7%</span></span>
-          </div>
-          <hr class="m-divider">
-          <div class="m-block">
-            <span class="m-line dim">Alternative (GRI-3b)</span>
-            <span class="m-line"><span class="t">7326 90 98 90</span> <span class="dim">· duty 2.7%</span></span>
-            <span class="m-line dim">Essential character: fastening function</span>
-            <span class="m-line">Defensibility: <span class="t">ARGUABLE</span></span>
-          </div>
-          <div class="m-block">
-            <span class="m-line dim">Alternative (GRI-1)</span>
-            <span class="m-line"><span class="t">7318 15 69 00</span> <span class="dim">· duty 3.7%</span></span>
-            <span class="m-line dim">Bolts and screws, steel</span>
-            <span class="m-line">Defensibility: <span class="t">STRONG</span></span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">04</div>
-          <h3>Duty optimization</h3>
-          <p class="f-desc">The engine surfaces alternative classifications that are legally defensible for the same product — each one with the GRI rule that supports it and a rating of how well it would hold up under customs scrutiny.</p>
-          <p class="f-detail">This is what customs consultants charge thousands for. The difference is that every alternative here is validated through the same GRI engine, not suggested by an LLM that might be wrong.</p>
-        </div>
-      </div>
-
-      <!-- Row 5 — in development -->
-      <div class="feat-row dim">
-        <div class="feat-mock">
-          <div class="m-label">Declaration draft</div>
-          <div class="m-block">
-            <span class="m-line">Procedure: <span class="t">4000</span></span>
-            <span class="m-line">CN code: <span class="t">7308 90 98 90</span></span>
-            <span class="m-line">Description: Steel mounting brackets</span>
-            <span class="m-line">Origin: <span class="t">CN</span></span>
-            <span class="m-line">Gross mass: 2450 kg</span>
-            <span class="m-line">Statistical value: €18,400</span>
-          </div>
-          <hr class="m-divider">
-          <div class="m-block">
-            <span class="m-line dim">Export to: WinSAD / Huzar XML</span>
-          </div>
-        </div>
-        <div class="feat-copy">
-          <div class="f-num">05</div>
-          <span class="f-badge">In development</span>
-          <h3>Declaration filling</h3>
-          <p class="f-desc">Classification feeds directly into the declaration. The data the engine already gathered — code, description, origin, procedure — maps to the fields a customs broker fills by hand today.</p>
-          <p class="f-detail muted">Output targets WinSAD and Huzar XML — the formats Polish customs brokers already use.</p>
-        </div>
-      </div>
-
+    <div class="inner">
+      <div class="qmark">&ldquo;</div>
+      <blockquote>No more chasing five separate emails. <span class="em">One click shares the file with the importer</span> — and the missing descriptions come back filled in.</blockquote>
+      <p class="qcap">The one-tap survey from Resolve: Aimport asks the client the right questions, and you get a complete, defensible file back.</p>
     </div>
   </div>
 </section>
@@ -854,6 +919,25 @@
       card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
     });
   });
+})();
+</script>
+
+<!-- how-it-works: subtle scroll-reveal (fade + rise); static final state if reduced-motion -->
+<script>
+(function(){
+  var els = document.querySelectorAll('.hiw-reveal');
+  if(!els.length) return;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce || !('IntersectionObserver' in window)){
+    els.forEach(function(el){ el.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+  els.forEach(function(el){ io.observe(el); });
 })();
 </script>
 
