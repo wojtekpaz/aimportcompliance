@@ -83,13 +83,17 @@ def _prep(im):
     return ImageOps.grayscale(im)           # grayscale beat raw + beat binarize
 
 
-def _ocr_lines(im):
+def _ocr_lines(im, lang="eng"):
     """Run word-level OCR and regroup words into visual rows using the
     (block,par,line) keys from image_to_data — the y-grouping the coordinate
     approach already trusts, just sourced from OCR. Returns a list of rows;
-    each row is a list of {text, conf, left, top} word dicts in reading order."""
+    each row is a list of {text, conf, left, top} word dicts in reading order.
+
+    ``lang`` selects the Tesseract model: "eng" (default, English path —
+    unchanged) or "pol+eng" for Polish invoices. Preprocessing is identical
+    either way (grayscale, 300 DPI, --psm 6, no binarization)."""
     data = pytesseract.image_to_data(_prep(im), output_type=Output.DICT,
-                                     config=PSM)
+                                     lang=lang, config=PSM)
     n = len(data["text"])
     rows = {}
     for i in range(n):
@@ -218,9 +222,12 @@ def _parse_rows(rows):
 
 # ---- public entry ---------------------------------------------------------
 
-def extract_line_items_ocr(pdf_path, page_cap=MAX_PAGES):
+def extract_line_items_ocr(pdf_path, page_cap=MAX_PAGES, lang="eng"):
     """OCR a PDF into line items. Returns (items, meta) where meta carries
-    ocr_mean_conf so the caller can decide whether the read is trustworthy."""
+    ocr_mean_conf so the caller can decide whether the read is trustworthy.
+
+    ``lang`` is forwarded to Tesseract: "eng" (default) keeps the English path
+    unchanged; "pol+eng" reads Polish invoices (and mixed PL/EN ones)."""
     meta = {"origin": "", "invoice_no": "", "ocr_mean_conf": 0.0}
     if not tesseract_available():
         log.warning("OCR requested but tesseract is unavailable; returning empty.")
@@ -230,12 +237,12 @@ def extract_line_items_ocr(pdf_path, page_cap=MAX_PAGES):
     items, all_rows = [], []
     confs = []
     for page in pages[:page_cap]:
-        rows = _ocr_lines(page)
+        rows = _ocr_lines(page, lang=lang)
         # If a page is very low-confidence, retry upscaled 1.5x (second attempt
         # only — upscaling adds words but no field benefit on clean pages).
         if rows and _mean_conf(rows) < 55:
             big = page.resize((int(page.width * 1.5), int(page.height * 1.5)))
-            rows_big = _ocr_lines(big)
+            rows_big = _ocr_lines(big, lang=lang)
             if _mean_conf(rows_big) > _mean_conf(rows):
                 rows = rows_big
         confs.append(_mean_conf(rows))

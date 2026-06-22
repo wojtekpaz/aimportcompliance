@@ -158,7 +158,7 @@ def _tier1_word_count(pdf_path):
         return 0
 
 
-def extract_with_fallback(pdf_path):
+def extract_with_fallback(pdf_path, lang="eng"):
     """Three-tier strategy. Returns (items, meta, status) where status is one of
     'ok' (text layer), 'ocr_used' (recovered by OCR), or 'unreadable'.
 
@@ -178,7 +178,7 @@ def extract_with_fallback(pdf_path):
     # Tier 2 — OCR (primary path for real scans, not just a fallback).
     ocr_ok = ocr.tesseract_available()
     if ocr_ok:
-        oitems, ometa = ocr.extract_line_items_ocr(pdf_path)
+        oitems, ometa = ocr.extract_line_items_ocr(pdf_path, lang=lang)
     else:
         oitems, ometa = [], {"origin": "", "invoice_no": "", "ocr_mean_conf": 0.0}
 
@@ -313,8 +313,8 @@ UNREADABLE_MESSAGE = ("Couldn't read line items from this PDF. It may be a "
                       "items manually.")
 
 
-def analyze_invoice(pdf_path, origin_override=""):
-    items, meta, extraction_status = extract_with_fallback(pdf_path)
+def analyze_invoice(pdf_path, origin_override="", lang="eng"):
+    items, meta, extraction_status = extract_with_fallback(pdf_path, lang=lang)
     origin = (origin_override or meta.get("origin") or "").upper()
 
     # Tier 3 — honest failure. A failed read is NOT a "0 line items" empty

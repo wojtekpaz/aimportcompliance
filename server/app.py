@@ -32,6 +32,7 @@ from fastapi.responses import FileResponse, PlainTextResponse, Response
 from pydantic import BaseModel
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # repo root: wit_pl, isztar_pl
 import logging                         # noqa: E402
 import engine_session as es          # noqa: E402
 import products_db as pdb            # noqa: E402
@@ -63,12 +64,42 @@ class ClassifyIn(BaseModel):
     text: str
     origin: str = ""
     hint: str = ""
+    market: str = "EU"
 
 
 class AnswerIn(BaseModel):
     session_id: str
     sig: str
     choice: str
+    market: str = "EU"
+
+
+def _localize_pl(result, market):
+    """PL profile only: rewrite a clarification question into Polish AFTER the
+    engine has produced it. The engine itself is untouched, so the English path
+    (market=EU, the default) is byte-for-byte unchanged."""
+    if (market or "EU").upper() != "PL" or not isinstance(result, dict):
+        return result
+    try:
+        import pl_question
+        q = result.get("question")
+        if isinstance(q, dict):
+            result["question"] = pl_question.localize(q, "PL")
+        elif isinstance(q, str) and q.strip():
+            tq = pl_question.translate_text(q)
+            if tq:
+                result["question"] = tq
+        # classified result: attach the authoritative Polish nomenclature
+        # description (from the local ISZTAR store) for the determined code
+        if result.get("status") == "classified" and result.get("code"):
+            import isztar_pl
+            from datetime import date as _date
+            m = isztar_pl.get_pl_national_measures(result["code"], _date.today().isoformat())
+            if m.get("description_pl"):
+                result["description_pl"] = m["description_pl"]
+    except Exception:
+        pass  # localization is additive; never break the classification response
+    return result
 
 
 class SaveIn(BaseModel):
@@ -92,6 +123,18 @@ ROOT = HERE.parent
 @app.get("/")
 def index():
     return FileResponse(ROOT / "index.html")
+
+
+# i18n: serve locale string tables (additive; presentation-layer only).
+# The classifier never reads these — they are UI strings consumed by the browser.
+@app.get("/locales/{name}")
+def locales(name: str):
+    if name not in ("en.json", "pl.json"):
+        return Response(status_code=404)
+    path = ROOT / "locales" / name
+    if not path.exists():
+        return Response(status_code=404)
+    return FileResponse(path, media_type="application/json")
 
 
 @app.get("/classify")
@@ -130,12 +173,44 @@ def classify_endpoint(body: ClassifyIn):
     text = body.text.strip()
     if not text:
         return {"status": "error", "message": "Please describe the product."}
-    return es.start(text, body.origin.strip(), body.hint.strip())
+    # engine call is unchanged; PL localization happens only on the way out
+    return _localize_pl(es.start(text, body.origin.strip(), body.hint.strip()), body.market)
 
 
 @app.post("/api/answer")
 def answer_endpoint(body: AnswerIn):
-    return es.answer(body.session_id, body.sig, body.choice)
+    return _localize_pl(es.answer(body.session_id, body.sig, body.choice), body.market)
+
+
+# WIT (Wiążąca Informacja Taryfowa) — Polish view of binding tariff rulings.
+# Display-only EVIDENCE, fetched by the frontend AFTER a determination exists.
+# Deliberately NOT part of /api/classify or /api/answer: WIT never enters the
+# GRI control flow or the oracle's option set.
+@app.get("/api/wit")
+def wit_rulings(code: str = ""):
+    import wit_pl  # local import keeps WIT fully out of the engine module graph
+    return wit_pl.get_wit_rulings(code)
+
+
+# PL national measures (VAT, excise, national non-tariff) + Polish description,
+# read from the local ISZTAR cache. Display-only; fetched after a determination.
+@app.get("/api/pl-measures")
+def pl_measures(code: str = "", date: str = ""):
+    import isztar_pl
+    from datetime import date as _date
+    return isztar_pl.get_pl_national_measures(code, date or _date.today().isoformat())
+
+
+# Deterministic landed-cost calc; market=PL folds in Polish VAT/excise from the
+# local store. Not part of the GRI flow.
+@app.get("/api/landed-cost")
+def landed_cost(customs_value: float = 0.0, duty_rate: str = "0%",
+                code: str = "", date: str = "", market: str = "EU"):
+    import landed_cost_pl
+    from datetime import date as _date
+    return landed_cost_pl.compute_landed_cost(
+        customs_value, duty_rate, code or None,
+        date or _date.today().isoformat(), market)
 
 
 @app.post("/api/products/save")
@@ -169,7 +244,10 @@ def invoice_page():
 
 
 @app.post("/api/invoice/analyze")
-async def invoice_analyze(file: UploadFile = File(...), origin: str = ""):
+async def invoice_analyze(file: UploadFile = File(...), origin: str = "", market: str = "EU"):
+    # PL profile reads Polish invoices with the pol model (pol+eng for mixed
+    # PL/EN); EU stays on "eng" so existing English OCR behaviour is unchanged.
+    ocr_lang = "pol+eng" if (market or "").upper() == "PL" else "eng"
     # Save the uploaded PDF to a temp file, analyse, then delete it.
     if not file.filename.lower().endswith(".pdf"):
         return {"error": "Please upload a PDF invoice."}
@@ -179,7 +257,7 @@ async def invoice_analyze(file: UploadFile = File(...), origin: str = ""):
         content = await file.read()
         tmp.write(content)
         tmp.close()
-        result = inv.analyze_invoice(tmp.name, origin_override=origin)
+        result = inv.analyze_invoice(tmp.name, origin_override=origin, lang=ocr_lang)
         return result
     except Exception as e:
         return {"error": f"Could not process the invoice: {str(e)[:200]}"}
@@ -201,7 +279,25 @@ def optimize_endpoint(body: OptimizeIn):
         return {"error": "Product description is required."}
     if not current_code:
         return {"error": "Current HS/TARIC code is required."}
-    return opt_s.analyze(description, current_code, body.origin.strip())
+    result = opt_s.analyze(description, current_code, body.origin.strip())
+    # Phase 6: attach a DETERMINISTIC defensibility score + duty delta to each
+    # alternative (computed in Python from GRI path strength, WIT support, and
+    # measure clarity — the LLM does not assign these). Additive; opt_s.analyze
+    # is unchanged, and alternatives are already engine-validated (no GRI-rejected
+    # codes reach here).
+    try:
+        import defensibility
+        import landed_cost_pl
+        orig = (result.get("original") or {}).get("duty") or {}
+        orig_rate = landed_cost_pl.parse_percent(orig.get("rate"))
+        for alt in (result.get("alternatives") or []):
+            alt.update(defensibility.score_alternative(alt))
+            alt_rate = landed_cost_pl.parse_percent((alt.get("duty") or {}).get("rate"))
+            if orig_rate is not None and alt_rate is not None:
+                alt["duty_delta_pct"] = round((alt_rate - orig_rate) * 100, 2)  # negative = saving
+    except Exception:
+        pass  # scoring is additive; never break the existing optimize response
+    return result
 
 
 if __name__ == "__main__":

@@ -223,6 +223,15 @@
   .oc-assess .oa-text b{color:var(--faint);font-weight:600;font-size:10px;letter-spacing:.12em;
                         text-transform:uppercase;display:block;margin-bottom:3px}
 
+  /* deterministic defensibility block (Phase 6) */
+  .def-det{margin-top:14px;border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:rgba(31,111,235,.05)}
+  .dd-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .dd-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .dd-score{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600;white-space:nowrap}
+  .dd-grid{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .dd-note{margin-top:8px;font-size:11px;color:var(--faint);font-style:italic}
+  .opt-foot{margin-top:18px;font-size:12px;color:var(--muted);line-height:1.5;font-style:italic}
+
   /* alt-card head chips row */
   .ac-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .lens-chip{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.06em;
@@ -529,9 +538,16 @@
       altHtml = '<div class="no-alts"><div class="na-title">No validated alternatives found</div>' +
                 esc(noMsg) + '</div>';
     } else {
-      altHtml += '<div class="sec-head">Validated alternative classifications (' + alts.length + ')</div>';
+      var pl = plProfile();
+      altHtml += '<div class="sec-head">' +
+        (pl ? 'Optymalizacja taryfowa — warianty (' + alts.length + ')'
+            : 'Validated alternative classifications (' + alts.length + ')') + '</div>';
       for(var i = 0; i < alts.length; i++){
         altHtml += buildAltCard(alts[i], i);
+      }
+      if(pl){
+        altHtml += '<div class="opt-foot">Przedstawiane warianty muszą być możliwe do obrony ' +
+                   'na gruncie reguł GRI i podstawy prawnej.</div>';
       }
     }
     $('altSection').innerHTML = altHtml;
@@ -549,6 +565,37 @@
 
     $('ghost').style.display = 'none';
     $('resultContent').style.display = 'block';
+  }
+
+  function plProfile(){
+    var m = document.cookie.match('(?:^|; )aimport_market=([^;]*)');
+    return m && decodeURIComponent(m[1]) === 'PL';
+  }
+  // Deterministic defensibility block — score + inputs come from the server
+  // (computed in Python, not the LLM). Labels localise for the PL profile.
+  function defBlock(alt){
+    if(alt.defensibility_score == null) return '';
+    var pl = plProfile(), inp = alt.defensibility_inputs || {};
+    var L = pl
+      ? {title:'Obronność (deterministyczna)', gri:'Reguła GRI', wit:'Decyzje WIT',
+         clar:'Przejrzystość środków', delta:'Różnica cła',
+         basis:'wyliczone w sposób deterministyczny — nie przez model'}
+      : {title:'Defensibility (deterministic)', gri:'GRI rule', wit:'WIT rulings',
+         clar:'Measure clarity', delta:'Duty delta',
+         basis:'computed deterministically — not by the model'};
+    var delta = (alt.duty_delta_pct != null)
+      ? ((alt.duty_delta_pct > 0 ? '+' : '') + alt.duty_delta_pct + ' pp') : '—';
+    return '<div class="def-det">' +
+      '<div class="dd-head"><span class="dd-title">' + esc(L.title) + '</span>' +
+        '<span class="dd-score">' + esc(String(alt.defensibility_score)) + '/100 · ' + esc(alt.defensibility_band || '') + '</span></div>' +
+      '<div class="dd-grid">' +
+        '<span>' + esc(L.gri) + ': ' + esc(inp.gri_rule_used || '—') + '</span>' +
+        '<span>' + esc(L.wit) + ': ' + esc(String(inp.wit_rulings != null ? inp.wit_rulings : '—')) + '</span>' +
+        '<span>' + esc(L.clar) + ': ' + esc(String(inp.measure_clarity != null ? inp.measure_clarity : '—')) + '</span>' +
+        '<span>' + esc(L.delta) + ': ' + esc(delta) + '</span>' +
+      '</div>' +
+      '<div class="dd-note">' + esc(L.basis) + '</div>' +
+    '</div>';
   }
 
   function buildAltCard(alt, idx){
@@ -623,6 +670,7 @@
           '<div class="ac-metric"><div class="mk">Duty rate</div><div class="mv rate">' + esc(duty) + '</div></div>' +
           '<div class="ac-metric"><div class="mk">Legal basis</div><div class="mv">' + legalCell + '</div></div>' +
         '</div>' +
+        defBlock(alt) +
         confNote +
         declHtml +
         defHtml +

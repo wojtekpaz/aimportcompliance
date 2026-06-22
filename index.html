@@ -52,6 +52,15 @@
     border-bottom:1px solid transparent;transition:color .2s,border-color .2s;padding-bottom:2px}
   .link-ghost:hover{color:var(--accent);border-color:var(--accent-line)}
 
+  /* ---- language toggle (i18n) ---- */
+  .lang-toggle{display:inline-flex;align-items:center;border:1px solid var(--line);
+    border-radius:999px;overflow:hidden}
+  .lang-opt{appearance:none;background:transparent;border:0;cursor:pointer;font-family:var(--sans);
+    font-size:12.5px;font-weight:500;color:var(--muted);padding:6px 12px;letter-spacing:.01em;
+    transition:color .2s,background .2s}
+  .lang-opt:hover{color:var(--text)}
+  .lang-opt.active{color:var(--accent);background:var(--accent-dim)}
+
   /* ---- hero ---- */
   .hero{padding:120px 0;position:relative;display:grid;
     grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:44px;align-items:center}
@@ -540,8 +549,12 @@
   <div class="wrap row">
     <a class="logo" href="/"><span class="sq"></span>Aimport Compliance</a>
     <div class="nav-actions">
-      <a class="btn" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access</a>
-      <a class="nav-classify" href="#" data-pin-trigger>Classification ↗</a>
+      <div class="lang-toggle" role="group" aria-label="Language / Język">
+        <button type="button" class="lang-opt" data-lang="EU">English</button>
+        <button type="button" class="lang-opt" data-lang="PL">Polski</button>
+      </div>
+      <a class="btn" data-i18n="nav.request_access" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access</a>
+      <a class="nav-classify" data-i18n="nav.classify" href="#" data-pin-trigger>Classification ↗</a>
     </div>
   </div>
 </header>
@@ -550,11 +563,11 @@
 <div class="wrap">
   <section class="hero">
     <div class="hero-copy">
-      <h1>Every CN code has a reason. <span class="em">Aimport shows you the reasoning.</span></h1>
-      <p class="sub">We automate the import compliance workflow — classification, documentation, and client communication — with a defensible reason behind every result.</p>
+      <h1 data-i18n-html="hero.headline">Every CN code has a reason. <span class="em">Aimport shows you the reasoning.</span></h1>
+      <p class="sub" data-i18n="hero.sub">We automate the import compliance workflow — classification, documentation, and client communication — with a defensible reason behind every result.</p>
       <div class="cta-row">
-        <a class="btn btn-solid btn-lg" href="#" data-pin-trigger>Try our free demo →</a>
-        <a class="link-ghost" href="#how">See how it works ↓</a>
+        <a class="btn btn-solid btn-lg" data-i18n="hero.cta_primary" href="#" data-pin-trigger>Try our free demo →</a>
+        <a class="link-ghost" data-i18n="hero.cta_secondary" href="#how">See how it works ↓</a>
       </div>
     </div>
 
@@ -574,11 +587,11 @@
               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
 
         <!-- five workflow terms at fixed positions -->
-        <text class="ha-term ha-term1" x="300" y="65"  text-anchor="middle" fill="#93c5fd" font-size="13">GRI 1–6</text>
-        <text class="ha-term ha-term2" x="438" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Defensible Decisions</text>
-        <text class="ha-term ha-term3" x="388" y="318" text-anchor="middle" fill="#93c5fd" font-size="12">Invoice Scanning</text>
-        <text class="ha-term ha-term4" x="212" y="318" text-anchor="middle" fill="#93c5fd" font-size="13">Legal Reasoning</text>
-        <text class="ha-term ha-term5" x="162" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Product Description</text>
+        <text class="ha-term ha-term1" data-i18n="orbit.t1" x="300" y="65"  text-anchor="middle" fill="#93c5fd" font-size="13">GRI 1–6</text>
+        <text class="ha-term ha-term2" data-i18n="orbit.t2" x="438" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Defensible Decisions</text>
+        <text class="ha-term ha-term3" data-i18n="orbit.t3" x="388" y="318" text-anchor="middle" fill="#93c5fd" font-size="12">Invoice Scanning</text>
+        <text class="ha-term ha-term4" data-i18n="orbit.t4" x="212" y="318" text-anchor="middle" fill="#93c5fd" font-size="13">Legal Reasoning</text>
+        <text class="ha-term ha-term5" data-i18n="orbit.t5" x="162" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Product Description</text>
       </svg>
     </div>
   </section>
@@ -587,73 +600,73 @@
 <!-- ===== HOW IT WORKS (features) ===== -->
 <section class="hiw" id="how">
   <div class="wrap">
-    <p class="kicker">How it works</p>
-    <h2 class="hiw-head">From product data to a code you can defend.</h2>
+    <p class="kicker" data-i18n="hiw.kicker">How it works</p>
+    <h2 class="hiw-head" data-i18n="hiw.head">From product data to a code you can defend.</h2>
 
     <div class="hiw-rows">
 
       <!-- 01 · CLASSIFY — graphic right -->
       <div class="hiw-row">
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num">01 · Classify</div>
-          <h3>The code — and the reason behind it.</h3>
-          <p class="hiw-line">Describe a product. Aimport walks the GRI rules to the right CN/TARIC code, shows the reasoning, and saves it to your audit trail.</p>
-          <p class="hiw-sub">Add units and unit cost to see landed cost at the live duty rate.</p>
+          <div class="hiw-num" data-i18n="step1.num">01 · Classify</div>
+          <h3 data-i18n="step1.h">The code — and the reason behind it.</h3>
+          <p class="hiw-line" data-i18n="step1.line">Describe a product. Aimport walks the GRI rules to the right CN/TARIC code, shows the reasoning, and saves it to your audit trail.</p>
+          <p class="hiw-sub" data-i18n="step1.sub">Add units and unit cost to see landed cost at the live duty rate.</p>
         </div>
         <div class="hiw-mock mk-result hiw-reveal">
           <div class="mk-top">
             <span class="mk-code">7308.30.00.00</span>
-            <span class="pill pill-ok"><span class="beat">✓</span> Defensible</span>
+            <span class="pill pill-ok" data-i18n-html="mkr.defensible"><span class="beat">✓</span> Defensible</span>
           </div>
           <div class="mk-trail">
-            <div class="mk-step"><span class="mk-check">✓</span> GRI 1 — heading</div>
-            <div class="mk-step"><span class="mk-check">✓</span> GRI 6 — subheading</div>
-            <div class="mk-step mk-reject"><span class="mk-x">✕</span> 7326 — rejected branch</div>
+            <div class="mk-step" data-i18n-html="mkr.step_gri1"><span class="mk-check">✓</span> GRI 1 — heading</div>
+            <div class="mk-step" data-i18n-html="mkr.step_gri6"><span class="mk-check">✓</span> GRI 6 — subheading</div>
+            <div class="mk-step mk-reject" data-i18n-html="mkr.step_reject"><span class="mk-x">✕</span> 7326 — rejected branch</div>
           </div>
           <hr class="mk-div">
           <div class="mk-legal">
-            <div class="mk-legal-label">Legal basis</div>
-            <div class="mk-legal-item">Section XV Note 1 · CN Explanatory Note to 7308 90</div>
-            <a class="mk-bti" href="https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_home.jsp?Lang=en" target="_blank" rel="noopener">Comparable ruling — EBTI DE BTI 24681/23 ↗</a>
+            <div class="mk-legal-label" data-i18n="mkr.legal_label">Legal basis</div>
+            <div class="mk-legal-item" data-i18n="mkr.legal_item">Section XV Note 1 · CN Explanatory Note to 7308 90</div>
+            <a class="mk-bti" data-i18n="mkr.bti" href="https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_home.jsp?Lang=en" target="_blank" rel="noopener">Comparable ruling — EBTI DE BTI 24681/23 ↗</a>
           </div>
           <hr class="mk-div">
-          <div class="mk-cost">250 units × €4.20 · duty 2.7% → <span class="mk-total">€1,078.35 landed</span></div>
+          <div class="mk-cost" data-i18n-html="mkr.cost">250 units × €4.20 · duty 2.7% → <span class="mk-total">€1,078.35 landed</span></div>
         </div>
       </div>
 
       <!-- 02 · REVIEW — graphic left -->
       <div class="hiw-row">
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num">02 · Review</div>
-          <h3>Catch the risk before the auditor does.</h3>
-          <p class="hiw-line">Upload a client's invoice. Aimport verifies each code and flags descriptions that are incomplete or hard to defend.</p>
+          <div class="hiw-num" data-i18n="step2.num">02 · Review</div>
+          <h3 data-i18n="step2.h">Catch the risk before the auditor does.</h3>
+          <p class="hiw-line" data-i18n="step2.line">Upload a client's invoice. Aimport verifies each code and flags descriptions that are incomplete or hard to defend.</p>
         </div>
         <div class="hiw-mock mk-invoice hiw-reveal">
           <div class="inv-bar">
-            <span class="inv-bar-l">Commercial invoice · 3 of 4 items verified</span>
-            <span class="inv-bar-r">2 items flagged</span>
+            <span class="inv-bar-l" data-i18n="inv.bar_l">Commercial invoice · 3 of 4 items verified</span>
+            <span class="inv-bar-r" data-i18n="inv.bar_r">2 items flagged</span>
           </div>
           <div class="inv-doc">
             <div class="inv-row">
-              <div class="inv-desc">Steel mounting brackets, hot-dip galvanised</div>
+              <div class="inv-desc" data-i18n="inv.desc1">Steel mounting brackets, hot-dip galvanised</div>
               <div class="inv-right"><span class="inv-code">7308.90.98</span><span class="inv-status ok">✓</span></div>
             </div>
             <div class="inv-row">
               <div class="inv-descwrap">
-                <div class="inv-desc"><span class="weak">Metal parts</span></div>
-                <div class="inv-flagtag">⚠ too vague to defend</div>
+                <div class="inv-desc"><span class="weak" data-i18n="inv.desc2">Metal parts</span></div>
+                <div class="inv-flagtag" data-i18n="inv.flag2">⚠ too vague to defend</div>
               </div>
               <div class="inv-right"><span class="inv-code">7326.90.98</span><span class="inv-status warn">⚠</span></div>
             </div>
             <div class="inv-row">
               <div class="inv-descwrap">
-                <div class="inv-desc"><span class="weak">Machinery components</span></div>
-                <div class="inv-flagtag">⚠ missing material spec</div>
+                <div class="inv-desc"><span class="weak" data-i18n="inv.desc3">Machinery components</span></div>
+                <div class="inv-flagtag" data-i18n="inv.flag3">⚠ missing material spec</div>
               </div>
               <div class="inv-right"><span class="inv-code">8431.49.00</span><span class="inv-status warn">⚠</span></div>
             </div>
             <div class="inv-row">
-              <div class="inv-desc">Plastic connectors, type A</div>
+              <div class="inv-desc" data-i18n="inv.desc4">Plastic connectors, type A</div>
               <div class="inv-right"><span class="inv-code">3926.90.98</span><span class="inv-status ok">✓</span></div>
             </div>
           </div>
@@ -663,9 +676,9 @@
       <!-- 03 · RESOLVE — graphic right -->
       <div class="hiw-row">
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num">03 · Resolve</div>
-          <h3>Let the client fill the gaps.</h3>
-          <p class="hiw-line">Missing a detail? Send a one-tap link. The client answers structured questions — and the completed file returns to you.</p>
+          <div class="hiw-num" data-i18n="step3.num">03 · Resolve</div>
+          <h3 data-i18n="step3.h">Let the client fill the gaps.</h3>
+          <p class="hiw-line" data-i18n="step3.line">Missing a detail? Send a one-tap link. The client answers structured questions — and the completed file returns to you.</p>
         </div>
         <div class="hiw-mock mk-survey hiw-reveal">
           <div class="survey-link">
@@ -673,20 +686,20 @@
             <span class="copy-glyph">⧉</span>
           </div>
           <div class="survey-q">
-            <span class="q-label">Primary material</span>
+            <span class="q-label" data-i18n="srv.q1">Primary material</span>
             <span class="q-caret">▾</span>
           </div>
           <div class="survey-q">
-            <span class="q-label">Surface coating?</span>
+            <span class="q-label" data-i18n="srv.q2">Surface coating?</span>
             <span class="q-caret">▾</span>
           </div>
           <div class="survey-q">
-            <span class="q-label">Certificate of origin</span>
-            <span class="q-attach">▾ / attach</span>
+            <span class="q-label" data-i18n="srv.q3">Certificate of origin</span>
+            <span class="q-attach" data-i18n="srv.attach">▾ / attach</span>
           </div>
           <div class="survey-foot">
-            <span class="pill pill-ok"><span class="beat">✓</span> Completed</span>
-            <span class="ret">→ returns to broker</span>
+            <span class="pill pill-ok" data-i18n-html="srv.completed"><span class="beat">✓</span> Completed</span>
+            <span class="ret" data-i18n="srv.returns">→ returns to broker</span>
           </div>
         </div>
       </div>
@@ -694,35 +707,35 @@
       <!-- 04 · DELIVER — graphic left -->
       <div class="hiw-row">
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num">04 · Deliver</div>
-          <h3>A defensible file, ready to hand over.</h3>
-          <p class="hiw-line">Aimport packages the code, its GRI reasoning, and the legal basis into export-ready files — formatted for your declaration software and ready to send to a customs officer.</p>
-          <p class="hiw-sub">One record, defensible end to end: from a product description to a filing anyone can follow.</p>
+          <div class="hiw-num" data-i18n="step4.num">04 · Deliver</div>
+          <h3 data-i18n="step4.h">A defensible file, ready to hand over.</h3>
+          <p class="hiw-line" data-i18n="step4.line">Aimport packages the code, its GRI reasoning, and the legal basis into export-ready files — formatted for your declaration software and ready to send to a customs officer.</p>
+          <p class="hiw-sub" data-i18n="step4.sub">One record, defensible end to end: from a product description to a filing anyone can follow.</p>
         </div>
         <div class="hiw-mock mk-export hiw-reveal">
           <div class="exp-head">
             <span class="exp-code">7308.90.98.90</span>
-            <span class="pill pill-ok"><span class="beat">✓</span> Ready to file</span>
+            <span class="pill pill-ok" data-i18n-html="exp.ready"><span class="beat">✓</span> Ready to file</span>
           </div>
-          <div class="exp-sub">Steel mounting bracket · GRI 1 → 6 · legal basis attached</div>
+          <div class="exp-sub" data-i18n="exp.sub">Steel mounting bracket · GRI 1 → 6 · legal basis attached</div>
           <hr class="mk-div">
           <div class="exp-files">
             <div class="exp-file">
               <span class="exp-ext">PDF</span>
-              <span class="exp-info"><span class="exp-name">classification-report.pdf</span><span class="exp-meta">code · reasoning · legal basis</span></span>
+              <span class="exp-info"><span class="exp-name">classification-report.pdf</span><span class="exp-meta" data-i18n="exp.meta1">code · reasoning · legal basis</span></span>
             </div>
             <div class="exp-file">
               <span class="exp-ext">XML</span>
-              <span class="exp-info"><span class="exp-name">declaration.xml</span><span class="exp-meta">imports into WinSAD / Huzar</span></span>
+              <span class="exp-info"><span class="exp-name">declaration.xml</span><span class="exp-meta" data-i18n="exp.meta2">imports into WinSAD / Huzar</span></span>
             </div>
             <div class="exp-file">
               <span class="exp-ext">PDF</span>
-              <span class="exp-info"><span class="exp-name">audit-trail.pdf</span><span class="exp-meta">for the customs officer</span></span>
+              <span class="exp-info"><span class="exp-name">audit-trail.pdf</span><span class="exp-meta" data-i18n="exp.meta3">for the customs officer</span></span>
             </div>
           </div>
           <div class="exp-foot">
-            <span class="pill pill-ok">Workflow complete</span>
-            <span class="exp-ret">↑ upload to your system · send to customs</span>
+            <span class="pill pill-ok" data-i18n="exp.complete">Workflow complete</span>
+            <span class="exp-ret" data-i18n="exp.ret">↑ upload to your system · send to customs</span>
           </div>
         </div>
       </div>
@@ -736,8 +749,8 @@
   <div class="wrap">
     <div class="inner">
       <div class="qmark">&ldquo;</div>
-      <blockquote>No more chasing five separate emails. <span class="em">One click shares the file with the importer</span> — and the missing descriptions come back filled in.</blockquote>
-      <p class="qcap">The one-tap survey from Resolve: Aimport asks the client the right questions, and you get a complete, defensible file back.</p>
+      <blockquote data-i18n-html="quote.body">No more chasing five separate emails. <span class="em">One click shares the file with the importer</span> — and the missing descriptions come back filled in.</blockquote>
+      <p class="qcap" data-i18n="quote.cap">The one-tap survey from Resolve: Aimport asks the client the right questions, and you get a complete, defensible file back.</p>
     </div>
   </div>
 </section>
@@ -748,103 +761,103 @@
     <div class="sgrid">
       <div class="stat">
         <div class="snum">90%</div>
-        <div class="slabel">less time per classification</div>
-        <div class="ssource">3–4 hours reduced to under 15 minutes · industry benchmark</div>
+        <div class="slabel" data-i18n="sav.l1">less time per classification</div>
+        <div class="ssource" data-i18n="sav.s1">3–4 hours reduced to under 15 minutes · industry benchmark</div>
       </div>
       <div class="stat">
         <div class="snum">18 min</div>
-        <div class="slabel">saved per product line</div>
-        <div class="ssource">manual average 20 min · AImport average 2 min</div>
+        <div class="slabel" data-i18n="sav.l2">saved per product line</div>
+        <div class="ssource" data-i18n="sav.s2">manual average 20 min · AImport average 2 min</div>
       </div>
       <div class="stat">
         <div class="snum">2–4×</div>
-        <div class="slabel">duty value in penalties for misclassification</div>
-        <div class="ssource">EU customs enforcement standard</div>
+        <div class="slabel" data-i18n="sav.l3">duty value in penalties for misclassification</div>
+        <div class="ssource" data-i18n="sav.s3">EU customs enforcement standard</div>
       </div>
     </div>
-    <p class="sclose">A broker handling 50 declarations a week recovers roughly 75 hours of classification time per month.</p>
-    <p class="sfoot">Based on Polish customs broker salary data (61 PLN/hr) and industry-reported time reductions.</p>
+    <p class="sclose" data-i18n="sav.close">A broker handling 50 declarations a week recovers roughly 75 hours of classification time per month.</p>
+    <p class="sfoot" data-i18n="sav.foot">Based on Polish customs broker salary data (61 PLN/hr) and industry-reported time reductions.</p>
   </div>
 </section>
 
 <!-- ===== WHO THIS IS FOR ===== -->
 <section class="who">
   <div class="wrap">
-    <p class="kicker">Who this is for</p>
+    <p class="kicker" data-i18n="who.kicker">Who this is for</p>
     <div class="who-cards">
       <article class="tcard">
         <span class="glow"></span>
         <div class="tnum">01</div>
-        <h3>Customs brokers</h3>
-        <p>You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p>
-        <p>Read the path, check the rule at each branch, sign off or override.</p>
+        <h3 data-i18n="who.c1_h">Customs brokers</h3>
+        <p data-i18n="who.c1_p1">You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p>
+        <p data-i18n="who.c1_p2">Read the path, check the rule at each branch, sign off or override.</p>
       </article>
       <article class="tcard">
         <span class="glow"></span>
         <div class="tnum">02</div>
-        <h3>Importers</h3>
-        <p>You need the same answer every time, no matter who runs the classification.</p>
-        <p>Aimport applies one rule set to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p>
+        <h3 data-i18n="who.c2_h">Importers</h3>
+        <p data-i18n="who.c2_p1">You need the same answer every time, no matter who runs the classification.</p>
+        <p data-i18n="who.c2_p2">Aimport applies one rule set to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p>
       </article>
       <article class="tcard">
         <span class="glow"></span>
         <div class="tnum">03</div>
-        <h3>Manufacturers</h3>
-        <p>Classification follows from what your product is: its material, its function, its degree of processing.</p>
-        <p>Aimport shows which facts drive the heading, so you know the classification before the goods ship.</p>
+        <h3 data-i18n="who.c3_h">Manufacturers</h3>
+        <p data-i18n="who.c3_p1">Classification follows from what your product is: its material, its function, its degree of processing.</p>
+        <p data-i18n="who.c3_p2">Aimport shows which facts drive the heading, so you know the classification before the goods ship.</p>
       </article>
       <article class="tcard">
         <span class="glow"></span>
         <div class="tnum">04</div>
-        <h3>Customs officers</h3>
-        <p>A declaration without reasoning is hard to audit.</p>
-        <p>Aimport produces a classification trail in GRI order, the same structure you use to assess whether a code holds up.</p>
+        <h3 data-i18n="who.c4_h">Customs officers</h3>
+        <p data-i18n="who.c4_p1">A declaration without reasoning is hard to audit.</p>
+        <p data-i18n="who.c4_p2">Aimport produces a classification trail in GRI order, the same structure you use to assess whether a code holds up.</p>
       </article>
     </div>
-    <p class="who-close">When you want to see how it handles your product categories, you ask for access.</p>
+    <p class="who-close" data-i18n="who.close">When you want to see how it handles your product categories, you ask for access.</p>
   </div>
 </section>
 
 <!-- ===== FAQ ===== -->
 <section class="faq">
   <div class="wrap">
-    <p class="kicker">FAQ</p>
-    <h2>What brokers ask first.</h2>
+    <p class="kicker" data-i18n="faq.kicker">FAQ</p>
+    <h2 data-i18n="faq.head">What brokers ask first.</h2>
     <div class="faq-list">
 
       <details class="faq-item">
-        <summary>Does the model ever invent a code that isn't in the tariff?<span class="mk"></span></summary>
-        <div class="ans"><p>No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div>
+        <summary><span data-i18n="faq.q1">Does the model ever invent a code that isn't in the tariff?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a1">No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div>
       </details>
 
       <details class="faq-item">
-        <summary>What happens when my description leaves out a deciding fact?<span class="mk"></span></summary>
-        <div class="ans"><p>The engine stops at the branch where the facts run out and asks one question, the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div>
+        <summary><span data-i18n="faq.q2">What happens when my description leaves out a deciding fact?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a2">The engine stops at the branch where the facts run out and asks one question, the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div>
       </details>
 
       <details class="faq-item">
-        <summary>Can I override the engine at a branch?<span class="mk"></span></summary>
-        <div class="ans"><p>Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div>
+        <summary><span data-i18n="faq.q3">Can I override the engine at a branch?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a3">Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div>
       </details>
 
       <details class="faq-item">
-        <summary>Does it give me the duties and trade measures, or only the ten digits?<span class="mk"></span></summary>
-        <div class="ans"><p>Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div>
+        <summary><span data-i18n="faq.q4">Does it give me the duties and trade measures, or only the ten digits?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a4">Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div>
       </details>
 
       <details class="faq-item">
-        <summary>Does Aimport check existing binding tariff rulings?<span class="mk"></span></summary>
-        <div class="ans"><p>Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div>
+        <summary><span data-i18n="faq.q5">Does Aimport check existing binding tariff rulings?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a5">Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div>
       </details>
 
       <details class="faq-item">
-        <summary>How does it handle parts, sets, and composite goods?<span class="mk"></span></summary>
-        <div class="ans"><p>The engine works through GRI 2 to 4 in order: unfinished and disassembled articles under GRI 2(a), composite goods and sets by their essential character under GRI 3(b), and the tie-break under GRI 3(c). The trail names the rule that settled the case, so you can defend the call.</p></div>
+        <summary><span data-i18n="faq.q6">How does it handle parts, sets, and composite goods?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a6">The engine works through GRI 2 to 4 in order: unfinished and disassembled articles under GRI 2(a), composite goods and sets by their essential character under GRI 3(b), and the tie-break under GRI 3(c). The trail names the rule that settled the case, so you can defend the call.</p></div>
       </details>
 
       <details class="faq-item">
-        <summary>Who carries responsibility for the final classification?<span class="mk"></span></summary>
-        <div class="ans"><p>You do. The declarant signs the declaration and owns the result. Aimport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div>
+        <summary><span data-i18n="faq.q7">Who carries responsibility for the final classification?</span><span class="mk"></span></summary>
+        <div class="ans"><p data-i18n="faq.a7">You do. The declarant signs the declaration and owns the result. Aimport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div>
       </details>
 
     </div>
@@ -855,11 +868,11 @@
 <section class="access">
   <div class="wrap">
     <div class="inner">
-      <p class="kicker">Request access</p>
-      <h2>Bring your own product categories.</h2>
-      <p>Aimport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your product categories, write to us.</p>
-      <a class="btn btn-solid btn-lg" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Email contact@aimport.co</a>
-      <div class="respond">We respond to every request.</div>
+      <p class="kicker" data-i18n="access.kicker">Request access</p>
+      <h2 data-i18n="access.head">Bring your own product categories.</h2>
+      <p data-i18n="access.p">Aimport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your product categories, write to us.</p>
+      <a class="btn btn-solid btn-lg" data-i18n="access.btn" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Email contact@aimport.co</a>
+      <div class="respond" data-i18n="access.respond">We respond to every request.</div>
     </div>
   </div>
 </section>
@@ -867,8 +880,8 @@
 <!-- ===== FOOTER ===== -->
 <footer>
   <div class="wrap row">
-    <span>Aimport Compliance © 2026</span>
-    <a href="mailto:contact@aimport.co">contact@aimport.co</a>
+    <span data-i18n="footer.copy">Aimport Compliance © 2026</span>
+    <a data-i18n="footer.contact" data-i18n-attr="href:footer.contact_href" href="mailto:contact@aimport.co">contact@aimport.co</a>
   </div>
 </footer>
 
@@ -945,9 +958,9 @@
 <div class="pin-overlay" id="pinOverlay" role="dialog" aria-modal="true" aria-labelledby="pinHeading">
   <div class="pin-card">
     <button class="pin-close" id="pinClose" type="button" aria-label="Close">×</button>
-    <div class="pin-label">Demo access</div>
-    <h3 id="pinHeading">Enter your access code</h3>
-    <p class="pin-sub">Received a code at Breakbulk or by email? Enter it below.</p>
+    <div class="pin-label" data-i18n="pin.label">Demo access</div>
+    <h3 id="pinHeading" data-i18n="pin.heading">Enter your access code</h3>
+    <p class="pin-sub" data-i18n="pin.sub">Received a code at Breakbulk or by email? Enter it below.</p>
     <input class="pin-input" id="pinInput" type="text" inputmode="numeric"
       maxlength="4" placeholder="• • • •" autocomplete="off"
       aria-label="4-character access code">
@@ -978,8 +991,9 @@
     input.classList.remove('flash');
   }
   function showError(){
-    errorEl.innerHTML = "That code isn't right. " +
-      '<a href="mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request">Request access at leo.goerg@aimport.co</a>';
+    var d = (window.I18N && window.I18N.dict) || {};
+    errorEl.innerHTML = d['pin.error'] || ("That code isn't right. " +
+      '<a href="mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request">Request access at leo.goerg@aimport.co</a>');
     errorEl.classList.remove('show');
     void errorEl.offsetWidth; // restart fade
     errorEl.classList.add('show');
@@ -1007,6 +1021,76 @@
   overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
   document.addEventListener('keydown', function(e){
     if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
+  });
+})();
+</script>
+
+<!-- ===== i18n: market profile (EU/English · PL/Polski) ===== -->
+<!-- Client-side string swap. English is the default DOM (rendered identically with no
+     fetch); Polish strings load from /locales/pl.json. One switch sets the market cookie. -->
+<script>
+(function(){
+  var COOKIE = 'aimport_market';
+  function getCookie(n){ var m = document.cookie.match('(?:^|; )'+n+'=([^;]*)'); return m ? decodeURIComponent(m[1]) : null; }
+  function setCookie(n,v){ document.cookie = n+'='+encodeURIComponent(v)+';path=/;max-age=31536000;samesite=lax'; }
+  function localeOf(market){ return market === 'PL' ? 'pl' : 'en'; }
+
+  // Capture the English baseline straight from the DOM so toggling back to English
+  // restores the page byte-for-byte, independent of en.json.
+  var base = { t:{}, h:{}, a:{} };
+  document.querySelectorAll('[data-i18n]').forEach(function(el){ base.t[el.getAttribute('data-i18n')] = el.textContent; });
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){ base.h[el.getAttribute('data-i18n-html')] = el.innerHTML; });
+  document.querySelectorAll('[data-i18n-attr]').forEach(function(el){
+    el.getAttribute('data-i18n-attr').split(',').forEach(function(pair){
+      var i = pair.indexOf(':'); var attr = pair.slice(0,i).trim(); var key = pair.slice(i+1).trim();
+      base.a[attr+'|'+key] = el.getAttribute(attr);
+    });
+  });
+
+  var market = getCookie(COOKIE) === 'PL' ? 'PL' : 'EU';
+  window.I18N = { market: market, locale: localeOf(market), jurisdiction: market, dict: {} };
+
+  function apply(dict){
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var k = el.getAttribute('data-i18n'); var v = (dict && dict[k] != null) ? dict[k] : base.t[k];
+      if (v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+      var k = el.getAttribute('data-i18n-html'); var v = (dict && dict[k] != null) ? dict[k] : base.h[k];
+      if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-attr]').forEach(function(el){
+      el.getAttribute('data-i18n-attr').split(',').forEach(function(pair){
+        var i = pair.indexOf(':'); var attr = pair.slice(0,i).trim(); var key = pair.slice(i+1).trim();
+        var v = (dict && dict[key] != null) ? dict[key] : base.a[attr+'|'+key];
+        if (v != null) el.setAttribute(attr, v);
+      });
+    });
+    document.documentElement.lang = window.I18N.locale;
+    document.querySelectorAll('[data-lang]').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-lang') === window.I18N.market);
+    });
+  }
+
+  function setMarket(m, persist){
+    window.I18N.market = m; window.I18N.jurisdiction = m; window.I18N.locale = localeOf(m);
+    if (persist) setCookie(COOKIE, m);
+    if (m === 'PL'){
+      fetch('/locales/pl.json', {cache:'no-cache'})
+        .then(function(r){ return r.json(); })
+        .then(function(j){ window.I18N.dict = j; apply(j); })
+        .catch(function(){ apply(null); });   // fall back to English baseline if fetch fails
+    } else {
+      window.I18N.dict = {}; apply(null);      // restore captured English baseline
+    }
+  }
+
+  apply(null);                                 // mark active toggle; English = no change/no flash
+  if (market === 'PL') setMarket('PL', false);
+
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-lang]'); if (!b) return;
+    e.preventDefault(); setMarket(b.getAttribute('data-lang'), true);
   });
 })();
 </script>

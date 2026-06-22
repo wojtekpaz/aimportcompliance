@@ -208,7 +208,14 @@
     var fd=new FormData();
     fd.append('file',chosenFile);
     var origin=$('origin').value.trim();
-    var url='/api/invoice/analyze'+(origin?('?origin='+encodeURIComponent(origin)):'');
+    // market profile (set by the landing toggle) selects the OCR language:
+    // PL -> pol+eng, otherwise eng (English path unchanged).
+    var mkMatch=document.cookie.match('(?:^|; )aimport_market=([^;]*)');
+    var market=(mkMatch?decodeURIComponent(mkMatch[1]):'EU');
+    var params=[];
+    if(origin) params.push('origin='+encodeURIComponent(origin));
+    if(market==='PL') params.push('market=PL');
+    var url='/api/invoice/analyze'+(params.length?('?'+params.join('&')):'');
     fetch(url,{method:'POST',body:fd}).then(function(r){return r.json();})
       .then(function(data){
         $('progress').classList.remove('on'); $('btnScan').disabled=false;

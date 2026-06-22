@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *.zip
+*.7z
+polish_aimport/
 .env
 .DS_Store
 tests/fixtures/

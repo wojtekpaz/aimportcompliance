@@ -30,6 +30,13 @@
   .topbar nav a{color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .18s}
   .topbar nav a:hover{color:var(--accent)}
   .topbar nav a.active{color:var(--accent)}
+  /* language toggle (i18n profile switch) */
+  .tb-right{display:flex;align-items:center;gap:24px}
+  .lang-toggle{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .lang-opt{appearance:none;background:transparent;border:0;cursor:pointer;font-size:12.5px;font-weight:500;
+    color:var(--muted);padding:5px 11px;transition:color .18s,background .18s;font-family:inherit}
+  .lang-opt:hover{color:var(--text)}
+  .lang-opt.active{color:var(--accent);background:var(--accent-dim)}
 
   /* ---- two-column instrument layout ---- */
   .cls{display:grid;grid-template-columns:55fr 45fr;gap:54px;
@@ -243,6 +250,9 @@
   .bti-bk{color:var(--faint);font-family:var(--mono);font-size:11px;
     letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
   .bti-bv{color:var(--text)}
+  /* WIT (Wiążąca Informacja Taryfowa) evidence — PL profile only */
+  .wit-foot{margin-top:12px;font-size:11.5px;color:var(--muted);line-height:1.5;font-style:italic}
+  .wit-empty{color:var(--faint);font-size:13px;padding:4px 0}
 
   @media (max-width:880px){
     .cls{grid-template-columns:1fr;gap:40px;padding:48px 22px 70px}
@@ -255,8 +265,44 @@
 
 <div class="topbar">
   <a class="mark" href="/"><span class="sq"></span>Aimport Compliance</a>
-  <nav><a href="/">Home</a><a href="/classify" class="active">Classification</a><a href="/invoice">Invoice scan</a><a href="/products">Saved products</a><a href="/optimize">Optimize</a></nav>
+  <div class="tb-right">
+    <nav><a href="/" data-i18n="cls.nav_home">Home</a><a href="/classify" class="active" data-i18n="cls.nav_classify">Classification</a><a href="/invoice" data-i18n="cls.nav_invoice">Invoice scan</a><a href="/products" data-i18n="cls.nav_products">Saved products</a><a href="/optimize" data-i18n="cls.nav_optimize">Optimize</a></nav>
+    <div class="lang-toggle" role="group" aria-label="Language / Język">
+      <button type="button" class="lang-opt" data-lang="EU">English</button>
+      <button type="button" class="lang-opt" data-lang="PL">Polski</button>
+    </div>
+  </div>
 </div>
+<script>
+(function(){
+  function getC(n){var m=document.cookie.match('(?:^|; )'+n+'=([^;]*)');return m?decodeURIComponent(m[1]):null;}
+  var market=getC('aimport_market')==='PL'?'PL':'EU';
+  // Apply Polish strings on load. English is the default DOM (no fetch needed),
+  // so the English path is unchanged.
+  function apply(dict){
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var v=dict[el.getAttribute('data-i18n')]; if(v!=null) el.textContent=v;
+    });
+    document.querySelectorAll('[data-i18n-attr]').forEach(function(el){
+      el.getAttribute('data-i18n-attr').split(',').forEach(function(p){
+        var i=p.indexOf(':'); var a=p.slice(0,i).trim(); var k=p.slice(i+1).trim();
+        if(dict[k]!=null) el.setAttribute(a,dict[k]);
+      });
+    });
+    document.documentElement.lang='pl';
+  }
+  if(market==='PL'){
+    fetch('/locales/pl.json',{cache:'no-cache'}).then(function(r){return r.json();}).then(apply).catch(function(){});
+  }
+  document.querySelectorAll('[data-lang]').forEach(function(b){
+    b.classList.toggle('active', b.getAttribute('data-lang')===market);
+    b.addEventListener('click',function(){
+      document.cookie='aimport_market='+b.getAttribute('data-lang')+';path=/;max-age=31536000;samesite=lax';
+      location.reload();   // reload re-renders in the chosen language + activates PL data sections
+    });
+  });
+})();
+</script>
 
 <main class="cls">
   <!-- ================= LEFT ================= -->
@@ -264,58 +310,58 @@
 
     <!-- input view -->
     <div id="inputView">
-      <p class="guide">Describe what you're importing. The more detail — material, function, use — the more precise the classification.</p>
-      <div class="lbl">Product description</div>
-      <div class="ex-label">Try an example:</div>
+      <p class="guide" data-i18n="cls.guide">Describe what you're importing. The more detail — material, function, use — the more precise the classification.</p>
+      <div class="lbl" data-i18n="cls.lbl_desc">Product description</div>
+      <div class="ex-label" data-i18n="cls.ex_label">Try an example:</div>
       <div class="ex-row">
-        <button type="button" class="chip" data-desc="Steel mounting bracket for solar panels" data-origin="CN">Steel mounting bracket for solar panels</button>
-        <button type="button" class="chip" data-desc="Ceramic coffee mug, 350ml" data-origin="CN">Ceramic coffee mug, 350ml</button>
-        <button type="button" class="chip" data-desc="Cotton t-shirt, men's, knitted" data-origin="BD">Cotton t-shirt, men's, knitted</button>
+        <button type="button" class="chip" data-i18n="cls.ex1" data-i18n-attr="data-desc:cls.ex1" data-desc="Steel mounting bracket for solar panels" data-origin="CN">Steel mounting bracket for solar panels</button>
+        <button type="button" class="chip" data-i18n="cls.ex2" data-i18n-attr="data-desc:cls.ex2" data-desc="Ceramic coffee mug, 350ml" data-origin="CN">Ceramic coffee mug, 350ml</button>
+        <button type="button" class="chip" data-i18n="cls.ex3" data-i18n-attr="data-desc:cls.ex3" data-desc="Cotton t-shirt, men's, knitted" data-origin="BD">Cotton t-shirt, men's, knitted</button>
       </div>
-      <textarea id="desc" placeholder="Describe the product as specifically as you can — material, function, intended use."></textarea>
+      <textarea id="desc" data-i18n-attr="placeholder:cls.ph_desc" placeholder="Describe the product as specifically as you can — material, function, intended use."></textarea>
       <div class="row2">
         <div class="field">
-          <div class="lbl">Country of origin</div>
+          <div class="lbl" data-i18n="cls.lbl_origin">Country of origin</div>
           <input id="origin" class="ipt" maxlength="2" placeholder="CN">
         </div>
         <div class="field optional">
-          <div class="lbl">Chapter hint (optional)</div>
-          <input id="hint" class="ipt" placeholder="e.g. 73">
-          <div class="note">Leave blank unless you already know the chapter.</div>
+          <div class="lbl" data-i18n="cls.lbl_hint">Chapter hint (optional)</div>
+          <input id="hint" class="ipt" data-i18n-attr="placeholder:cls.ph_hint" placeholder="e.g. 73">
+          <div class="note" data-i18n="cls.note_hint">Leave blank unless you already know the chapter.</div>
         </div>
       </div>
-      <button id="btnClassify" class="btn btn-primary">Classify →</button>
+      <button id="btnClassify" class="btn btn-primary" data-i18n="cls.btn_classify">Classify →</button>
       <div id="inErr" class="inline-err"></div>
     </div>
 
     <!-- clarification view -->
       <!-- pre-classify question view (product attribute, not tariff law) -->
     <div id="preClassView" style="display:none">
-      <div class="lbl accent">One thing before we begin</div>
+      <div class="lbl accent" data-i18n="cls.pc_label">One thing before we begin</div>
       <div id="pcText" class="q-text" style="margin:10px 0 8px"></div>
       <div id="pcAttr" style="color:var(--faint);font-size:12px;margin-bottom:20px"></div>
-      <textarea id="pcAnswer" style="width:100%;min-height:80px;background:var(--panel);
+      <textarea id="pcAnswer" data-i18n-attr="placeholder:cls.pc_ph" style="width:100%;min-height:80px;background:var(--panel);
         color:var(--text);border:1px solid rgba(255,255,255,.2);border-radius:0;
         padding:14px;font-family:inherit;font-size:15px;outline:none;resize:vertical;
         transition:border-color .18s" placeholder="Describe in plain terms…"></textarea>
-      <button id="btnPCConfirm" class="btn" style="margin-top:16px">Continue classification</button>
+      <button id="btnPCConfirm" class="btn" style="margin-top:16px" data-i18n="cls.pc_continue">Continue classification</button>
       <div id="pcErr" class="inline-err"></div>
     </div>
 
     <!-- clarification view -->
     <div id="questionView" style="display:none">
-      <div class="lbl accent">Clarification needed</div>
+      <div class="lbl accent" data-i18n="cls.q_label">Clarification needed</div>
       <div id="qText" class="q-text"></div>
       <div id="qReason" class="q-reason"></div>
       <div id="qOptions"></div>
-      <button id="btnConfirm" class="btn">Confirm</button>
+      <button id="btnConfirm" class="btn" data-i18n="cls.q_confirm">Confirm</button>
       <div id="qErr" class="inline-err"></div>
     </div>
 
 
     <!-- done view: shows reasoning timeline -->
     <div id="doneView" style="display:none">
-      <div class="lbl accent">Legal reasoning</div>
+      <div class="lbl accent" data-i18n="cls.done_label">Legal reasoning</div>
       <div id="reasoningTimeline" class="reasoning-timeline" style="margin-top:16px"></div>
     </div>
   </div>
@@ -349,33 +395,33 @@
       <div class="pad">
         <!-- empty-state preview: what the engine returns -->
         <div id="ghost" class="ghost">
-          <div class="preview-h">What you'll get</div>
+          <div class="preview-h" data-i18n="cls.ghost_h">What you'll get</div>
           <ul class="preview-list">
-            <li>A 10-digit CN/TARIC code</li>
-            <li>The GRI reasoning trail, step by step</li>
-            <li>The legal basis for each decision</li>
-            <li>Applicable duties and trade measures</li>
-            <li>A clarifying question if the description is ambiguous</li>
+            <li data-i18n="cls.ghost_1">A 10-digit CN/TARIC code</li>
+            <li data-i18n="cls.ghost_2">The GRI reasoning trail, step by step</li>
+            <li data-i18n="cls.ghost_3">The legal basis for each decision</li>
+            <li data-i18n="cls.ghost_4">Applicable duties and trade measures</li>
+            <li data-i18n="cls.ghost_5">A clarifying question if the description is ambiguous</li>
           </ul>
         </div>
 
         <!-- filled result -->
         <div id="result" style="display:none">
-          <button class="restart-top" id="restartTop">← New classification</button>
+          <button class="restart-top" id="restartTop" data-i18n="cls.restart">← New classification</button>
           <div class="r-code" id="rCode"></div>
           <div class="r-badges" id="rBadges"></div>
           <div class="r-desc" id="rDesc"></div>
 
           <!-- trade defence ABOVE duty (officers check ADD first) -->
           <div class="defense" id="rDefense" style="display:none">
-            <div class="lbl amber" style="margin-bottom:4px">Trade defence measure</div>
+            <div class="lbl amber" style="margin-bottom:4px" data-i18n="cls.defense_label">Trade defence measure</div>
             <div id="rDefenseBody"></div>
           </div>
 
           <div class="r-div"></div>
-          <div class="r-row"><span class="k">Duty rate</span><span class="v" id="rDuty"></span></div>
-          <div class="r-row"><span class="k">Origin</span><span class="v" id="rOrigin"></span></div>
-          <div class="r-row"><span class="k">Legal basis</span><span class="v" id="rLegal"></span></div>
+          <div class="r-row"><span class="k" data-i18n="cls.k_duty">Duty rate</span><span class="v" id="rDuty"></span></div>
+          <div class="r-row"><span class="k" data-i18n="cls.k_origin">Origin</span><span class="v" id="rOrigin"></span></div>
+          <div class="r-row"><span class="k" data-i18n="cls.k_legal">Legal basis</span><span class="v" id="rLegal"></span></div>
 
           <div class="path-wrap">
             <button class="path-toggle" id="pathToggle">
@@ -385,15 +431,29 @@
           </div>
 
           <div id="rBtiSection" class="bti-section" style="display:none">
-            <div class="lbl" style="margin-bottom:10px">Supporting BTI rulings</div>
+            <div class="lbl" style="margin-bottom:10px" data-i18n="cls.bti_h">Supporting BTI rulings</div>
             <div id="rBtiList"></div>
+          </div>
+
+          <!-- WIT evidence: PL profile only; display-only, populated after the determination -->
+          <div id="rWitSection" class="bti-section" style="display:none">
+            <div class="lbl" style="margin-bottom:10px">Powiązane decyzje WIT</div>
+            <div id="rWitList"></div>
+            <div class="wit-foot">WIT przedstawiane są jako materiał dowodowy. Nie nadpisują wyniku reguł GRI.</div>
+          </div>
+
+          <!-- PL national measures (ISZTAR): VAT, excise, national non-tariff + Polish note. PL profile only -->
+          <div id="rPlSection" class="bti-section" style="display:none">
+            <div class="lbl" style="margin-bottom:10px">Środki krajowe (PL)</div>
+            <div id="rPlBody"></div>
+            <div class="wit-foot">Dane krajowe (VAT, akcyza, środki pozataryfowe) z ISZTAR4 — wyszukiwanie deterministyczne wg kodu.</div>
           </div>
 
            <div style="margin-top:26px;display:flex;align-items:center;gap:18px">
             <button id="btnSave" style="background:transparent;border:1px solid rgba(31,111,235,.55);
               color:var(--accent);padding:12px 22px;font-size:12px;font-weight:600;
               letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .18s">
-              Save to my products</button>
+<span data-i18n="cls.btn_save">Save to my products</span></button>
             <span id="saveMsg" style="display:none;color:var(--accent);font-size:13px"></span>
           </div>
           <button class="restart" id="restart">Start a new classification</button>
@@ -472,7 +532,7 @@
     computing(true);
     $('btnClassify').disabled = true;
     post('/api/classify', {text: text, origin: $('origin').value.trim(),
-                           hint: $('hint').value.trim()})
+                           hint: $('hint').value.trim(), market: plProfile()?'PL':'EU'})
       .then(handle)
       .catch(function(){ computing(false); $('btnClassify').disabled = false;
         errorInto(inErr); });
@@ -485,7 +545,7 @@
     if(!picked){ errorInto(qErr, 'Select an option to continue.'); return; }
     computing(true);
     $('btnConfirm').disabled = true;
-    post('/api/answer', {session_id: session, sig: sig, choice: picked.value})
+    post('/api/answer', {session_id: session, sig: sig, choice: picked.value, market: plProfile()?'PL':'EU'})
       .then(handle)
       .catch(function(){ computing(false); $('btnConfirm').disabled = false;
         errorInto(qErr); });
@@ -522,7 +582,7 @@
     if(!answer){ errorInto(pcErr, 'Please describe the product attribute above.'); return; }
     computing(true);
     $('btnPCConfirm').disabled = true;
-    post('/api/answer', {session_id: session, sig: sig, choice: answer})
+    post('/api/answer', {session_id: session, sig: sig, choice: answer, market: plProfile()?'PL':'EU'})
       .then(handle)
       .catch(function(){ computing(false); $('btnPCConfirm').disabled = false;
         errorInto(pcErr); });
@@ -556,18 +616,19 @@
     // ---- right panel ----
     $('rCode').textContent = data.code_spaced || '';
 
-    $('rDesc').textContent = data.description || '';
+    $('rDesc').textContent = (plProfile() && data.description_pl) || data.description || '';
 
     // confidence + industrial badges
     var conf = (data.confidence || '');
     var badges = '';
+    var _pl = plProfile();
     if(conf.indexOf('review') !== -1){
-      badges += '<span class="badge review">Review recommended</span>';
+      badges += '<span class="badge review">' + (_pl?'Zalecana weryfikacja':'Review recommended') + '</span>';
     } else {
-      badges += '<span class="badge hi">High confidence</span>';
+      badges += '<span class="badge hi">' + (_pl?'Wysoka pewność':'High confidence') + '</span>';
     }
     if(data.industrial){
-      badges += '<span class="badge industrial">Industrial mode</span>';
+      badges += '<span class="badge industrial">' + (_pl?'Tryb przemysłowy':'Industrial mode') + '</span>';
     }
     $('rBadges').innerHTML = badges;
 
@@ -843,6 +904,101 @@
 
     show(inputView, false); show(questionView, false); show(doneView, true);
     show(ghost, false); show(result, true);
+
+    renderWIT(data);   // PL-profile evidence, fetched AFTER the determination
+    renderPL(data);    // PL national measures (VAT/excise/national), display-only
+  }
+
+  // ---- WIT (Wiążąca Informacja Taryfowa) — PL-profile-only evidence layer ----
+  // Fetched from /api/wit AFTER a result exists. Never part of the GRI flow or
+  // the oracle's options; it cannot change the determination.
+  function plProfile(){
+    var m = document.cookie.match('(?:^|; )aimport_market=([^;]*)');
+    return m && decodeURIComponent(m[1]) === 'PL';
+  }
+  function renderWIT(data){
+    var sec = $('rWitSection');
+    if(!sec) return;
+    if(!plProfile()){ sec.style.display = 'none'; return; }     // PL profile only
+    var code = (data && (data.code || (data.code_spaced || '').replace(/\s+/g, ''))) || '';
+    sec.style.display = 'block';
+    $('rWitList').innerHTML = '<div class="wit-empty">Wczytywanie…</div>';
+    fetch('/api/wit?code=' + encodeURIComponent(code), {cache:'no-cache'})
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        var rulings = (res && res.rulings) || [];
+        if(!rulings.length){
+          $('rWitList').innerHTML = '<div class="wit-empty">Brak powiązanych decyzji WIT dla tego kodu.</div>';
+          return;
+        }
+        var html = '';
+        if(res && res.note){ html += '<div class="wit-empty" style="margin-bottom:8px">' + esc(res.note) + '</div>'; }
+        for(var i=0;i<rulings.length;i++){
+          var w = rulings[i];
+          var snip = (w.summary || '').substring(0,80);
+          if((w.summary || '').length > 80) snip += '…';
+          html += '<div class="bti-item">' +
+            '<div class="bti-head">' +
+              '<span class="bti-ref">' + esc(w.reference) + '</span>' +
+              '<span class="bti-meta">· ' + esc(w.country || '—') + ' · ważna do ' + esc((w.valid_to || '').substring(0,4) || '—') + '</span>' +
+              '<span class="bti-snip">· ' + esc(snip) + '</span>' +
+              '<span class="bti-pm">+</span>' +
+            '</div>' +
+            '<div class="bti-body">' +
+              '<div class="bti-brow"><span class="bti-bk">Opis</span><span class="bti-bv">' + esc(w.summary || '—') + '</span></div>' +
+              '<div class="bti-brow"><span class="bti-bk">Ważność</span><span class="bti-bv">' + esc(w.valid_from || '—') + ' → ' + esc(w.valid_to || '—') + '</span></div>' +
+              '<div class="bti-brow"><span class="bti-bk">Kraj</span><span class="bti-bv">' + esc(w.country || '—') + '</span></div>' +
+              '<div class="bti-brow"><span class="bti-bk">Status</span><span class="bti-bv">' + esc(w.status || '—') + '</span></div>' +
+            '</div>' +
+          '</div>';
+        }
+        $('rWitList').innerHTML = html;
+        var heads = $('rWitList').querySelectorAll('.bti-head');
+        for(var h=0;h<heads.length;h++){
+          heads[h].addEventListener('click', function(){
+            var body = this.nextElementSibling;
+            this.querySelector('.bti-pm').textContent = body.classList.toggle('on') ? '–' : '+';
+          });
+        }
+      })
+      .catch(function(){
+        $('rWitList').innerHTML = '<div class="wit-empty">Brak powiązanych decyzji WIT dla tego kodu.</div>';
+      });
+  }
+
+  // ---- PL national measures (ISZTAR): VAT / excise / national non-tariff + PL note ----
+  // Display-only, fetched after the determination; the deterministic landed-cost calc
+  // (/api/landed-cost) uses the same local VAT/excise. Never part of the GRI flow.
+  function renderPL(data){
+    var sec = $('rPlSection');
+    if(!sec) return;
+    if(!plProfile()){ sec.style.display = 'none'; return; }
+    var code = (data && (data.code || (data.code_spaced || '').replace(/\s+/g, ''))) || '';
+    sec.style.display = 'block';
+    $('rPlBody').innerHTML = '<div class="wit-empty">Wczytywanie…</div>';
+    fetch('/api/pl-measures?code=' + encodeURIComponent(code), {cache:'no-cache'})
+      .then(function(r){ return r.json(); })
+      .then(function(m){
+        if(!m || !m.found){
+          $('rPlBody').innerHTML = '<div class="wit-empty">Brak danych krajowych ISZTAR dla tego kodu.</div>';
+          return;
+        }
+        var rows = '';
+        if(m.description_pl)
+          rows += '<div class="bti-brow"><span class="bti-bk">Opis (PL)</span><span class="bti-bv">' + esc(m.description_pl) + '</span></div>';
+        if(m.vat_standard)
+          rows += '<div class="bti-brow"><span class="bti-bk">VAT</span><span class="bti-bv">' + esc(m.vat_standard) + '</span></div>';
+        var exc = (m.excise || []).map(function(e){ return e.rate; }).filter(Boolean);
+        if(exc.length)
+          rows += '<div class="bti-brow"><span class="bti-bk">Akcyza</span><span class="bti-bv">' + esc(exc.join(' · ')) + '</span></div>';
+        var nat = (m.national_measures || []).map(function(x){ return x.description; }).filter(Boolean);
+        if(nat.length)
+          rows += '<div class="bti-brow"><span class="bti-bk">Środki krajowe</span><span class="bti-bv">' + esc(nat.slice(0,6).join('; ')) + '</span></div>';
+        $('rPlBody').innerHTML = '<div class="bti-body on" style="display:block">' + (rows || '<div class="wit-empty">Brak środków krajowych.</div>') + '</div>';
+      })
+      .catch(function(){
+        $('rPlBody').innerHTML = '<div class="wit-empty">Brak danych krajowych ISZTAR dla tego kodu.</div>';
+      });
   }
 
   // collapsible classification path
