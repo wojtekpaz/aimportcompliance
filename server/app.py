@@ -168,18 +168,34 @@ def health():
     return info
 
 
+def _pl_to_en(text):
+    """PL product text -> English for the engine; falls back to the original."""
+    try:
+        import pl_question
+        return pl_question.translate_to_english(text) or text
+    except Exception:
+        return text
+
+
 @app.post("/api/classify")
 def classify_endpoint(body: ClassifyIn):
     text = body.text.strip()
     if not text:
         return {"status": "error", "message": "Please describe the product."}
-    # engine call is unchanged; PL localization happens only on the way out
-    return _localize_pl(es.start(text, body.origin.strip(), body.hint.strip()), body.market)
+    # PL profile: the engine's candidate search is English-only, so feed it English
+    # and localize the output back to Polish. The engine itself is unchanged.
+    engine_text = _pl_to_en(text) if (body.market or "EU").upper() == "PL" else text
+    return _localize_pl(es.start(engine_text, body.origin.strip(), body.hint.strip()), body.market)
 
 
 @app.post("/api/answer")
 def answer_endpoint(body: AnswerIn):
-    return _localize_pl(es.answer(body.session_id, body.sig, body.choice), body.market)
+    choice = body.choice
+    # A free-text clarification answer (PL) is translated for the engine; an
+    # option id (digits/colon only) is passed through untouched.
+    if (body.market or "EU").upper() == "PL" and any(c.isalpha() for c in choice):
+        choice = _pl_to_en(choice)
+    return _localize_pl(es.answer(body.session_id, body.sig, choice), body.market)
 
 
 # WIT (Wiążąca Informacja Taryfowa) — Polish view of binding tariff rulings.

@@ -46,12 +46,9 @@ def _heading_pl(code, date):
         return None
 
 
-def translate_text(text):
-    """English UI text -> natural Polish via one isolated Anthropic call.
-
-    Returns None on any failure so the caller keeps the English text. This call
-    is independent of the classification oracle and cannot affect determinism.
-    """
+def _api(text, system):
+    """One isolated Anthropic call (urllib, same path the engine uses). None on
+    failure. Independent of the classification oracle — cannot affect determinism."""
     text = (text or "").strip()
     if not text:
         return None
@@ -60,10 +57,7 @@ def translate_text(text):
         import urllib.request
         body = {
             "model": _model(), "max_tokens": 700, "temperature": 0,
-            "system": ("You translate UI text for a customs-tariff tool into natural, "
-                       "professional Polish for customs brokers. Output ONLY the Polish "
-                       "translation — no preamble, no quotes. Keep CN/HS codes, numbers, "
-                       "chapter/heading references and product codes unchanged."),
+            "system": system,
             "messages": [{"role": "user", "content": text}],
         }
         req = urllib.request.Request(
@@ -79,6 +73,26 @@ def translate_text(text):
         return out or None
     except Exception:
         return None
+
+
+def translate_text(text):
+    """English UI text -> natural Polish (for displaying questions/results)."""
+    return _api(text, "You translate UI text for a customs-tariff tool into natural, "
+                "professional Polish for customs brokers. Output ONLY the Polish "
+                "translation — no preamble, no quotes. Keep CN/HS codes, numbers, "
+                "chapter/heading references and product codes unchanged.")
+
+
+def translate_to_english(text):
+    """Polish product text -> concise English for the (English-trained) GRI
+    engine's keyword retrieval. Returns None on failure (caller keeps original).
+
+    This feeds the engine clean English so its FTS candidate search works exactly
+    as it does for English users; the engine itself is never modified."""
+    return _api(text, "You translate a product description from Polish to concise, "
+                "precise English suitable for EU customs tariff classification. "
+                "Output ONLY the English translation — no preamble, no quotes. "
+                "Preserve material, function, form and any numbers/dimensions exactly.")
 
 
 def localize(question, market="EU", date=None):
