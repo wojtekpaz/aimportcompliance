@@ -25,13 +25,22 @@ def parse_percent(value):
 
 
 def compute_landed_cost(customs_value, duty_rate, code=None, date=None,
-                        market="EU", db_path=None):
+                        market="EU", db_path=None,
+                        cbam_net_mass_tonnes=None,
+                        cbam_embedded_emissions_tco2e=None):
     """Return a deterministic landed-cost breakdown.
 
     customs_value : numeric base on which duty is assessed (e.g. units * unit cost).
     duty_rate     : '2.7%' or 0.027.
     market="PL"   : adds Polish VAT (computed) and surfaces excise (rate-only)
                     from the local ISZTAR cache.
+
+    CBAM (additive, opt-in): if ``code`` is in CBAM Annex I scope, a carbon-cost
+    line is attached. It is an ESTIMATE (default factors) unless
+    ``cbam_embedded_emissions_tco2e`` (supplier-verified) is supplied. The CBAM
+    cost is reported as its own line and added to the landed-cost total, but it
+    is deliberately EXCLUDED from the VAT base — CBAM is a carbon price, not a
+    fiscal duty, so it does not enter the taxable amount on import.
     """
     cv = float(customs_value)
     dr = parse_percent(duty_rate) or 0.0
@@ -48,6 +57,7 @@ def compute_landed_cost(customs_value, duty_rate, code=None, date=None,
         "vat": None,
         "excise_rate": None,
         "national_measures": [],
+        "cbam": None,
         "landed_cost": after_duty,
         "pl_source": None,
         "notes": [],
@@ -73,6 +83,37 @@ def compute_landed_cost(customs_value, duty_rate, code=None, date=None,
                 "nie doliczono kwoty bez znanej ilości.")
 
         out["national_measures"] = [x["description"] for x in m.get("national_measures", [])]
+
+    # ---- CBAM (additive; never alters the VAT base above) -----------------
+    # Attach a carbon-cost line if the code is in Annex I scope. Estimate by
+    # default; authoritative only with supplier-verified emissions. VAT has
+    # already been computed on (customs value + duty), so CBAM stays out of it.
+    if code and date:
+        try:
+            import cbam_pl
+            c = cbam_pl.get_cbam_status(
+                code, date, db_path=db_path,
+                net_mass_tonnes=cbam_net_mass_tonnes,
+                embedded_emissions_tco2e=cbam_embedded_emissions_tco2e)
+            if c.get("in_scope"):
+                out["cbam"] = c
+                cost = c.get("cost") or {}
+                cbam_eur = cost.get("estimated_certificate_cost_eur")
+                if cbam_eur:
+                    out["landed_cost"] = round(out["landed_cost"] + cbam_eur, 2)
+                    label = ("CBAM (verified)" if cost.get("is_authoritative")
+                             else "CBAM (estimate)")
+                    out["notes"].append(
+                        f"{label}: +{cbam_eur} EUR carbon cost added to landed "
+                        "cost; excluded from VAT base (carbon price, not a duty).")
+                else:
+                    out["notes"].append(
+                        "CBAM applies to this code but cost not quantified "
+                        "(supply net mass or supplier-verified emissions).")
+            elif c.get("exclusion"):
+                out["cbam"] = c  # record the carve-out for the audit trail
+        except Exception:
+            pass  # CBAM is additive; never break the core landed-cost response
 
     return out
 

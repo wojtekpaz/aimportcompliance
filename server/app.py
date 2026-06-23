@@ -40,7 +40,48 @@ import invoice_session as inv           # noqa: E402
 import invoice_ocr as ocr               # noqa: E402
 import optimize_session as opt_s        # noqa: E402
 import tempfile, os as _os              # noqa: E402
-from fastapi import UploadFile, File    # noqa: E402
+from fastapi import UploadFile, File, Request   # noqa: E402
+
+# No broker auth in this build (PIN gate only); surveys are attributed to a
+# single local broker so the pending-clarifications dashboard has an owner.
+DEFAULT_BROKER_ID = "broker-local"
+
+
+def _attach_survey(result, request):
+    """If invoice analysis froze ≥1 line, create the survey session server-side
+    and return a sanitised preview + the shareable survey URL. Engine state
+    (snapshots, option maps) never leaves the server."""
+    if not isinstance(result, dict):
+        return result
+    frozen = result.get("frozen_lines") or []
+    if not frozen:
+        result.pop("frozen_lines", None)
+        for it in result.get("items") or []:
+            it.pop("frozen", None)
+        return result
+    invoice_ref = ((result.get("summary") or {}).get("invoice_no")
+                   or (result.get("meta") or {}).get("invoice_no") or "")
+    try:
+        import survey_db as sdb
+        created = sdb.create_session(broker_id=DEFAULT_BROKER_ID,
+                                     invoice_ref=invoice_ref, frozen_lines=frozen)
+        token = created["token"]
+        base = str(request.base_url).rstrip("/")
+        result["survey_token"] = token
+        result["survey_url"] = f"{base}/survey/{token}"
+    except Exception as e:                       # additive; never break analysis
+        result["survey_error"] = str(e)[:160]
+    # client-facing preview only — no engine internals
+    result["clarifications"] = [
+        {"line_number": f.get("line_number"),
+         "description": f.get("description_used"),
+         "freeze_reason": f.get("freeze_reason"),
+         "engine_question": f.get("engine_question")}
+        for f in frozen]
+    result.pop("frozen_lines", None)
+    for it in result.get("items") or []:
+        it.pop("frozen", None)
+    return result
 
 app = FastAPI(title="AImport", docs_url="/api/docs")
 HERE = Path(__file__).resolve().parent
@@ -123,6 +164,14 @@ ROOT = HERE.parent
 @app.get("/")
 def index():
     return FileResponse(ROOT / "index.html")
+
+
+# Brand mark, served from the repo root so every page (landing + inner app
+# pages) can share one logo file instead of inlining it. There is no static
+# mount, so the asset is exposed explicitly.
+@app.get("/logo-mark.png")
+def logo_mark():
+    return FileResponse(ROOT / "logo-mark.png", media_type="image/png")
 
 
 # i18n: serve locale string tables (additive; presentation-layer only).
@@ -221,12 +270,43 @@ def pl_measures(code: str = "", date: str = ""):
 # local store. Not part of the GRI flow.
 @app.get("/api/landed-cost")
 def landed_cost(customs_value: float = 0.0, duty_rate: str = "0%",
-                code: str = "", date: str = "", market: str = "EU"):
+                code: str = "", date: str = "", market: str = "EU",
+                cbam_net_mass_tonnes: float = None,
+                cbam_embedded_emissions_tco2e: float = None):
     import landed_cost_pl
     from datetime import date as _date
     return landed_cost_pl.compute_landed_cost(
         customs_value, duty_rate, code or None,
-        date or _date.today().isoformat(), market)
+        date or _date.today().isoformat(), market,
+        cbam_net_mass_tonnes=cbam_net_mass_tonnes,
+        cbam_embedded_emissions_tco2e=cbam_embedded_emissions_tco2e)
+
+
+# CBAM (Carbon Border Adjustment Mechanism, Reg. (EU) 2023/956) status for a
+# declared code: Annex I scope/exclusion, sector, cost estimate, obligations,
+# and the supplier-data request. Deterministic local lookup; display-only,
+# fetched AFTER a determination — never part of the GRI flow or oracle options.
+@app.get("/api/cbam")
+def cbam_status(code: str = "", date: str = "",
+                net_mass_tonnes: float = None,
+                embedded_emissions_tco2e: float = None,
+                carbon_price_paid_eur: float = None):
+    import cbam_pl
+    from datetime import date as _date
+    return cbam_pl.get_cbam_status(
+        code, date or _date.today().isoformat(),
+        net_mass_tonnes=net_mass_tonnes,
+        embedded_emissions_tco2e=embedded_emissions_tco2e,
+        carbon_price_paid_eur=carbon_price_paid_eur)
+
+
+# CBAM supplier-data request email draft (EN/DE/PL). Deterministic text; the
+# frontend calls this when the importer wants to chase verified emissions data.
+@app.get("/api/cbam/supplier-email")
+def cbam_supplier_email(code: str = "", sector: str = "", lang: str = "EN"):
+    import cbam_pl
+    return {"code": code, "lang": lang,
+            "email": cbam_pl.supplier_email_draft(code, sector, lang)}
 
 
 @app.post("/api/products/save")
@@ -260,13 +340,48 @@ def invoice_page():
 
 
 @app.post("/api/invoice/analyze")
-async def invoice_analyze(file: UploadFile = File(...), origin: str = "", market: str = "EU"):
+async def invoice_analyze(request: Request, file: UploadFile = File(...),
+                          origin: str = "", market: str = "EU"):
     # PL profile reads Polish invoices with the pol model (pol+eng for mixed
     # PL/EN); EU stays on "eng" so existing English OCR behaviour is unchanged.
     ocr_lang = "pol+eng" if (market or "").upper() == "PL" else "eng"
+    name = (file.filename or "").lower()
+
+    # ---- Structured uploads: Excel / XML (Milestone One V2, Section 1) ----
+    # Additive branch — the PDF path below is byte-for-byte unchanged.
+    if name.endswith((".xlsx", ".xls", ".xml")):
+        import file_parsers as fp
+        try:
+            content = await file.read()
+        except Exception as e:
+            return {"error": f"Could not read the upload: {str(e)[:160]}"}
+        try:
+            if name.endswith(".xml"):
+                try:
+                    line_items = fp.parse_xml_invoice(content)
+                    warning = None
+                except fp.ParseWarning as w:
+                    # Soft failure: surface as a yellow banner, not a hard error.
+                    return {"summary": {"total": 0, "issues": 0, "ok": 0,
+                                        "origin": (origin or "").upper(),
+                                        "invoice_no": "", "extraction_status": "ok"},
+                            "items": [], "meta": {}, "extraction_status": "ok",
+                            "warning": str(w)}
+            else:
+                line_items = fp.parse_excel_invoice(content, file.filename or "")
+                warning = None
+            items = [li.to_invoice_item() for li in line_items]
+            invoice_no = file.filename or ""  # use filename as the invoice ref
+            res = inv.analyze_line_items(items, origin_override=origin,
+                                         invoice_no=invoice_no, warning=warning)
+            return _attach_survey(res, request)
+        except Exception as e:
+            return {"error": f"Could not process the file: {str(e)[:200]}"}
+
+    # ---- PDF path (unchanged) ----
     # Save the uploaded PDF to a temp file, analyse, then delete it.
-    if not file.filename.lower().endswith(".pdf"):
-        return {"error": "Please upload a PDF invoice."}
+    if not name.endswith(".pdf"):
+        return {"error": "Please upload a PDF, Excel (.xlsx/.xls), or XML invoice."}
     suffix = ".pdf"
     tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
     try:
@@ -274,7 +389,7 @@ async def invoice_analyze(file: UploadFile = File(...), origin: str = "", market
         tmp.write(content)
         tmp.close()
         result = inv.analyze_invoice(tmp.name, origin_override=origin, lang=ocr_lang)
-        return result
+        return _attach_survey(result, request)
     except Exception as e:
         return {"error": f"Could not process the invoice: {str(e)[:200]}"}
     finally:
@@ -314,6 +429,12 @@ def optimize_endpoint(body: OptimizeIn):
     except Exception:
         pass  # scoring is additive; never break the existing optimize response
     return result
+
+
+# Client-clarification survey + one-click mail automation (Milestone One V2).
+# Additive router; existing routes are untouched.
+import survey_api                      # noqa: E402
+app.include_router(survey_api.router)
 
 
 if __name__ == "__main__":
