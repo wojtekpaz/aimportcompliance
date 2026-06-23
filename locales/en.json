@@ -158,5 +158,10 @@
   "cls.k_origin": "Origin",
   "cls.k_legal": "Legal basis",
   "cls.bti_h": "Supporting BTI rulings",
-  "cls.btn_save": "Save to my products"
+  "cls.btn_save": "Save to my products",
+
+  "inv.h1": "Invoice scan",
+  "inv.sub": "Upload a commercial invoice. Each line is re-classified against its declared commodity code, and discrepancies — wrong codes, vague descriptions, anti-dumping exposure, missing codes — are flagged for review before the declaration is filed.",
+  "prod.h1": "Saved classifications",
+  "prod.sub": "Every saved result is a frozen record — the code, duties, trade-defence measures and the legal path taken — preserved for audit and due-diligence purposes."
 }

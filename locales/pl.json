@@ -2,7 +2,7 @@
   "nav.request_access": "Poproś o dostęp",
   "nav.classify": "Klasyfikacja ↗",
 
-  "hero.headline": "Klasyfikacja celna, <span class=\"em\">która nie zgaduje.</span>",
+  "hero.headline": "Automatyzujemy <span class=\"em\">Procesy Celne</span>",
   "hero.sub": "Każdy kod CN/TARIC poparty regułami GRI i podstawą prawną. Pełna ścieżka audytu, zero halucynacji.",
   "hero.cta_primary": "Wypróbuj na jednej fakturze →",
   "hero.cta_secondary": "Skontaktuj się",
@@ -158,5 +158,10 @@
   "cls.k_origin": "Pochodzenie",
   "cls.k_legal": "Podstawa prawna",
   "cls.bti_h": "Powiązane decyzje BTI",
-  "cls.btn_save": "Zapisz do moich produktów"
+  "cls.btn_save": "Zapisz do moich produktów",
+
+  "inv.h1": "Skanowanie faktur",
+  "inv.sub": "Prześlij fakturę handlową. Każda pozycja jest ponownie klasyfikowana względem zadeklarowanego kodu towaru, a rozbieżności — błędne kody, nieprecyzyjne opisy, ryzyko ceł antydumpingowych, brakujące kody — są oznaczane do weryfikacji przed złożeniem zgłoszenia.",
+  "prod.h1": "Zapisane klasyfikacje",
+  "prod.sub": "Każdy zapisany wynik to utrwalony rekord — kod, cła, środki ochrony handlowej i ścieżka prawna — zachowany na potrzeby audytu i należytej staranności."
 }

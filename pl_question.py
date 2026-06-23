@@ -40,8 +40,12 @@ def _heading_pl(code, date):
     digits = "".join(c for c in str(code) if c.isdigit())
     if not digits:
         return None
+    # Option ids can be 4-digit headings ("6102") or 10-digit subheadings
+    # ("9403300000:80" -> 12 digits). Right-pad partial codes to the 10-digit
+    # nomenclature form (headings are stored as 6102000000, not 0000006102).
+    code10 = (digits + "0000000000")[:10]
     try:
-        return isztar_pl.get_pl_national_measures(digits, date).get("description_pl")
+        return isztar_pl.get_pl_national_measures(code10, date).get("description_pl")
     except Exception:
         return None
 
