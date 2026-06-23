@@ -93,10 +93,17 @@ def translate_to_english(text):
 
     This feeds the engine clean English so its FTS candidate search works exactly
     as it does for English users; the engine itself is never modified."""
-    return _api(text, "You translate a product description from Polish to concise, "
-                "precise English suitable for EU customs tariff classification. "
-                "Output ONLY the English translation — no preamble, no quotes. "
-                "Preserve material, function, form and any numbers/dimensions exactly.")
+    return _api(text, "You translate a product description from Polish into clear, "
+                "DESCRIPTIVE English for EU customs tariff classification. Name the kind "
+                "of article, its material and its purpose using plain descriptive terms "
+                "that appear in the customs nomenclature. Expand modern, abbreviated or "
+                "brand-style terms into their generic description — e.g. 'smartwatch' -> "
+                "'smart wrist-worn electronic watch with wireless communication', "
+                "'powerbank' -> 'portable rechargeable battery power bank', 'router' -> "
+                "'network communication apparatus (router)', 'dron' -> 'unmanned aircraft "
+                "(drone) with camera'. Avoid bare ambiguous words like 'function'. Keep all "
+                "materials, numbers and dimensions; do NOT invent attributes the input does "
+                "not imply. Output ONLY the English description.")
 
 
 def localize(question, market="EU", date=None):
