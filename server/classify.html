@@ -25,6 +25,7 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;
           padding:26px 48px;border-bottom:1px solid var(--line)}
   .mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--text)}
+  .mark .logo-mark{height:24px;width:auto;display:block}
   .mark .sq{width:8px;height:8px;background:var(--accent);display:block;box-shadow:0 0 8px rgba(31,111,235,.6)}
   .topbar nav{display:flex;gap:28px}
   .topbar nav a{color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .18s}
@@ -273,7 +274,7 @@
 <body>
 
 <div class="topbar">
-  <a class="mark" href="/"><span class="sq"></span>Aimport Compliance</a>
+  <a class="mark" href="/"><img class="logo-mark" src="/logo-mark.png" alt="Aimport Compliance" />Aimport Compliance</a>
   <div class="tb-right">
     <nav><a href="/" data-i18n="cls.nav_home">Home</a><a href="/classify" class="active" data-i18n="cls.nav_classify">Classification</a><a href="/invoice" data-i18n="cls.nav_invoice">Invoice scan</a><a href="/products" data-i18n="cls.nav_products">Saved products</a><a href="/optimize" data-i18n="cls.nav_optimize">Optimize</a></nav>
     <div class="lang-switch">

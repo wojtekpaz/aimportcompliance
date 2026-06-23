@@ -41,10 +41,22 @@ import invoice_ocr as ocr               # noqa: E402
 import optimize_session as opt_s        # noqa: E402
 import tempfile, os as _os              # noqa: E402
 from fastapi import UploadFile, File, Request   # noqa: E402
+from fastapi.concurrency import run_in_threadpool  # noqa: E402
 
 # No broker auth in this build (PIN gate only); surveys are attributed to a
 # single local broker so the pending-clarifications dashboard has an owner.
 DEFAULT_BROKER_ID = "broker-local"
+
+
+def _public_base(request):
+    """Base URL used to build the client-facing survey link.
+
+    A client receives this link by e-mail and opens it on their own device, so
+    it must be PUBLICLY reachable — never the broker's localhost. In a hosted
+    deployment set PUBLIC_BASE_URL (e.g. https://app.aimport.co); we fall back to
+    the request's own base URL for local single-machine use."""
+    env = (os.environ.get("PUBLIC_BASE_URL") or "").strip().rstrip("/")
+    return env or str(request.base_url).rstrip("/")
 
 
 def _attach_survey(result, request):
@@ -66,7 +78,7 @@ def _attach_survey(result, request):
         created = sdb.create_session(broker_id=DEFAULT_BROKER_ID,
                                      invoice_ref=invoice_ref, frozen_lines=frozen)
         token = created["token"]
-        base = str(request.base_url).rstrip("/")
+        base = _public_base(request)
         result["survey_token"] = token
         result["survey_url"] = f"{base}/survey/{token}"
     except Exception as e:                       # additive; never break analysis
@@ -372,8 +384,9 @@ async def invoice_analyze(request: Request, file: UploadFile = File(...),
                 warning = None
             items = [li.to_invoice_item() for li in line_items]
             invoice_no = file.filename or ""  # use filename as the invoice ref
-            res = inv.analyze_line_items(items, origin_override=origin,
-                                         invoice_no=invoice_no, warning=warning)
+            res = await run_in_threadpool(
+                inv.analyze_line_items, items, origin_override=origin,
+                invoice_no=invoice_no, warning=warning)
             return _attach_survey(res, request)
         except Exception as e:
             return {"error": f"Could not process the file: {str(e)[:200]}"}
@@ -388,7 +401,8 @@ async def invoice_analyze(request: Request, file: UploadFile = File(...),
         content = await file.read()
         tmp.write(content)
         tmp.close()
-        result = inv.analyze_invoice(tmp.name, origin_override=origin, lang=ocr_lang)
+        result = await run_in_threadpool(
+            inv.analyze_invoice, tmp.name, origin_override=origin, lang=ocr_lang)
         return _attach_survey(result, request)
     except Exception as e:
         return {"error": f"Could not process the invoice: {str(e)[:200]}"}
@@ -442,4 +456,7 @@ if __name__ == "__main__":
     print("AImport web app — open http://127.0.0.1:8000 in your browser")
     if not os.environ.get("ANTHROPIC_API_KEY"):
         print("  WARNING: ANTHROPIC_API_KEY is not set; classification will fail.")
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="warning")
+    # HOST/PORT come from the environment in a hosted deployment (e.g. Railway
+    # sets $PORT; bind HOST=0.0.0.0 there). Defaults keep local use unchanged.
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"),
+                port=int(os.environ.get("PORT", "8000")), log_level="warning")

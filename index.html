@@ -35,11 +35,18 @@
   .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
 
   /* ---- nav ---- */
-  .nav{position:sticky;top:0;z-index:20;background:rgba(10,10,15,.82);
-    backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line)}
+  .nav{position:sticky;top:0;z-index:20;background:transparent;border-bottom:1px solid transparent;
+    transition:background .25s ease,border-color .25s ease}
+  .nav.scrolled{background:rgba(0,0,0,.85);
+    backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid #222}
   .nav .row{display:flex;align-items:center;justify-content:space-between;height:68px}
-  .logo{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:16px;letter-spacing:-0.01em}
-  .logo .sq{width:9px;height:9px;background:var(--accent);box-shadow:0 0 9px rgba(31,111,235,.6)}
+  .logo{display:inline-flex;align-items:center;gap:10px;font-weight:500;font-size:18px;
+    letter-spacing:-0.01em;color:#fff}
+  .logo-svg{display:block;width:26px;height:26px}
+  .logo-word{font-family:var(--sans)}
+  .logo-mark{height:26px;width:auto;display:block}
+  .nav-login{cursor:pointer;color:#fff;font-size:14px;font-weight:500;transition:opacity .2s ease}
+  .nav-login:hover{opacity:.7}
   .btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--sans);
     font-size:13.5px;font-weight:600;letter-spacing:.02em;padding:10px 18px;border-radius:0;
     border:1px solid var(--accent-line);color:var(--accent);background:transparent;
@@ -68,18 +75,21 @@
   .lang-menu .lang-opt:hover{color:var(--text);background:rgba(255,255,255,.05)}
   .lang-menu .lang-opt.active{color:var(--accent);background:var(--accent-dim)}
 
-  /* ---- hero ---- */
-  .hero{padding:120px 0;position:relative;display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:44px;align-items:center}
-  .hero-copy{min-width:0;position:relative;z-index:1}
-  .hero h1{font-size:72px;line-height:1.1;font-weight:700;letter-spacing:-0.025em;
-    margin:0 0 26px;max-width:15ch}
+  /* ---- hero (full-viewport, centred, solid black) ---- */
+  .hero{min-height:100vh;background:#000000;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:120px 28px}
+  .hero-eyebrow{font-family:var(--mono);text-transform:uppercase;letter-spacing:.22em;
+    font-size:12px;font-weight:500;color:rgba(255,255,255,.55);margin:0 0 26px}
+  .hero h1{font-size:clamp(2.8rem,6vw,5.5rem);line-height:1.05;font-weight:700;
+    color:#fff;letter-spacing:-0.025em;margin:0 0 24px}
   .hero h1 .em{color:var(--accent)}
-  .hero .sub{font-size:20px;line-height:1.6;color:#9ca3af;max-width:54ch;margin:0 0 38px;font-weight:400}
-  .hero .cta-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
-  .hero .proof{margin-top:30px;font-size:13px;color:var(--muted);font-family:var(--mono);letter-spacing:.08em}
-  /* keep all hero text above the ambient flow animation */
-  .hero h1,.hero .sub,.hero .cta-row{position:relative;z-index:1}
+  .hero-sub{font-size:1.1rem;line-height:1.6;color:#fff;opacity:.65;
+    max-width:480px;margin:0 auto 40px;font-weight:400}
+  .hero-cta{display:inline-block;background:#2B4EFF;color:#fff;border-radius:0;
+    padding:14px 32px;font-size:15px;font-weight:600;letter-spacing:.01em;
+    transition:opacity .2s ease}
+  .hero-cta:hover{opacity:.85}
 
   /* ---- hero circular workflow orbit (right column · desktop only · behind text) ---- */
   .hero-anim{width:100%;pointer-events:none}
@@ -115,23 +125,29 @@
 
   /* ---- section base ---- */
   section{padding:100px 0}
-  .kicker{font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
-    color:var(--accent);margin:0 0 22px}
+  /* section labels: minimal, lowercase, muted — no blue, no uppercase, no wide tracking */
+  .kicker,.section-label{font-size:12px;font-weight:400;letter-spacing:0;text-transform:none;
+    color:var(--muted);margin:0 0 22px}
   h2{font-size:32px;line-height:1.15;font-weight:600;letter-spacing:-0.02em;margin:0 0 28px}
 
   /* ---- how it works (feature rows + product-UI mocks) ---- */
   .hiw{border-top:1px solid rgba(255,255,255,.06)}
   .hiw .hiw-head{max-width:18ch;margin:0}
   .hiw-rows{display:flex;flex-direction:column;margin-top:44px}
-  .hiw-row{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;
-    padding:60px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  /* mock column gets ~55% of the row width — product previews carry the page */
+  .hiw-row{display:grid;grid-template-columns:1fr 1.22fr;gap:72px;align-items:center;
+    padding:60px 0;border-bottom:1px solid rgba(255,255,255,.08)}
   .hiw-row:first-child{padding-top:8px}
   .hiw-row:last-child{border-bottom:0}
   /* alternate sides: graphic right (01), graphic left (02), graphic right (03) */
+  .hiw-row:nth-child(even){grid-template-columns:1.22fr 1fr}
   .hiw-row:nth-child(even) .hiw-copy{order:2}
   .hiw-row:nth-child(even) .hiw-mock{order:1}
 
-  .hiw-num{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  /* step label: small neutral pill, no number, no blue */
+  .hiw-num{display:inline-block;font-size:11px;font-weight:500;letter-spacing:.04em;
+    text-transform:none;padding:3px 8px;border-radius:4px;
+    border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
   .hiw-copy h3{font-size:25px;font-weight:600;color:#fff;margin:14px 0 14px;
     letter-spacing:-0.01em;line-height:1.25}
   .hiw-line{font-size:16px;line-height:1.75;color:#9ca3af;margin:0}
@@ -234,6 +250,28 @@
   @keyframes checkSettle{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   @media (prefers-reduced-motion:reduce){.hiw-reveal{opacity:1;transform:none}.hiw-mock.in .beat{animation:none}}
 
+  /* ---- scroll-triggered workflow connector (left rail + step nodes) ---- */
+  .hiw-rows{position:relative;padding-left:44px}
+  .hiw-rail{position:absolute;left:8px;top:0;bottom:0;width:2px;
+    background:rgba(255,255,255,.08);border-radius:2px;pointer-events:none}
+  .hiw-rail-fill{position:absolute;left:0;top:0;width:2px;height:0;border-radius:2px;
+    background:linear-gradient(#2B4EFF,#6B8AFF);transition:height .12s linear}
+  .hiw-row{position:relative}
+  .hiw-node{position:absolute;left:-40px;top:50%;width:8px;height:8px;border-radius:50%;
+    background:#2B4EFF;border:1.5px solid #fff;transform:translateY(-50%);
+    box-shadow:0 0 0 4px rgba(43,78,255,.12);z-index:1}
+  .hiw-row.is-active .hiw-node{animation:nodePulse 1.8s ease-in-out infinite}
+  @keyframes nodePulse{
+    0%,100%{transform:translateY(-50%) scale(1)}
+    50%{transform:translateY(-50%) scale(1.15)}
+  }
+  @media (max-width:640px){
+    .hiw-rows{padding-left:0}
+    .hiw-rail{display:none}
+    .hiw-node{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){.hiw-row.is-active .hiw-node{animation:none}}
+
   /* ---- stat break ---- */
   .statbreak{border-top:1px solid rgba(255,255,255,.06);padding:100px 0;text-align:center}
   .statbreak .sb-label{font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;
@@ -291,23 +329,16 @@
   .clarify p{margin:0;font-size:14.5px;line-height:1.65;color:var(--faint)}
   .clarify code{font-family:var(--mono);color:var(--text)}
 
-  /* ---- who for (tilt cards) ---- */
+  /* ---- who for (rule-separated entries · Linear/Notion-style, no cards/numbers) ---- */
   .who{border-top:1px solid rgba(255,255,255,.06)}
-  .who-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
-  .tcard{position:relative;background:#1a1a1f;border:1px solid rgba(255,255,255,.07);
-    border-radius:16px;padding:36px;overflow:hidden;transform:perspective(800px) rotateX(0) rotateY(0);
-    transition:transform .4s ease;will-change:transform}
-  .tcard .glow{position:absolute;inset:0;border-radius:16px;pointer-events:none;z-index:0;opacity:0;
-    background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%),rgba(31,111,235,.06),transparent 60%);
-    transition:opacity .4s ease}
-  .tcard:hover .glow{opacity:1}
-  .tcard .tnum{position:relative;z-index:1;font-family:var(--mono);font-size:48px;font-weight:600;
-    color:var(--accent);opacity:.9;line-height:1;margin-bottom:20px}
-  .tcard h3{position:relative;z-index:1;font-size:20px;font-weight:600;color:#fff;margin:0 0 14px}
-  .tcard p{position:relative;z-index:1;font-size:15px;line-height:1.7;color:#a0a0a8;margin:0 0 12px}
-  .tcard p:last-child{margin:0}
-  .who-close{border-top:1px solid var(--line);margin-top:40px;padding-top:28px;
-    font-size:17px;color:var(--faint);max-width:60ch}
+  .who-list{margin-top:24px;border-top:1px solid rgba(255,255,255,.06)}
+  .who-entry{display:grid;grid-template-columns:minmax(180px,240px) 1fr;gap:48px;
+    align-items:start;padding:32px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .who-entry h3{font-size:19px;font-weight:500;color:#fff;margin:0;letter-spacing:-0.01em}
+  .who-body{min-width:0}
+  .who-body p{font-size:15.5px;line-height:1.7;color:#a0a0a8;margin:0 0 12px}
+  .who-body p:last-child{margin:0}
+  .who-close{margin-top:40px;font-size:17px;color:var(--faint);max-width:60ch}
 
   /* ---- access ---- */
   .access{border-top:1px solid rgba(255,255,255,.06);text-align:center}
@@ -333,15 +364,16 @@
   .faq-list{margin-top:8px;border-top:1px solid var(--line)}
   .faq-item{border-bottom:1px solid var(--line)}
   .faq-item summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;
-    justify-content:space-between;gap:28px;padding:24px 0;font-size:18px;font-weight:500;
+    justify-content:space-between;gap:28px;padding:28px 0;font-size:18px;font-weight:400;
     color:var(--text);transition:color .2s}
   .faq-item summary::-webkit-details-marker{display:none}
   .faq-item summary:hover{color:var(--accent)}
-  .faq-item .mk{flex:none;width:16px;height:16px;position:relative;margin-top:7px}
-  .faq-item .mk::before,.faq-item .mk::after{content:"";position:absolute;background:var(--accent);transition:transform .2s}
+  .faq-item .mk{flex:none;width:16px;height:16px;position:relative;margin-top:9px;transition:transform .2s}
+  .faq-item .mk::before,.faq-item .mk::after{content:"";position:absolute;background:var(--accent)}
   .faq-item .mk::before{top:7px;left:0;width:16px;height:2px}
   .faq-item .mk::after{top:0;left:7px;width:2px;height:16px}
-  .faq-item[open] .mk::after{transform:scaleY(0)}
+  /* open state: rotate the plus into a close (×) */
+  .faq-item[open] .mk{transform:rotate(45deg)}
   .faq-item .ans{padding:0 0 26px;max-width:66ch}
   .faq-item .ans p{margin:0;font-size:16px;line-height:1.75;color:var(--faint)}
   .faq-item .ans code{font-family:var(--mono);font-size:.92em;color:var(--text)}
@@ -382,13 +414,16 @@
     border-radius:999px;padding:4px 12px;background:transparent;margin:12px 0 4px}
 
   /* ---- pull quote: one-click client share ---- */
-  .quote{border-top:1px solid rgba(255,255,255,.06);text-align:center}
-  .quote .inner{max-width:760px;margin:0 auto}
-  .quote .qmark{font-size:52px;line-height:.7;color:var(--accent);opacity:.5;font-weight:700;margin-bottom:10px}
-  .quote blockquote{margin:0;font-size:30px;font-weight:500;line-height:1.42;color:#fff;letter-spacing:-0.01em}
-  .quote blockquote .em{color:var(--accent)}
-  .quote .qcap{margin:22px auto 0;max-width:60ch;font-size:14.5px;line-height:1.6;color:var(--muted)}
-  @media (max-width:768px){.quote blockquote{font-size:23px}}
+  .quote{border-top:1px solid rgba(255,255,255,.06)}
+  .quote .inner{max-width:640px;margin:0 auto;text-align:left;
+    border-left:2px solid var(--accent);padding-left:30px}
+  .quote blockquote{margin:0;font-size:28px;font-weight:500;line-height:1.45;
+    color:rgba(255,255,255,.9);letter-spacing:-0.01em}
+  /* uniform quote colour — no inline blue on running text (covers EN + PL .em spans) */
+  .quote blockquote .em{color:inherit;font-weight:inherit;font-style:normal}
+  .quote .qattr{margin:24px 0 0;font-size:14px;color:var(--text);opacity:.5}
+  .quote .qcap{margin:18px 0 0;max-width:60ch;font-size:14px;line-height:1.6;color:var(--muted)}
+  @media (max-width:768px){.quote blockquote{font-size:22px}}
 
   /* ---- savings band ---- */
   /* stats band: graphite liquid-glass panel with travelling teal border */
@@ -438,12 +473,14 @@
         transparent 80%, transparent 100%)}
   }
   .savings .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;text-align:center}
-  .savings .snum{font-size:64px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-0.02em}
+  /* numbers in neutral white — blue is reserved for interactive/brand, not data */
+  .savings .snum{font-size:54px;font-weight:700;color:#fff;line-height:1;letter-spacing:-0.02em}
   .savings .slabel{font-size:14px;font-weight:500;color:#fff;margin-top:8px}
-  .savings .ssource{font-size:12px;color:#6b7280;margin-top:4px;line-height:1.5}
-  .savings .sclose{text-align:center;max-width:600px;margin:40px auto 0;
-    font-size:16px;font-weight:400;color:#fff;line-height:1.6}
-  .savings .sfoot{text-align:center;font-size:13px;color:#6b7280;margin:14px auto 0;
+  .savings .ssource{font-size:12px;color:#9ca3af;margin-top:4px;line-height:1.5}
+  /* narrative frame: leads the band above the numbers */
+  .savings .sclose{text-align:center;max-width:680px;margin:0 auto 44px;
+    font-size:1.125rem;font-weight:400;color:rgba(255,255,255,.85);line-height:1.55}
+  .savings .sfoot{text-align:center;font-size:13px;color:#6b7280;margin:28px auto 0;
     max-width:640px;line-height:1.6}
 
   /* ---- nav actions + pin triggers ---- */
@@ -499,7 +536,7 @@
     .hero .sub{font-size:18px}
     .steps{grid-template-columns:1fr;gap:0}
     .step{padding:24px 0}
-    .who-cards{grid-template-columns:1fr}
+    .who-entry{grid-template-columns:1fr;gap:14px;padding:28px 0}
     section{padding:64px 0}
     .tstep{grid-template-columns:1fr;gap:10px}
     .does .intro{font-size:22px;margin-bottom:40px}
@@ -511,7 +548,7 @@
     .feat-copy{order:1}
     .feat-mock{width:90%;margin:0 auto}
     .savings .sgrid{grid-template-columns:1fr;gap:48px}
-    .savings .snum{font-size:54px}
+    .savings .snum{font-size:44px}
     .savings-panel{padding:40px 24px;width:calc(100% - 32px);
       backdrop-filter:blur(16px) saturate(130%);
       -webkit-backdrop-filter:blur(16px) saturate(130%)}
@@ -552,64 +589,27 @@
 </svg>
 
 <!-- ===== NAV ===== -->
-<header class="nav">
+<header class="nav" id="siteNav">
   <div class="wrap row">
-    <a class="logo" href="/"><span class="sq"></span>Aimport Compliance</a>
-    <div class="nav-actions">
-      <div class="lang-switch">
-        <button type="button" class="lang-globe" aria-label="Language / Język" aria-haspopup="true">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-            <circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/>
-          </svg>
-        </button>
-        <div class="lang-menu" role="menu">
-          <button type="button" class="lang-opt" data-lang="EU" role="menuitem">English</button>
-          <button type="button" class="lang-opt" data-lang="PL" role="menuitem">Polski</button>
-        </div>
-      </div>
-      <a class="btn" data-i18n="nav.request_access" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access</a>
-      <a class="nav-classify" data-i18n="nav.classify" href="#" data-pin-trigger>Classification ↗</a>
-    </div>
+    <a class="logo" href="/" aria-label="Aimport home">
+      <svg class="logo-svg" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="25" height="25" rx="6" stroke="#fff" stroke-width="1.6"/>
+        <path d="M9 20 L14 8 L19 20" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11 15.5 H17" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-word">Aimport</span>
+    </a>
+    <a class="nav-login" data-i18n="nav.login" href="#" data-pin-trigger>Log in</a>
   </div>
 </header>
 
 <!-- ===== HERO ===== -->
-<div class="wrap">
-  <section class="hero">
-    <div class="hero-copy">
-      <h1 data-i18n-html="hero.headline">Every CN code has a reason. <span class="em">Aimport shows you the reasoning.</span></h1>
-      <p class="sub" data-i18n="hero.sub">We automate the import compliance workflow — classification, documentation, and client communication — with a defensible reason behind every result.</p>
-      <div class="cta-row">
-        <a class="btn btn-solid btn-lg" data-i18n="hero.cta_primary" href="#" data-pin-trigger>Try our free demo →</a>
-        <a class="link-ghost" data-i18n="hero.cta_secondary" href="#how">See how it works ↓</a>
-      </div>
-    </div>
-
-    <!-- circular GRI workflow orbit (right column) -->
-    <div class="hero-anim" aria-hidden="true">
-      <svg viewBox="0 0 600 420" role="img" aria-label="Workflow terms orbiting a classification ring">
-        <!-- dotted ring (always visible) -->
-        <path d="M 300,65 A 145,145 0 1 1 299.999,65" fill="none"
-              stroke="rgba(37,99,235,.12)" stroke-width="1" stroke-dasharray="4 9"/>
-
-        <!-- travelling blue arc (28px lit segment) -->
-        <path class="ha-arc" d="M 300,65 A 145,145 0 1 1 299.999,65" fill="none"
-              stroke="#2563eb" stroke-width="1.4" stroke-dasharray="28 883"/>
-
-        <!-- chevron arrowhead, leads the arc along the same path -->
-        <path id="ah" d="M-5,-3 L2,0 L-5,3" fill="none" stroke="#2563eb"
-              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-
-        <!-- five workflow terms at fixed positions -->
-        <text class="ha-term ha-term1" data-i18n="orbit.t1" x="300" y="65"  text-anchor="middle" fill="#93c5fd" font-size="13">GRI 1–6</text>
-        <text class="ha-term ha-term2" data-i18n="orbit.t2" x="438" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Defensible Decisions</text>
-        <text class="ha-term ha-term3" data-i18n="orbit.t3" x="388" y="318" text-anchor="middle" fill="#93c5fd" font-size="12">Invoice Scanning</text>
-        <text class="ha-term ha-term4" data-i18n="orbit.t4" x="212" y="318" text-anchor="middle" fill="#93c5fd" font-size="13">Legal Reasoning</text>
-        <text class="ha-term ha-term5" data-i18n="orbit.t5" x="162" y="155" text-anchor="middle" fill="#93c5fd" font-size="12">Product Description</text>
-      </svg>
-    </div>
-  </section>
-</div>
+<section class="hero">
+  <p class="hero-eyebrow" data-i18n="hero.eyebrow">EU Tariff Classification</p>
+  <h1 data-i18n-html="hero.headline">Aimport Compliance</h1>
+  <p class="hero-sub" data-i18n="hero.sub">Customs classification that follows the GRI rules — and shows every step.</p>
+  <a class="hero-cta" data-i18n="hero.cta_primary" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo</a>
+</section>
 
 <!-- ===== HOW IT WORKS (features) ===== -->
 <section class="hiw" id="how">
@@ -619,10 +619,14 @@
 
     <div class="hiw-rows">
 
+      <!-- animated vertical connector: grows downward with scroll (01 → 04) -->
+      <div class="hiw-rail" aria-hidden="true"><span class="hiw-rail-fill" id="hiwRailFill"></span></div>
+
       <!-- 01 · CLASSIFY — graphic right -->
       <div class="hiw-row">
+        <span class="hiw-node" aria-hidden="true"></span>
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num" data-i18n="step1.num">01 · Classify</div>
+          <div class="hiw-num" data-i18n="step1.num">Classify</div>
           <h3 data-i18n="step1.h">The code — and the reason behind it.</h3>
           <p class="hiw-line" data-i18n="step1.line">Describe a product. Aimport walks the GRI rules to the right CN/TARIC code, shows the reasoning, and saves it to your audit trail.</p>
           <p class="hiw-sub" data-i18n="step1.sub">Add units and unit cost to see landed cost at the live duty rate.</p>
@@ -650,8 +654,9 @@
 
       <!-- 02 · REVIEW — graphic left -->
       <div class="hiw-row">
+        <span class="hiw-node" aria-hidden="true"></span>
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num" data-i18n="step2.num">02 · Review</div>
+          <div class="hiw-num" data-i18n="step2.num">Review</div>
           <h3 data-i18n="step2.h">Catch the risk before the auditor does.</h3>
           <p class="hiw-line" data-i18n="step2.line">Upload a client's invoice. Aimport verifies each code and flags descriptions that are incomplete or hard to defend.</p>
         </div>
@@ -689,8 +694,9 @@
 
       <!-- 03 · RESOLVE — graphic right -->
       <div class="hiw-row">
+        <span class="hiw-node" aria-hidden="true"></span>
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num" data-i18n="step3.num">03 · Resolve</div>
+          <div class="hiw-num" data-i18n="step3.num">Resolve</div>
           <h3 data-i18n="step3.h">Let the client fill the gaps.</h3>
           <p class="hiw-line" data-i18n="step3.line">Missing a detail? Send a one-tap link. The client answers structured questions — and the completed file returns to you.</p>
         </div>
@@ -720,8 +726,9 @@
 
       <!-- 04 · DELIVER — graphic left -->
       <div class="hiw-row">
+        <span class="hiw-node" aria-hidden="true"></span>
         <div class="hiw-copy hiw-reveal">
-          <div class="hiw-num" data-i18n="step4.num">04 · Deliver</div>
+          <div class="hiw-num" data-i18n="step4.num">Deliver</div>
           <h3 data-i18n="step4.h">A defensible file, ready to hand over.</h3>
           <p class="hiw-line" data-i18n="step4.line">Aimport packages the code, its GRI reasoning, and the legal basis into export-ready files — formatted for your declaration software and ready to send to a customs officer.</p>
           <p class="hiw-sub" data-i18n="step4.sub">One record, defensible end to end: from a product description to a filing anyone can follow.</p>
@@ -762,8 +769,9 @@
 <section class="quote">
   <div class="wrap">
     <div class="inner">
-      <div class="qmark">&ldquo;</div>
-      <blockquote data-i18n-html="quote.body">No more chasing five separate emails. <span class="em">One click shares the file with the importer</span> — and the missing descriptions come back filled in.</blockquote>
+      <blockquote data-i18n-html="quote.body">No more chasing five separate emails. One click shares the file with the importer — and the missing descriptions come back filled in.</blockquote>
+      <!-- TODO: replace with real attribution — name, company, role (placeholder until a pilot customer agrees to be quoted) -->
+      <p class="qattr">— Jan Kowalski, Head of Customs, [Company] · placeholder</p>
       <p class="qcap" data-i18n="quote.cap">The one-tap survey from Resolve: Aimport asks the client the right questions, and you get a complete, defensible file back.</p>
     </div>
   </div>
@@ -772,6 +780,7 @@
 <!-- ===== TIME AND COST SAVINGS BAND ===== -->
 <section class="savings">
   <div class="savings-panel">
+    <p class="sclose" data-i18n="sav.close">A broker handling 50 declarations a week recovers roughly 75 hours of classification time per month.</p>
     <div class="sgrid">
       <div class="stat">
         <div class="snum">90%</div>
@@ -789,7 +798,6 @@
         <div class="ssource" data-i18n="sav.s3">EU customs enforcement standard</div>
       </div>
     </div>
-    <p class="sclose" data-i18n="sav.close">A broker handling 50 declarations a week recovers roughly 75 hours of classification time per month.</p>
     <p class="sfoot" data-i18n="sav.foot">Based on Polish customs broker salary data (61 PLN/hr) and industry-reported time reductions.</p>
   </div>
 </section>
@@ -797,35 +805,35 @@
 <!-- ===== WHO THIS IS FOR ===== -->
 <section class="who">
   <div class="wrap">
-    <p class="kicker" data-i18n="who.kicker">Who this is for</p>
-    <div class="who-cards">
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">01</div>
+    <p class="section-label" data-i18n="who.kicker">Who this is for</p>
+    <div class="who-list">
+      <article class="who-entry">
         <h3 data-i18n="who.c1_h">Customs brokers</h3>
-        <p data-i18n="who.c1_p1">You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p>
-        <p data-i18n="who.c1_p2">Read the path, check the rule at each branch, sign off or override.</p>
+        <div class="who-body">
+          <p data-i18n="who.c1_p1">You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p>
+          <p data-i18n="who.c1_p2">Read the path, check the rule at each branch, sign off or override.</p>
+        </div>
       </article>
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">02</div>
+      <article class="who-entry">
         <h3 data-i18n="who.c2_h">Importers</h3>
-        <p data-i18n="who.c2_p1">You need the same answer every time, no matter who runs the classification.</p>
-        <p data-i18n="who.c2_p2">Aimport applies one rule set to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p>
+        <div class="who-body">
+          <p data-i18n="who.c2_p1">You need the same answer every time, no matter who runs the classification.</p>
+          <p data-i18n="who.c2_p2">Aimport applies one rule set to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p>
+        </div>
       </article>
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">03</div>
+      <article class="who-entry">
         <h3 data-i18n="who.c3_h">Manufacturers</h3>
-        <p data-i18n="who.c3_p1">Classification follows from what your product is: its material, its function, its degree of processing.</p>
-        <p data-i18n="who.c3_p2">Aimport shows which facts drive the heading, so you know the classification before the goods ship.</p>
+        <div class="who-body">
+          <p data-i18n="who.c3_p1">Classification follows from what your product is: its material, its function, its degree of processing.</p>
+          <p data-i18n="who.c3_p2">Aimport shows which facts drive the heading, so you know the classification before the goods ship.</p>
+        </div>
       </article>
-      <article class="tcard">
-        <span class="glow"></span>
-        <div class="tnum">04</div>
+      <article class="who-entry">
         <h3 data-i18n="who.c4_h">Customs officers</h3>
-        <p data-i18n="who.c4_p1">A declaration without reasoning is hard to audit.</p>
-        <p data-i18n="who.c4_p2">Aimport produces a classification trail in GRI order, the same structure you use to assess whether a code holds up.</p>
+        <div class="who-body">
+          <p data-i18n="who.c4_p1">A declaration without reasoning is hard to audit.</p>
+          <p data-i18n="who.c4_p2">Aimport produces a classification trail in GRI order, the same structure you use to assess whether a code holds up.</p>
+        </div>
       </article>
     </div>
     <p class="who-close" data-i18n="who.close">When you want to see how it handles your product categories, you ask for access.</p>
@@ -835,7 +843,6 @@
 <!-- ===== FAQ ===== -->
 <section class="faq">
   <div class="wrap">
-    <p class="kicker" data-i18n="faq.kicker">FAQ</p>
     <h2 data-i18n="faq.head">What brokers ask first.</h2>
     <div class="faq-list">
 
@@ -924,31 +931,6 @@
 })();
 </script>
 
-<!-- tilt cards: face the cursor, max 8deg, flat on touch devices -->
-<script>
-(function(){
-  if(window.matchMedia('(hover: none)').matches) return;
-  var MAX = 8;
-  document.querySelectorAll('.tcard').forEach(function(card){
-    card.addEventListener('mousemove', function(e){
-      var r = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width;
-      var py = (e.clientY - r.top) / r.height;
-      var rx = (0.5 - py) * 2 * MAX;
-      var ry = (px - 0.5) * 2 * MAX;
-      card.style.transition = 'transform .12s ease';
-      card.style.transform = 'perspective(800px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg)';
-      card.style.setProperty('--gx', (px * 100).toFixed(1) + '%');
-      card.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
-    });
-    card.addEventListener('mouseleave', function(){
-      card.style.transition = 'transform .4s ease';
-      card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg)';
-    });
-  });
-})();
-</script>
-
 <!-- how-it-works: subtle scroll-reveal (fade + rise); static final state if reduced-motion -->
 <script>
 (function(){
@@ -965,6 +947,58 @@
     });
   }, {threshold:0.18, rootMargin:'0px 0px -8% 0px'});
   els.forEach(function(el){ io.observe(el); });
+})();
+</script>
+
+<!-- nav: solid background + bottom border after 80px of scroll -->
+<script>
+(function(){
+  var nav = document.getElementById('siteNav');
+  if(!nav) return;
+  function onScroll(){
+    var y = window.scrollY || document.documentElement.scrollTop || 0;
+    nav.classList.toggle('scrolled', y > 80);
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+</script>
+
+<!-- workflow connector: vertical line grows with scroll; active step node pulses -->
+<script>
+(function(){
+  var rows = document.querySelector('.hiw-rows');
+  var fill = document.getElementById('hiwRailFill');
+  if(!rows || !fill) return;
+
+  // grow the gradient line as the section scrolls through the viewport (01 → 04)
+  var ticking = false;
+  function update(){
+    var rect = rows.getBoundingClientRect();
+    var start = window.innerHeight * 0.82;        // begin filling near lower third
+    var p = (start - rect.top) / rect.height;     // 0 at top of section → 1 at bottom
+    if(p < 0) p = 0; if(p > 1) p = 1;
+    fill.style.height = (p * 100).toFixed(2) + '%';
+  }
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){ update(); ticking = false; });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', update, {passive:true});
+  update();
+
+  // mark the step closest to the viewport centre as active (its node pulses)
+  if('IntersectionObserver' in window){
+    var stepRows = rows.querySelectorAll('.hiw-row');
+    var aio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        e.target.classList.toggle('is-active', e.isIntersecting);
+      });
+    }, {threshold:0, rootMargin:'-45% 0px -45% 0px'});
+    stepRows.forEach(function(r){ aio.observe(r); });
+  }
 })();
 </script>
 
@@ -1040,7 +1074,7 @@
 </script>
 
 <!-- inline PL locale (mirror of locales/pl.json) for static hosts that do not serve /locales -->
-<script type="application/json" id="i18n-pl">{"nav.request_access":"Poproś o dostęp","nav.classify":"Klasyfikacja ↗","hero.headline":"Automatyzujemy <span class=\"em\">Procesy Celne<\/span>","hero.sub":"Każdy kod CN/TARIC poparty regułami GRI i podstawą prawną. Pełna ścieżka audytu, zero halucynacji.","hero.cta_primary":"Wypróbuj na jednej fakturze →","hero.cta_secondary":"Skontaktuj się","hiw.kicker":"Jak to działa","hiw.head":"Od danych o produkcie do kodu, którego można bronić.","step1.num":"01 · Klasyfikuj","step1.h":"Kod — i uzasadnienie, które za nim stoi.","step1.line":"Przypisanie kodu CN/TARIC w oparciu o reguły GRI, wraz z wyliczeniem kosztu wprowadzenia towaru.","step1.sub":"Dodaj liczbę sztuk i cenę jednostkową, aby zobaczyć koszt wprowadzenia towaru przy aktualnej stawce cła.","step2.num":"02 · Sprawdź","step2.h":"Wychwyć ryzyko, zanim zrobi to audytor.","step2.line":"Skanowanie faktur i wykrywanie ryzyka: cła antydumpingowe, pochodzenie, wymogi dokumentowe.","step3.num":"03 · Rozstrzygnij","step3.h":"Niech klient uzupełni braki.","step3.line":"Pytania uściślające wysyłane do klienta przez link. Odpowiedzi wracają gotowe do zatwierdzenia.","step4.num":"04 · Przekaż","step4.h":"Dokumentacja gotowa do przekazania, możliwa do obrony.","step4.line":"Aimport zestawia kod, uzasadnienie GRI i podstawę prawną w plikach gotowych do eksportu — sformatowanych pod Twoje oprogramowanie zgłoszeniowe i gotowych do przekazania funkcjonariuszowi celnemu.","step4.sub":"Jeden rekord, możliwy do obrony od początku do końca: od opisu towaru po zgłoszenie, które każdy może prześledzić.","mkr.defensible":"<span class=\"beat\">✓<\/span> Do obrony","mkr.step_gri1":"<span class=\"mk-check\">✓<\/span> GRI 1 — pozycja","mkr.step_gri6":"<span class=\"mk-check\">✓<\/span> GRI 6 — podpozycja","mkr.step_reject":"<span class=\"mk-x\">✕<\/span> 7326 — gałąź odrzucona","mkr.legal_label":"Podstawa prawna","mkr.legal_item":"Uwaga 1 do sekcji XV · Noty wyjaśniające CN do 7308 90","mkr.bti":"Porównywalna decyzja — EBTI DE BTI 24681/23 ↗","mkr.cost":"250 szt. × €4.20 · cło 2.7% → <span class=\"mk-total\">€1,078.35 po odprawie<\/span>","inv.bar_l":"Faktura handlowa · zweryfikowano 3 z 4 pozycji","inv.bar_r":"2 pozycje oznaczone","inv.desc1":"Wsporniki montażowe stalowe, cynkowane ogniowo","inv.desc2":"Części metalowe","inv.flag2":"⚠ opis zbyt ogólny do obrony","inv.desc3":"Komponenty maszyn","inv.flag3":"⚠ brak specyfikacji materiału","inv.desc4":"Łączniki z tworzywa, typ A","srv.q1":"Materiał podstawowy","srv.q2":"Powłoka powierzchni?","srv.q3":"Świadectwo pochodzenia","srv.attach":"▾ / załącz","srv.completed":"<span class=\"beat\">✓<\/span> Ukończono","srv.returns":"→ wraca do agenta","exp.ready":"<span class=\"beat\">✓<\/span> Gotowe do zgłoszenia","exp.sub":"Wspornik montażowy stalowy · GRI 1 → 6 · z podstawą prawną","exp.meta1":"kod · uzasadnienie · podstawa prawna","exp.meta2":"import do WinSAD / Huzar","exp.meta3":"dla funkcjonariusza celnego","exp.complete":"Proces zakończony","exp.ret":"↑ wgraj do swojego systemu · wyślij do urzędu","orbit.t1":"GRI 1–6","orbit.t2":"Decyzje do obrony","orbit.t3":"Skanowanie faktur","orbit.t4":"Uzasadnienie prawne","orbit.t5":"Opis produktu","quote.body":"Koniec z wysyłaniem pięciu osobnych e‑maili. <span class=\"em\">Jedno kliknięcie udostępnia plik importerowi<\/span> — a brakujące opisy wracają uzupełnione.","quote.cap":"Ankieta z kroku Rozstrzygnij: Aimport zadaje klientowi właściwe pytania, a Ty otrzymujesz kompletny plik, możliwy do obrony.","sav.l1":"mniej czasu na klasyfikację","sav.s1":"3–4 godziny skrócone do poniżej 15 minut · benchmark branżowy","sav.l2":"oszczędności na pozycję towarową","sav.s2":"ręcznie średnio 20 min · Aimport średnio 2 min","sav.l3":"wartości cła w karach za błędną klasyfikację","sav.s3":"standard egzekucji celnej UE","sav.close":"Agent obsługujący 50 zgłoszeń tygodniowo odzyskuje około 75 godzin pracy nad klasyfikacją miesięcznie.","sav.foot":"Na podstawie danych o wynagrodzeniach polskich agentów celnych (61 PLN/godz.) i raportowanych w branży oszczędności czasu.","who.kicker":"Dla kogo to jest","who.c1_h":"Agenci celni","who.c1_p1":"Logikę klasyfikacji nosisz w głowie. Aimport układa ją w kolejności, w jakiej byś jej bronił.","who.c1_p2":"Prześledź ścieżkę, sprawdź regułę na każdej gałęzi, zatwierdź lub zmień.","who.c2_h":"Importerzy","who.c2_p1":"Potrzebujesz tej samej odpowiedzi za każdym razem, niezależnie od tego, kto przeprowadza klasyfikację.","who.c2_p2":"Aimport stosuje jeden zestaw reguł do każdego towaru i zachowuje ścieżkę, więc audyt czyta Twoje decyzje, zamiast się ich domyślać.","who.c3_h":"Producenci","who.c3_p1":"Klasyfikacja wynika z tego, czym jest Twój produkt: jego materiału, funkcji i stopnia przetworzenia.","who.c3_p2":"Aimport pokazuje, które fakty decydują o pozycji, więc znasz klasyfikację, zanim towar wyruszy.","who.c4_h":"Funkcjonariusze celni","who.c4_p1":"Zgłoszenie bez uzasadnienia trudno skontrolować.","who.c4_p2":"Aimport tworzy ścieżkę klasyfikacji w kolejności GRI — tej samej struktury używasz, oceniając, czy kod się broni.","who.close":"Gdy chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami towarów, poprosisz o dostęp.","faq.kicker":"FAQ","faq.head":"O co agenci pytają najpierw.","faq.q1":"Czy model kiedykolwiek wymyśla kod, którego nie ma w taryfie?","faq.a1":"Nie. Na każdej gałęzi silnik przekazuje modelowi kandydujące pozycje pobrane z tabel CN i TARIC, a model wybiera jedną lub prosi o fakt. Kod spoza tej listy nie może trafić do wyniku, ponieważ model nigdy sam nie zapisuje cyfr.","faq.q2":"Co się dzieje, gdy mój opis pomija fakt rozstrzygający?","faq.a2":"Silnik zatrzymuje się na gałęzi, na której kończą się fakty, i zadaje jedno pytanie — to samo, które zadałby klasyfikator: dziane czy tkane, stal czy aluminium. Odpowiadasz, a rozumowanie jest kontynuowane od tej gałęzi, zamiast zaczynać od nowa.","faq.q3":"Czy mogę zmienić decyzję silnika na danej gałęzi?","faq.a3":"Tak. Każda gałąź pokazuje kandydatów, których silnik rozważył, oraz zastosowaną regułę. Wybierz innego kandydata, a ścieżka zapisze Twój wybór i rozumowanie potoczy się dalej. Pozostajesz zgłaszającym, a silnik w obu przypadkach pokazuje swoją pracę.","faq.q4":"Czy podaje cła i środki handlowe, czy tylko dziesięć cyfr?","faq.a4":"Jedno i drugie. Silnik zwraca kod, a następnie środki przypisane do niego dla wskazanego pochodzenia: cło dla państw trzecich, ewentualne cła antydumpingowe lub wyrównawcze, zawieszenia i kontyngenty. Widzisz stawkę, którą zadeklarujesz przy wprowadzeniu, a nie samą pozycję.","faq.q5":"Czy Aimport sprawdza istniejące wiążące informacje taryfowe?","faq.a5":"Tak. Przeszukuje bazę EBTI w poszukiwaniu wiążących decyzji dla towarów podobnych do Twoich i pokazuje je obok wyniku. Widzisz, jak organy celne sklasyfikowały porównywalne produkty, zanim zdecydujesz się na pozycję, i wychwytujesz konflikt, zanim zrobi to funkcjonariusz.","faq.q6":"Jak radzi sobie z częściami, zestawami i towarami złożonymi?","faq.a6":"Silnik przechodzi przez reguły GRI od 2 do 4 po kolei: artykuły niekompletne i rozmontowane według GRI 2(a), towary złożone i zestawy według ich zasadniczego charakteru według GRI 3(b) oraz rozstrzygnięcie według GRI 3(c). Ścieżka wskazuje regułę, która rozstrzygnęła sprawę, więc możesz obronić decyzję.","faq.q7":"Kto ponosi odpowiedzialność za ostateczną klasyfikację?","faq.a7":"Ty. Zgłaszający podpisuje zgłoszenie i odpowiada za wynik. Aimport dostarcza uzasadnienie do sprawdzenia i ścieżkę do obrony, ale niczego nie składa w Twoim imieniu.","access.kicker":"Poproś o dostęp","access.head":"Przyjdź z własnymi kategoriami towarów.","access.p":"Aimport jest w fazie pilotażu z niewielką grupą agentów celnych i spedytorów. Jeśli zajmujesz się zgodnością importową i chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami towarów, napisz do nas.","access.btn":"Napisz na contact@aimport.co","access.respond":"Odpowiadamy na każde zgłoszenie.","footer.copy":"Aimport Compliance © 2026","footer.contact":"Kontakt: leo.goerg@aimport.co","footer.contact_href":"mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request","pin.label":"Dostęp demo","pin.heading":"Wprowadź kod dostępu","pin.sub":"Masz kod z Breakbulk lub z e‑maila? Wpisz go poniżej.","pin.error":"Nieprawidłowy kod. <a href=\"mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request\">Poproś o dostęp: leo.goerg@aimport.co<\/a>","cls.nav_home":"Strona główna","cls.nav_classify":"Klasyfikacja","cls.nav_invoice":"Skan faktury","cls.nav_products":"Zapisane produkty","cls.nav_optimize":"Optymalizacja","cls.guide":"Opisz, co importujesz. Im więcej szczegółów — materiał, funkcja, zastosowanie — tym dokładniejsza klasyfikacja.","cls.lbl_desc":"Opis produktu","cls.ex_label":"Wypróbuj przykład:","cls.ex1":"Stalowy wspornik montażowy do paneli słonecznych","cls.ex2":"Ceramiczny kubek do kawy, 350 ml","cls.ex3":"Bawełniany t-shirt męski, dziany","cls.ph_desc":"Opisz produkt możliwie najdokładniej — materiał, funkcja, przeznaczenie.","cls.lbl_origin":"Kraj pochodzenia","cls.lbl_hint":"Wskazówka działu (opcjonalnie)","cls.ph_hint":"np. 73","cls.note_hint":"Pozostaw puste, chyba że znasz już dział.","cls.btn_classify":"Klasyfikuj →","cls.pc_label":"Jedno pytanie, zanim zaczniemy","cls.pc_ph":"Opisz prostymi słowami…","cls.pc_continue":"Kontynuuj klasyfikację","cls.q_label":"Wymagane uściślenie","cls.q_confirm":"Potwierdź","cls.done_label":"Uzasadnienie prawne","cls.ghost_h":"Co otrzymasz","cls.ghost_1":"10-cyfrowy kod CN/TARIC","cls.ghost_2":"Ścieżkę rozumowania GRI, krok po kroku","cls.ghost_3":"Podstawę prawną każdej decyzji","cls.ghost_4":"Obowiązujące cła i środki handlowe","cls.ghost_5":"Pytanie uściślające, jeśli opis jest niejednoznaczny","cls.restart":"← Nowa klasyfikacja","cls.defense_label":"Środek ochrony handlowej","cls.k_duty":"Stawka cła","cls.k_origin":"Pochodzenie","cls.k_legal":"Podstawa prawna","cls.bti_h":"Powiązane decyzje BTI","cls.btn_save":"Zapisz do moich produktów","inv.h1":"Skanowanie faktur","inv.sub":"Prześlij fakturę handlową. Każda pozycja jest ponownie klasyfikowana względem zadeklarowanego kodu towaru, a rozbieżności — błędne kody, nieprecyzyjne opisy, ryzyko ceł antydumpingowych, brakujące kody — są oznaczane do weryfikacji przed złożeniem zgłoszenia.","prod.h1":"Zapisane klasyfikacje","prod.sub":"Każdy zapisany wynik to utrwalony rekord — kod, cła, środki ochrony handlowej i ścieżka prawna — zachowany na potrzeby audytu i należytej staranności."}</script>
+<script type="application/json" id="i18n-pl">{"nav.request_access":"Poproś o dostęp","nav.classify":"Klasyfikacja ↗","hero.headline":"Automatyzujemy <span class=\"em\">Procesy Celne<\/span>","hero.sub":"Każdy kod CN/TARIC poparty regułami GRI i podstawą prawną. Pełna ścieżka audytu, zero halucynacji.","hero.cta_primary":"Wypróbuj na jednej fakturze →","hero.cta_secondary":"Skontaktuj się","hiw.kicker":"Jak to działa","hiw.head":"Od danych o produkcie do kodu, którego można bronić.","step1.num":"Klasyfikuj","step1.h":"Kod — i uzasadnienie, które za nim stoi.","step1.line":"Przypisanie kodu CN/TARIC w oparciu o reguły GRI, wraz z wyliczeniem kosztu wprowadzenia towaru.","step1.sub":"Dodaj liczbę sztuk i cenę jednostkową, aby zobaczyć koszt wprowadzenia towaru przy aktualnej stawce cła.","step2.num":"Sprawdź","step2.h":"Wychwyć ryzyko, zanim zrobi to audytor.","step2.line":"Skanowanie faktur i wykrywanie ryzyka: cła antydumpingowe, pochodzenie, wymogi dokumentowe.","step3.num":"Rozstrzygnij","step3.h":"Niech klient uzupełni braki.","step3.line":"Pytania uściślające wysyłane do klienta przez link. Odpowiedzi wracają gotowe do zatwierdzenia.","step4.num":"Przekaż","step4.h":"Dokumentacja gotowa do przekazania, możliwa do obrony.","step4.line":"Aimport zestawia kod, uzasadnienie GRI i podstawę prawną w plikach gotowych do eksportu — sformatowanych pod Twoje oprogramowanie zgłoszeniowe i gotowych do przekazania funkcjonariuszowi celnemu.","step4.sub":"Jeden rekord, możliwy do obrony od początku do końca: od opisu towaru po zgłoszenie, które każdy może prześledzić.","mkr.defensible":"<span class=\"beat\">✓<\/span> Do obrony","mkr.step_gri1":"<span class=\"mk-check\">✓<\/span> GRI 1 — pozycja","mkr.step_gri6":"<span class=\"mk-check\">✓<\/span> GRI 6 — podpozycja","mkr.step_reject":"<span class=\"mk-x\">✕<\/span> 7326 — gałąź odrzucona","mkr.legal_label":"Podstawa prawna","mkr.legal_item":"Uwaga 1 do sekcji XV · Noty wyjaśniające CN do 7308 90","mkr.bti":"Porównywalna decyzja — EBTI DE BTI 24681/23 ↗","mkr.cost":"250 szt. × €4.20 · cło 2.7% → <span class=\"mk-total\">€1,078.35 po odprawie<\/span>","inv.bar_l":"Faktura handlowa · zweryfikowano 3 z 4 pozycji","inv.bar_r":"2 pozycje oznaczone","inv.desc1":"Wsporniki montażowe stalowe, cynkowane ogniowo","inv.desc2":"Części metalowe","inv.flag2":"⚠ opis zbyt ogólny do obrony","inv.desc3":"Komponenty maszyn","inv.flag3":"⚠ brak specyfikacji materiału","inv.desc4":"Łączniki z tworzywa, typ A","srv.q1":"Materiał podstawowy","srv.q2":"Powłoka powierzchni?","srv.q3":"Świadectwo pochodzenia","srv.attach":"▾ / załącz","srv.completed":"<span class=\"beat\">✓<\/span> Ukończono","srv.returns":"→ wraca do agenta","exp.ready":"<span class=\"beat\">✓<\/span> Gotowe do zgłoszenia","exp.sub":"Wspornik montażowy stalowy · GRI 1 → 6 · z podstawą prawną","exp.meta1":"kod · uzasadnienie · podstawa prawna","exp.meta2":"import do WinSAD / Huzar","exp.meta3":"dla funkcjonariusza celnego","exp.complete":"Proces zakończony","exp.ret":"↑ wgraj do swojego systemu · wyślij do urzędu","orbit.t1":"GRI 1–6","orbit.t2":"Decyzje do obrony","orbit.t3":"Skanowanie faktur","orbit.t4":"Uzasadnienie prawne","orbit.t5":"Opis produktu","quote.body":"Koniec z wysyłaniem pięciu osobnych e‑maili. <span class=\"em\">Jedno kliknięcie udostępnia plik importerowi<\/span> — a brakujące opisy wracają uzupełnione.","quote.cap":"Ankieta z kroku Rozstrzygnij: Aimport zadaje klientowi właściwe pytania, a Ty otrzymujesz kompletny plik, możliwy do obrony.","sav.l1":"mniej czasu na klasyfikację","sav.s1":"3–4 godziny skrócone do poniżej 15 minut · benchmark branżowy","sav.l2":"oszczędności na pozycję towarową","sav.s2":"ręcznie średnio 20 min · Aimport średnio 2 min","sav.l3":"wartości cła w karach za błędną klasyfikację","sav.s3":"standard egzekucji celnej UE","sav.close":"Agent obsługujący 50 zgłoszeń tygodniowo odzyskuje około 75 godzin pracy nad klasyfikacją miesięcznie.","sav.foot":"Na podstawie danych o wynagrodzeniach polskich agentów celnych (61 PLN/godz.) i raportowanych w branży oszczędności czasu.","who.kicker":"Dla kogo to jest","who.c1_h":"Agenci celni","who.c1_p1":"Logikę klasyfikacji nosisz w głowie. Aimport układa ją w kolejności, w jakiej byś jej bronił.","who.c1_p2":"Prześledź ścieżkę, sprawdź regułę na każdej gałęzi, zatwierdź lub zmień.","who.c2_h":"Importerzy","who.c2_p1":"Potrzebujesz tej samej odpowiedzi za każdym razem, niezależnie od tego, kto przeprowadza klasyfikację.","who.c2_p2":"Aimport stosuje jeden zestaw reguł do każdego towaru i zachowuje ścieżkę, więc audyt czyta Twoje decyzje, zamiast się ich domyślać.","who.c3_h":"Producenci","who.c3_p1":"Klasyfikacja wynika z tego, czym jest Twój produkt: jego materiału, funkcji i stopnia przetworzenia.","who.c3_p2":"Aimport pokazuje, które fakty decydują o pozycji, więc znasz klasyfikację, zanim towar wyruszy.","who.c4_h":"Funkcjonariusze celni","who.c4_p1":"Zgłoszenie bez uzasadnienia trudno skontrolować.","who.c4_p2":"Aimport tworzy ścieżkę klasyfikacji w kolejności GRI — tej samej struktury używasz, oceniając, czy kod się broni.","who.close":"Gdy chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami towarów, poprosisz o dostęp.","faq.kicker":"FAQ","faq.head":"O co agenci pytają najpierw.","faq.q1":"Czy model kiedykolwiek wymyśla kod, którego nie ma w taryfie?","faq.a1":"Nie. Na każdej gałęzi silnik przekazuje modelowi kandydujące pozycje pobrane z tabel CN i TARIC, a model wybiera jedną lub prosi o fakt. Kod spoza tej listy nie może trafić do wyniku, ponieważ model nigdy sam nie zapisuje cyfr.","faq.q2":"Co się dzieje, gdy mój opis pomija fakt rozstrzygający?","faq.a2":"Silnik zatrzymuje się na gałęzi, na której kończą się fakty, i zadaje jedno pytanie — to samo, które zadałby klasyfikator: dziane czy tkane, stal czy aluminium. Odpowiadasz, a rozumowanie jest kontynuowane od tej gałęzi, zamiast zaczynać od nowa.","faq.q3":"Czy mogę zmienić decyzję silnika na danej gałęzi?","faq.a3":"Tak. Każda gałąź pokazuje kandydatów, których silnik rozważył, oraz zastosowaną regułę. Wybierz innego kandydata, a ścieżka zapisze Twój wybór i rozumowanie potoczy się dalej. Pozostajesz zgłaszającym, a silnik w obu przypadkach pokazuje swoją pracę.","faq.q4":"Czy podaje cła i środki handlowe, czy tylko dziesięć cyfr?","faq.a4":"Jedno i drugie. Silnik zwraca kod, a następnie środki przypisane do niego dla wskazanego pochodzenia: cło dla państw trzecich, ewentualne cła antydumpingowe lub wyrównawcze, zawieszenia i kontyngenty. Widzisz stawkę, którą zadeklarujesz przy wprowadzeniu, a nie samą pozycję.","faq.q5":"Czy Aimport sprawdza istniejące wiążące informacje taryfowe?","faq.a5":"Tak. Przeszukuje bazę EBTI w poszukiwaniu wiążących decyzji dla towarów podobnych do Twoich i pokazuje je obok wyniku. Widzisz, jak organy celne sklasyfikowały porównywalne produkty, zanim zdecydujesz się na pozycję, i wychwytujesz konflikt, zanim zrobi to funkcjonariusz.","faq.q6":"Jak radzi sobie z częściami, zestawami i towarami złożonymi?","faq.a6":"Silnik przechodzi przez reguły GRI od 2 do 4 po kolei: artykuły niekompletne i rozmontowane według GRI 2(a), towary złożone i zestawy według ich zasadniczego charakteru według GRI 3(b) oraz rozstrzygnięcie według GRI 3(c). Ścieżka wskazuje regułę, która rozstrzygnęła sprawę, więc możesz obronić decyzję.","faq.q7":"Kto ponosi odpowiedzialność za ostateczną klasyfikację?","faq.a7":"Ty. Zgłaszający podpisuje zgłoszenie i odpowiada za wynik. Aimport dostarcza uzasadnienie do sprawdzenia i ścieżkę do obrony, ale niczego nie składa w Twoim imieniu.","access.kicker":"Poproś o dostęp","access.head":"Przyjdź z własnymi kategoriami towarów.","access.p":"Aimport jest w fazie pilotażu z niewielką grupą agentów celnych i spedytorów. Jeśli zajmujesz się zgodnością importową i chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami towarów, napisz do nas.","access.btn":"Napisz na contact@aimport.co","access.respond":"Odpowiadamy na każde zgłoszenie.","footer.copy":"Aimport Compliance © 2026","footer.contact":"Kontakt: leo.goerg@aimport.co","footer.contact_href":"mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request","pin.label":"Dostęp demo","pin.heading":"Wprowadź kod dostępu","pin.sub":"Masz kod z Breakbulk lub z e‑maila? Wpisz go poniżej.","pin.error":"Nieprawidłowy kod. <a href=\"mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request\">Poproś o dostęp: leo.goerg@aimport.co<\/a>","cls.nav_home":"Strona główna","cls.nav_classify":"Klasyfikacja","cls.nav_invoice":"Skan faktury","cls.nav_products":"Zapisane produkty","cls.nav_optimize":"Optymalizacja","cls.guide":"Opisz, co importujesz. Im więcej szczegółów — materiał, funkcja, zastosowanie — tym dokładniejsza klasyfikacja.","cls.lbl_desc":"Opis produktu","cls.ex_label":"Wypróbuj przykład:","cls.ex1":"Stalowy wspornik montażowy do paneli słonecznych","cls.ex2":"Ceramiczny kubek do kawy, 350 ml","cls.ex3":"Bawełniany t-shirt męski, dziany","cls.ph_desc":"Opisz produkt możliwie najdokładniej — materiał, funkcja, przeznaczenie.","cls.lbl_origin":"Kraj pochodzenia","cls.lbl_hint":"Wskazówka działu (opcjonalnie)","cls.ph_hint":"np. 73","cls.note_hint":"Pozostaw puste, chyba że znasz już dział.","cls.btn_classify":"Klasyfikuj →","cls.pc_label":"Jedno pytanie, zanim zaczniemy","cls.pc_ph":"Opisz prostymi słowami…","cls.pc_continue":"Kontynuuj klasyfikację","cls.q_label":"Wymagane uściślenie","cls.q_confirm":"Potwierdź","cls.done_label":"Uzasadnienie prawne","cls.ghost_h":"Co otrzymasz","cls.ghost_1":"10-cyfrowy kod CN/TARIC","cls.ghost_2":"Ścieżkę rozumowania GRI, krok po kroku","cls.ghost_3":"Podstawę prawną każdej decyzji","cls.ghost_4":"Obowiązujące cła i środki handlowe","cls.ghost_5":"Pytanie uściślające, jeśli opis jest niejednoznaczny","cls.restart":"← Nowa klasyfikacja","cls.defense_label":"Środek ochrony handlowej","cls.k_duty":"Stawka cła","cls.k_origin":"Pochodzenie","cls.k_legal":"Podstawa prawna","cls.bti_h":"Powiązane decyzje BTI","cls.btn_save":"Zapisz do moich produktów","inv.h1":"Skanowanie faktur","inv.sub":"Prześlij fakturę handlową. Każda pozycja jest ponownie klasyfikowana względem zadeklarowanego kodu towaru, a rozbieżności — błędne kody, nieprecyzyjne opisy, ryzyko ceł antydumpingowych, brakujące kody — są oznaczane do weryfikacji przed złożeniem zgłoszenia.","prod.h1":"Zapisane klasyfikacje","prod.sub":"Każdy zapisany wynik to utrwalony rekord — kod, cła, środki ochrony handlowej i ścieżka prawna — zachowany na potrzeby audytu i należytej staranności."}</script>
 
 <!-- ===== i18n: market profile (EU/English · PL/Polski) ===== -->
 <!-- Client-side string swap. English is the default DOM (rendered identically with no

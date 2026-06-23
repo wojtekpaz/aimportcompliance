@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
 <style>
   :root{
     --bg:#0a0a0f; --panel:#0e0e15; --panel-2:#101019; --line:#1c1c26;
@@ -22,6 +23,7 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;
           padding:26px 48px;border-bottom:1px solid var(--line)}
   .mark{display:inline-flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+  .mark .logo-mark{height:24px;width:auto;display:block}
   .mark .sq{width:8px;height:8px;background:var(--accent);box-shadow:0 0 8px rgba(31,111,235,.6)}
   .topbar nav{display:flex;gap:28px}
   .topbar nav a{color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .18s}
@@ -104,6 +106,65 @@
   .lowconf{color:var(--amber);font-family:var(--mono);font-size:11px;
     border:1px solid var(--amber);padding:1px 6px;margin-left:8px;white-space:nowrap}
   @media(max-width:760px){.wrap{padding:40px 20px}.topbar{padding:22px}.summary{gap:26px}}
+
+  /* ---- client-clarification banner (Milestone One V2) ---- */
+  .clarify-banner{display:none;align-items:center;justify-content:space-between;gap:20px;
+    flex-wrap:wrap;border:1px solid rgba(31,111,235,.35);border-left:3px solid var(--accent);
+    background:rgba(31,111,235,.08);padding:18px 22px;margin:26px 0 8px}
+  .clarify-banner.on{display:flex}
+  .cb-text{font-size:14.5px;color:var(--text);line-height:1.5}
+  .cb-text .cb-icon{color:var(--amber);margin-right:6px}
+  .cb-actions{display:flex;gap:12px;flex-wrap:wrap}
+  .cb-btn{background:var(--accent);border:1px solid var(--accent);color:#fff;
+    padding:11px 18px;font-size:12.5px;font-weight:600;letter-spacing:.04em;cursor:pointer;
+    border-radius:6px;transition:background .18s,opacity .18s}
+  .cb-btn:hover{background:#4f86f0}
+  .cb-btn.ghost{background:transparent;color:var(--accent)}
+  .cb-btn.ghost:hover{background:var(--accent-dim)}
+  .cb-toast{font-size:12px;color:#7fe0b0;margin-left:4px;opacity:0;transition:opacity .2s}
+  .cb-toast.on{opacity:1}
+  /* Tabler icon alignment (replaces former emoji) */
+  .cb-btn i.ti{font-size:15px;vertical-align:-2px;margin-right:2px}
+  .cb-text i.cb-icon{font-size:16px;vertical-align:-2px}
+  .pstatus i.ti{font-size:14px;vertical-align:-2px;margin-right:3px}
+  .presults i.ti{font-size:15px;vertical-align:-2px;margin-right:3px}
+  .presults i.ti-circle-check{color:#7fe0b0} .presults i.ti-alert-triangle{color:var(--amber)}
+
+  /* email modal */
+  .cb-modal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.66);backdrop-filter:blur(3px)}
+  .cb-modal.on{display:flex}
+  .cb-card{background:#16161f;border:1px solid rgba(255,255,255,.12);border-radius:14px;
+    padding:30px 28px;max-width:420px;width:90%}
+  .cb-card .cb-h{font-size:17px;font-weight:600;margin:0 0 6px}
+  .cb-card .cb-p{font-size:13px;color:var(--muted);margin:0 0 18px}
+  .cb-card label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+  .cb-card input{display:block;width:100%;margin:8px 0 18px;background:var(--panel);color:var(--text);
+    border:1px solid rgba(255,255,255,.15);border-radius:7px;padding:11px 12px;font-size:14px;outline:none}
+  .cb-card input:focus{border-color:var(--accent)}
+  .cb-card .cb-row{display:flex;gap:12px;justify-content:flex-end}
+
+  /* pending clarifications table */
+  .pending{display:none;margin-top:64px;padding-top:34px;border-top:1px solid var(--line)}
+  .pending.on{display:block}
+  .pending h2{font-size:18px;font-weight:600;margin:0 0 18px}
+  .ptable{width:100%;border-collapse:collapse;font-size:13px}
+  .ptable th{text-align:left;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--faint);font-weight:600;padding:0 14px 12px 0;border-bottom:1px solid var(--line)}
+  .ptable td{padding:14px 14px 14px 0;border-bottom:1px solid var(--line);color:var(--text);vertical-align:middle}
+  .ptable .ref{font-family:var(--mono);font-size:12px;color:var(--faint)}
+  .pstatus{font-size:11px;font-weight:600;letter-spacing:.03em;white-space:nowrap}
+  .pstatus.awaiting{color:var(--amber)} .pstatus.complete{color:#7fe0b0}
+  .pstatus.not_sent{color:var(--muted)} .pstatus.expired{color:var(--red)}
+  .plink{color:var(--accent);cursor:pointer;font-size:12px;border:0;background:none;padding:0;
+    border-bottom:1px solid transparent}
+  .plink:hover{border-color:var(--accent)}
+  .presults{margin-top:18px;border:1px solid var(--line);background:var(--panel);padding:18px 20px;display:none}
+  .presults.on{display:block}
+  .presults .rline{font-size:13px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .presults .rline:last-child{border-bottom:0}
+  .presults .rcode{font-family:var(--mono);color:var(--accent)}
+  .presults .rfrozen{color:var(--amber)}
   /* language switcher (globe + menu) */
   .tb-right{display:flex;align-items:center;gap:20px}
   .lang-switch{position:relative;display:inline-flex}
@@ -125,7 +186,7 @@
 <body>
 
 <div class="topbar">
-  <a class="mark" href="/"><span class="sq"></span>Aimport Compliance</a>
+  <a class="mark" href="/"><img class="logo-mark" src="/logo-mark.png" alt="Aimport Compliance" />Aimport Compliance</a>
   <div class="tb-right">
   <nav>
     <a href="/" data-i18n="cls.nav_home">Home</a>
@@ -156,21 +217,21 @@
     declaration is filed.</div>
 
   <div class="drop" id="drop">
-    <input type="file" id="file" accept="application/pdf">
-    <div class="big" id="dropBig">Drop a PDF invoice here, or click to choose</div>
-    <div class="small">Digital PDFs and scans/photos both work — scans are read via on-device OCR.</div>
+    <input type="file" id="file" accept=".pdf,.xlsx,.xls,.xml,application/pdf">
+    <div class="big" id="dropBig">Drop a PDF, Excel, or XML invoice here, or click to choose</div>
+    <div class="small" id="dropSmall">PDF, Excel (.xlsx/.xls) and XML all work — scanned PDFs are read via on-device OCR.</div>
   </div>
   <div class="filename" id="filename"></div>
 
   <div class="controls">
     <div class="control">
-      <span class="lbl">Origin (if not on invoice)</span>
+      <span class="lbl" id="originLbl">Origin (if not on invoice)</span>
       <input id="origin" maxlength="2" placeholder="CN" style="width:90px">
     </div>
     <button class="btn" id="btnScan" disabled>Scan invoice</button>
   </div>
 
-  <div class="warn">Each line item runs a full classification, so a large invoice
+  <div class="warn" id="warnText">Each line item runs a full classification, so a large invoice
     makes several AI calls. For the demo, invoices up to ~15 lines are ideal.</div>
 
   <div class="progress" id="progress"><div class="bar"></div></div>
@@ -185,13 +246,47 @@
     <span>Read via OCR (scanned document) — figures are worth a spot-check.</span></div>
 
   <div class="summary" id="summary">
-    <div class="stat"><div class="n" id="sTotal">0</div><div class="l">Line items</div></div>
-    <div class="stat"><div class="n issue" id="sIssues">0</div><div class="l">Flagged</div></div>
-    <div class="stat"><div class="n ok" id="sOk">0</div><div class="l">Clear</div></div>
-    <div class="stat"><div class="n" id="sOrigin" style="color:var(--text)">—</div><div class="l">Origin</div></div>
+    <div class="stat"><div class="n" id="sTotal">0</div><div class="l" id="lblTotal">Line items</div></div>
+    <div class="stat"><div class="n issue" id="sIssues">0</div><div class="l" id="lblFlagged">Flagged</div></div>
+    <div class="stat"><div class="n ok" id="sOk">0</div><div class="l" id="lblClear">Clear</div></div>
+    <div class="stat"><div class="n" id="sOrigin" style="color:var(--text)">—</div><div class="l" id="lblOrigin">Origin</div></div>
+  </div>
+
+  <!-- one-click client-clarification banner -->
+  <div class="clarify-banner" id="clarifyBanner">
+    <div class="cb-text"><i class="ti ti-alert-triangle cb-icon" aria-hidden="true"></i><span id="cbText"></span></div>
+    <div class="cb-actions">
+      <button class="cb-btn" id="cbMail"><i class="ti ti-mail" aria-hidden="true"></i><span id="cbMailLabel">Open email to client</span></button>
+      <button class="cb-btn ghost" id="cbCopy"><i class="ti ti-link" aria-hidden="true"></i><span id="cbCopyLabel">Copy survey link</span></button>
+      <span class="cb-toast" id="cbToast">Copied ✓</span>
+    </div>
   </div>
 
   <div id="results"></div>
+
+  <!-- pending clarifications dashboard -->
+  <div class="pending" id="pending">
+    <h2 id="pendHead">Pending clarifications</h2>
+    <table class="ptable">
+      <thead><tr><th id="thRef">Invoice ref</th><th id="thLines">Lines</th><th id="thSent">Sent</th><th id="thStatus">Status</th><th id="thAction">Action</th></tr></thead>
+      <tbody id="pendingBody"></tbody>
+    </table>
+    <div class="presults" id="presults"></div>
+  </div>
+</div>
+
+<!-- email modal -->
+<div class="cb-modal" id="cbModal">
+  <div class="cb-card">
+    <div class="cb-h" id="mTitle">Opening your email app</div>
+    <div class="cb-p" id="mDesc">We'll pre-fill the message and survey link. You send it from your own account.</div>
+    <label for="cbEmail" id="mLabel">Client email (optional)</label>
+    <input id="cbEmail" type="email" placeholder="client@company.com" autocomplete="off">
+    <div class="cb-row">
+      <button class="cb-btn ghost" id="cbCancel">Cancel</button>
+      <button class="cb-btn" id="cbOpen">Open email app →</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -208,6 +303,117 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
   var chosenFile=null;
+  var currentSurvey=null;          // {url, token, ref, count} after a scan
+  var BROKER_ID='broker-local';
+
+  // ---- client-side i18n (follows the same aimport_market cookie as the page) --
+  var LANG=(function(){var m=document.cookie.match('(?:^|; )aimport_market=([^;]*)');
+    return (m&&decodeURIComponent(m[1])==='PL')?'pl':'en';})();
+  var INV_I18N={
+    en:{
+      col_total:'Line items', col_flagged:'Flagged', col_clear:'Clear', col_origin:'Origin',
+      btn_mail:'Open email to client', btn_copy:'Copy survey link', toast:'Copied ✓',
+      badge_review:'Review', badge_clear:'Clear',
+      declared:'Declared:', engine:'Engine:', none:'(none)', no_desc:'(no description)',
+      line:'LINE', scan_unclear:'scan unclear', check_figure:'check figure — scan unclear',
+      pend_head:'Pending clarifications', th_ref:'Invoice ref', th_lines:'Lines',
+      th_sent:'Sent', th_status:'Status', th_action:'Action',
+      st_awaiting:'Awaiting', st_complete:'Complete', st_not_sent:'Not sent', st_expired:'Expired',
+      act_view:'View results', act_send:'Send now', act_resend:'Resend link', act_renew:'reclassify to renew',
+      just_now:'just now', min_ago:'min ago', h_ago:'h ago', d_ago:'d ago',
+      res_title:'Results', res_answered:'Client answered', res_review:'Needs manual review',
+      res_note:'Engine note', res_classified:'Classified', res_none:'No answers submitted yet.',
+      m_title:'Opening your email app',
+      m_desc:"We'll pre-fill the message and survey link. You send it from your own account.",
+      m_label:'Client email (optional)', m_cancel:'Cancel', m_open:'Open email app →',
+      ocr_note:'Read via OCR (scanned document) — figures are worth a spot-check.',
+      unreadable_h:"Couldn't read line items from this PDF.",
+      unreadable_b:'It may be a low-quality scan or photo. Try a clearer copy, or add items manually.',
+      scan_error:'Could not scan the invoice. Is the server running?',
+      file_error:'Please choose a PDF, Excel (.xlsx/.xls), or XML file.',
+      drop_big:'Drop a PDF, Excel, or XML invoice here, or click to choose',
+      drop_ready:'File ready — click “Scan invoice”',
+      drop_small:'PDF, Excel (.xlsx/.xls) and XML all work — scanned PDFs are read via on-device OCR.',
+      origin_lbl:'Origin (if not on invoice)', scan_btn:'Scan invoice',
+      warn_text:'Each line item runs a full classification, so a large invoice makes several AI calls. For the demo, invoices up to ~15 lines are ideal.'
+    },
+    pl:{
+      col_total:'Pozycje', col_flagged:'Do weryfikacji', col_clear:'Bez uwag', col_origin:'Pochodzenie',
+      btn_mail:'Wyślij e-mail do klienta', btn_copy:'Skopiuj link do ankiety', toast:'Skopiowano ✓',
+      badge_review:'Weryfikacja', badge_clear:'Bez uwag',
+      declared:'Zadeklarowany:', engine:'Wyliczony:', none:'(brak)', no_desc:'(brak opisu)',
+      line:'POZYCJA', scan_unclear:'skan niewyraźny', check_figure:'sprawdź wartość — skan niewyraźny',
+      pend_head:'Oczekujące wyjaśnienia', th_ref:'Faktura', th_lines:'Pozycje',
+      th_sent:'Wysłano', th_status:'Status', th_action:'Akcja',
+      st_awaiting:'Oczekuje', st_complete:'Zakończone', st_not_sent:'Niewysłane', st_expired:'Wygasłe',
+      act_view:'Zobacz wyniki', act_send:'Wyślij teraz', act_resend:'Wyślij ponownie',
+      act_renew:'sklasyfikuj ponownie, aby odnowić',
+      just_now:'przed chwilą', min_ago:'min temu', h_ago:'godz. temu', d_ago:'dni temu',
+      res_title:'Wyniki', res_answered:'Klient odpowiedział', res_review:'Wymaga ręcznej weryfikacji',
+      res_note:'Uwaga systemu', res_classified:'Sklasyfikowano', res_none:'Brak przesłanych odpowiedzi.',
+      m_title:'Otwieranie aplikacji pocztowej',
+      m_desc:'Przygotujemy treść wiadomości i link do ankiety. Wyślesz ją z własnego konta.',
+      m_label:'E-mail klienta (opcjonalnie)', m_cancel:'Anuluj', m_open:'Otwórz aplikację pocztową →',
+      ocr_note:'Odczytano przez OCR (dokument skanowany) — warto sprawdzić wartości.',
+      unreadable_h:'Nie udało się odczytać pozycji z tego pliku PDF.',
+      unreadable_b:'Może to być słabej jakości skan lub zdjęcie. Spróbuj wyraźniejszej kopii lub dodaj pozycje ręcznie.',
+      scan_error:'Nie udało się zeskanować faktury. Czy serwer działa?',
+      file_error:'Wybierz plik PDF, Excel (.xlsx/.xls) lub XML.',
+      drop_big:'Przeciągnij tutaj fakturę PDF, Excel lub XML albo kliknij, aby wybrać',
+      drop_ready:'Plik gotowy — kliknij „Skanuj fakturę”',
+      drop_small:'Obsługiwane są PDF, Excel (.xlsx/.xls) i XML — skanowane pliki PDF są odczytywane przez OCR.',
+      origin_lbl:'Pochodzenie (jeśli brak na fakturze)', scan_btn:'Skanuj fakturę',
+      warn_text:'Każda pozycja jest pełni klasyfikowana, więc duża faktura oznacza kilka zapytań do AI. W wersji demo najlepiej sprawdzają się faktury do ok. 15 pozycji.'
+    }
+  };
+  function T(k){ var d=INV_I18N[LANG]||INV_I18N.en; return (k in d)?d[k]:(INV_I18N.en[k]||k); }
+
+  // Polish-correct badge sentence: "1 pozycja wymaga…", "2 pozycje wymagają…", "5 pozycji wymaga…"
+  function clarifyText(n){
+    if(LANG!=='pl') return n+(n===1?' line item':' line items')+' need clarification from your client.';
+    var word, verb, t=n%10, h=n%100;
+    if(n===1){word='pozycja';verb='wymaga';}
+    else if(t>=2&&t<=4&&!(h>=12&&h<=14)){word='pozycje';verb='wymagają';}
+    else {word='pozycji';verb='wymaga';}
+    return n+' '+word+' '+verb+' uzupełnienia przez klienta.';
+  }
+
+  // Polish badge label for a flag TYPE (falls back to the raw type).
+  var FTYPE_PL={MISSING_CODE:'Brak kodu', VAGUE_DESCRIPTION:'Opis niepełny',
+    MALFORMED_CODE:'Błędny kod', CODE_MISMATCH:'Niezgodny kod',
+    ANTIDUMPING:'Cło antydumpingowe', LOW_CONFIDENCE_CODE:'Niepewny kod',
+    LOW_CONFIDENCE_VALUE:'Niepewna wartość', ENGINE_ERROR:'Błąd', OK:'OK'};
+  function ftypeLabel(type){ return (LANG==='pl'&&FTYPE_PL[type])?FTYPE_PL[type]:type; }
+
+  // Polish message for a flag (by type, with code interpolation); else the
+  // server's message (English) — so the EN path is unchanged.
+  function flagMessage(f, it){
+    if(LANG!=='pl') return f.message;
+    switch(f.type){
+      case 'MISSING_CODE': return 'Brak kodu towaru dla tej pozycji.';
+      case 'VAGUE_DESCRIPTION': return 'Opis towaru jest zbyt ogólny do potwierdzenia kodu.';
+      case 'MALFORMED_CODE': return 'Podany kod '+(it.declared_code||'')+' nie jest prawidłowym kodem CN.';
+      case 'CODE_MISMATCH': return 'Zadeklarowano '+(it.declared_code||'')+', ale opis klasyfikuje się jako '+(it.engine_code||'')+'.';
+      case 'OK': return 'Zadeklarowany kod zgodny z klasyfikacją. Brak uwag.';
+      default: return f.message;   // ANTIDUMPING etc. carry dynamic detail
+    }
+  }
+
+  function localizeStatic(){
+    var set=function(id,k){var el=$(id); if(el) el.textContent=T(k);};
+    set('lblTotal','col_total'); set('lblFlagged','col_flagged');
+    set('lblClear','col_clear'); set('lblOrigin','col_origin');
+    set('cbMailLabel','btn_mail'); set('cbCopyLabel','btn_copy');
+    $('cbToast').textContent=T('toast');
+    set('pendHead','pend_head'); set('thRef','th_ref'); set('thLines','th_lines');
+    set('thSent','th_sent'); set('thStatus','th_status'); set('thAction','th_action');
+    set('mTitle','m_title'); set('mDesc','m_desc'); set('mLabel','m_label');
+    set('cbCancel','m_cancel'); set('cbOpen','m_open');
+    set('dropBig','drop_big'); set('dropSmall','drop_small');
+    set('originLbl','origin_lbl'); set('btnScan','scan_btn'); set('warnText','warn_text');
+    var oc=document.querySelector('#ocrNote span:last-child'); if(oc) oc.textContent=T('ocr_note');
+    var uh=$('unreadableH'); if(uh) uh.textContent=T('unreadable_h');
+  }
 
   var drop=$('drop'), fileInput=$('file');
   drop.addEventListener('click',function(){ fileInput.click(); });
@@ -221,11 +427,13 @@
     if(fileInput.files.length){ setFile(fileInput.files[0]); }
   });
   function setFile(f){
-    if(!f.name.toLowerCase().endsWith('.pdf')){
-      $('err').textContent='Please choose a PDF file.'; $('err').style.display='block'; return;
+    var ok=/\.(pdf|xlsx|xls|xml)$/i.test(f.name);
+    if(!ok){
+      $('err').textContent=T('file_error');
+      $('err').style.display='block'; return;
     }
     chosenFile=f; $('filename').textContent=f.name;
-    $('dropBig').textContent='PDF ready — click “Scan invoice”';
+    $('dropBig').textContent=T('drop_ready');
     $('btnScan').disabled=false; $('err').style.display='none';
   }
 
@@ -253,7 +461,7 @@
       })
       .catch(function(){
         $('progress').classList.remove('on'); $('btnScan').disabled=false;
-        $('err').textContent='Could not scan the invoice. Is the server running?';
+        $('err').textContent=T('scan_error');
         $('err').style.display='block';
       });
   });
@@ -263,6 +471,7 @@
     $('unreadable').classList.remove('on');
     $('ocrNote').classList.remove('on');
     $('summary').classList.remove('on');
+    $('clarifyBanner').classList.remove('on');
 
     var status=data.extraction_status||(data.summary&&data.summary.extraction_status);
 
@@ -271,8 +480,8 @@
     if(status==='unreadable'){
       var msg=data.message||'';
       // the heading already states the headline; show only the advice sentence
-      var advice=msg.replace(/^Couldn't read line items from this PDF\.\s*/,'')||
-        'It may be a low-quality scan or photo. Try a clearer copy, or add items manually.';
+      var advice=(LANG==='pl')?T('unreadable_b')
+        :(msg.replace(/^Couldn't read line items from this PDF\.\s*/,'')||T('unreadable_b'));
       $('unreadableB').textContent=advice;
       $('unreadable').classList.add('on');
       $('results').innerHTML='';
@@ -289,29 +498,40 @@
     // Provenance note when the document was recovered by OCR.
     if(status==='ocr_used'){ $('ocrNote').classList.add('on'); }
 
+    // One-click client clarification: the server already created the survey.
+    var clar=data.clarifications||[];
+    if(data.survey_url && clar.length){
+      currentSurvey={url:data.survey_url, token:data.survey_token,
+                     ref:(data.summary&&data.summary.invoice_no)||'', count:clar.length};
+      $('cbText').textContent=clarifyText(clar.length);
+      $('clarifyBanner').classList.add('on');
+    } else {
+      currentSurvey=null;
+    }
+
     var items=data.items||[], html='';
     for(var i=0;i<items.length;i++){
       var it=items[i];
       var badge=it.status==='issue'
-        ? '<span class="badge issue">Review</span>'
-        : '<span class="badge ok">Clear</span>';
+        ? '<span class="badge issue">'+esc(T('badge_review'))+'</span>'
+        : '<span class="badge ok">'+esc(T('badge_clear'))+'</span>';
       var low=it.low_confidence||[];
-      var codes='<span class="decl">Declared: '+esc(it.declared_code||'(none)')+'</span>';
-      if(low.indexOf('code')>=0){ codes+='<span class="lowconf">scan unclear</span>'; }
-      if(it.engine_code){ codes+=' &nbsp; <span class="eng">Engine: '+esc(it.engine_code)+'</span>'; }
+      var codes='<span class="decl">'+esc(T('declared'))+' '+esc(it.declared_code||T('none'))+'</span>';
+      if(low.indexOf('code')>=0){ codes+='<span class="lowconf">'+esc(T('scan_unclear'))+'</span>'; }
+      if(it.engine_code){ codes+=' &nbsp; <span class="eng">'+esc(T('engine'))+' '+esc(it.engine_code)+'</span>'; }
       var figure=it.value||it.qty||'';
       var qtyTxt=figure?(' · '+esc(figure)):'';
-      if(figure&&low.indexOf('value')>=0){ qtyTxt+=' <span class="lowconf">check figure — scan unclear</span>'; }
+      if(figure&&low.indexOf('value')>=0){ qtyTxt+=' <span class="lowconf">'+esc(T('check_figure'))+'</span>'; }
       var flags='';
       for(var j=0;j<(it.flags||[]).length;j++){
         var f=it.flags[j];
         flags+='<div class="flag '+esc(f.severity)+'"><span class="dot"></span>'+
-          '<div><span class="ftype">'+esc(f.type)+'</span>'+esc(f.message)+'</div></div>';
+          '<div><span class="ftype">'+esc(ftypeLabel(f.type))+'</span>'+esc(flagMessage(f,it))+'</div></div>';
       }
       html+='<div class="item '+esc(it.status)+'">'+
         '<div class="item-head"><div>'+
-        '<div class="rowno">LINE '+esc(it.row)+qtyTxt+'</div>'+
-        '<div class="desc">'+esc(it.description||'(no description)')+'</div>'+
+        '<div class="rowno">'+esc(T('line'))+' '+esc(it.row)+qtyTxt+'</div>'+
+        '<div class="desc">'+esc(it.description||T('no_desc'))+'</div>'+
         '<div class="codes">'+codes+'</div>'+
         '</div>'+badge+'</div>'+
         '<div class="flags">'+flags+'</div>'+
@@ -319,6 +539,142 @@
     }
     $('results').innerHTML=html;
   }
+
+  // ---- one-click mail automation ----------------------------------------
+  function buildMailto(surveyUrl, invoiceRef, clientEmail){
+    clientEmail=clientEmail||'';
+    var subject=encodeURIComponent('Uzupełnienie danych do odprawy celnej'+(invoiceRef?(' — '+invoiceRef):''));
+    var body=encodeURIComponent(
+      'Szanowni Państwo,\n\n'+
+      'W związku z realizacją odprawy celnej'+(invoiceRef?(' (ref: '+invoiceRef+')'):'')+
+      ' prosimy o uzupełnienie kilku informacji dotyczących towaru.\n\n'+
+      'Prosimy kliknąć poniższy link i odpowiedzieć na krótkie pytania — zajmie to około 2 minut:\n\n'+
+      surveyUrl+'\n\n'+
+      'W razie pytań prosimy o kontakt zwrotny.\n\n'+
+      'Z poważaniem');
+    return 'mailto:'+encodeURIComponent(clientEmail)+'?subject='+subject+'&body='+body;
+  }
+
+  function markSent(token, email){
+    return fetch('/survey/'+token+'/mark-sent',{method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({client_email:email||''})}).catch(function(){});
+  }
+
+  $('cbMail').addEventListener('click',function(){
+    if(!currentSurvey) return;
+    $('cbEmail').value=''; $('cbModal').classList.add('on'); $('cbEmail').focus();
+  });
+  $('cbCancel').addEventListener('click',function(){ $('cbModal').classList.remove('on'); });
+  $('cbModal').addEventListener('click',function(e){ if(e.target===$('cbModal')) $('cbModal').classList.remove('on'); });
+  $('cbOpen').addEventListener('click',function(){
+    if(!currentSurvey) return;
+    var email=$('cbEmail').value.trim();
+    markSent(currentSurvey.token,email).then(function(){ loadPending(); });
+    $('cbModal').classList.remove('on');
+    window.location.href=buildMailto(currentSurvey.url,currentSurvey.ref,email);
+  });
+
+  $('cbCopy').addEventListener('click',function(){
+    if(!currentSurvey) return;
+    var done=function(){
+      var t=$('cbToast'); t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2000);
+      markSent(currentSurvey.token,'').then(function(){ loadPending(); });
+    };
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(currentSurvey.url).then(done,done);
+    } else {
+      var ta=document.createElement('textarea'); ta.value=currentSurvey.url;
+      document.body.appendChild(ta); ta.select();
+      try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); done();
+    }
+  });
+
+  // ---- pending clarifications dashboard ---------------------------------
+  function ago(iso){
+    if(!iso) return '—';
+    var d=new Date(iso.replace(' ','T')+'Z'); if(isNaN(d)) return '—';
+    var s=Math.floor((Date.now()-d.getTime())/1000);
+    if(s<60) return T('just_now');
+    if(s<3600) return Math.floor(s/60)+' '+T('min_ago');
+    if(s<86400) return Math.floor(s/3600)+' '+T('h_ago');
+    return Math.floor(s/86400)+' '+T('d_ago');
+  }
+  // Tabler icon + localised label per status (no emoji)
+  var STATUS_ICON={awaiting:'ti-clock',complete:'ti-circle-check',not_sent:'ti-mail',expired:'ti-clock-x'};
+  var STATUS_KEY={awaiting:'st_awaiting',complete:'st_complete',not_sent:'st_not_sent',expired:'st_expired'};
+  function statusHtml(st){
+    var ic=STATUS_ICON[st]||'ti-point', lbl=T(STATUS_KEY[st])||st;
+    return '<i class="ti '+ic+'" aria-hidden="true"></i>'+esc(lbl);
+  }
+
+  function loadPending(){
+    fetch('/survey/pending/list?broker_id='+encodeURIComponent(BROKER_ID))
+      .then(function(r){return r.json();}).then(function(d){
+        var rows=(d.sessions||[]); if(!rows.length){ $('pending').classList.remove('on'); return; }
+        var html='';
+        for(var i=0;i<rows.length;i++){
+          var s=rows[i], st=s.display_status;
+          var sent=st==='not_sent'?'—':ago(s.notification_sent_at);
+          var action='';
+          if(st==='complete'){ action='<button class="plink" data-view="'+esc(s.id)+'">'+esc(T('act_view'))+'</button>'; }
+          else if(st==='expired'){ action='<span style="color:var(--muted);font-size:12px">'+esc(T('act_renew'))+'</span>'; }
+          else { action='<button class="plink" data-resend="'+esc(s.id)+'" data-ref="'+esc(s.invoice_ref||'')+'">'+esc(st==='not_sent'?T('act_send'):T('act_resend'))+'</button>'; }
+          html+='<tr><td class="ref">'+esc(s.invoice_ref||'—')+'</td>'+
+            '<td>'+esc(s.lines_pending)+'</td>'+
+            '<td>'+esc(sent)+'</td>'+
+            '<td><span class="pstatus '+esc(st)+'">'+statusHtml(st)+'</span></td>'+
+            '<td>'+action+'</td></tr>';
+        }
+        $('pendingBody').innerHTML=html;
+        $('pending').classList.add('on');
+        bindPendingActions();
+      }).catch(function(){});
+  }
+
+  function bindPendingActions(){
+    Array.prototype.forEach.call(document.querySelectorAll('[data-resend]'),function(b){
+      b.addEventListener('click',function(){
+        var token=b.getAttribute('data-resend'), ref=b.getAttribute('data-ref');
+        var url=location.origin+'/survey/'+token;
+        markSent(token,'').then(loadPending);
+        window.location.href=buildMailto(url,ref,'');
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-view]'),function(b){
+      b.addEventListener('click',function(){ viewResults(b.getAttribute('data-view')); });
+    });
+  }
+
+  function spaceCode(c){ c=String(c||''); return c.length>=8?(c.slice(0,4)+' '+c.slice(4,6)+' '+c.slice(6,8)+(c.length>8?' '+c.slice(8):'')):c; }
+
+  function viewResults(token){
+    fetch('/survey/'+token+'/results').then(function(r){return r.json();}).then(function(d){
+      var html='<div style="font-size:13px;color:var(--faint);margin-bottom:12px">'+esc(T('res_title'))+' · '+esc(d.invoice_ref||token.slice(0,8))+'</div>';
+      (d.lines||[]).forEach(function(l){
+        // what the client actually chose (answer) + any supplementary detail
+        var ans=l.answer||''; if(l.answer_detail) ans+=(ans?' — ':'')+l.answer_detail;
+        var ansLine=ans?('<div class="rline" style="border:0;padding-top:4px;color:var(--faint)">'+esc(T('res_answered'))+': “'+esc(ans)+'”</div>'):'';
+        var head='<b>'+esc(T('line'))+' '+esc(l.line_number)+'</b>'+(l.description?(' — '+esc(l.description)):'');
+        if(l.still_frozen){
+          html+='<div class="rline">'+head+
+            '<div style="margin-top:4px"><span class="rfrozen"><i class="ti ti-alert-triangle" aria-hidden="true"></i>'+esc(T('res_review'))+'</span></div>'+ansLine+
+            (l.resolution_notes||l.engine_question?('<div class="rline" style="border:0;padding-top:2px;color:var(--muted)">'+esc(T('res_note'))+': '+esc(l.resolution_notes||l.engine_question)+'</div>'):'')+
+            '</div>';
+        } else {
+          html+='<div class="rline">'+head+
+            '<div style="margin-top:4px"><i class="ti ti-circle-check" aria-hidden="true"></i>'+esc(T('res_classified'))+': <span class="rcode">'+esc(spaceCode(l.final_code))+'</span></div>'+ansLine+
+            '</div>';
+        }
+      });
+      if(!(d.lines||[]).length) html+='<div class="rline">'+esc(T('res_none'))+'</div>';
+      var p=$('presults'); p.innerHTML=html; p.classList.add('on');
+      p.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }).catch(function(){});
+  }
+
+  localizeStatic();  // set static broker strings for the active language
+  loadPending();     // show any existing pending surveys on load
 })();
 </script>
 <!-- i18n: apply Polish on load + globe language switcher -->

@@ -16,12 +16,20 @@ SEPARATION OF CONCERNS (deliberate):
   what was determined and why — the due-diligence value.
 """
 import json
+import os
 import sqlite3
 import time
 import uuid
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent.parent / "saved_products.sqlite"
+# User-data DB location. In a hosted deployment set AIMPORT_DATA_DIR to a mounted
+# PERSISTENT volume (e.g. /data) so saved products + survey sessions survive
+# redeploys — the container filesystem is ephemeral. Defaults to the repo root
+# for local single-machine use. survey_db.py reads the same env so both share
+# one file.
+DB_PATH = Path(os.environ.get("AIMPORT_DATA_DIR")
+               or Path(__file__).resolve().parent.parent) / "saved_products.sqlite"
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)   # create the volume dir if needed
 
 
 def _conn():

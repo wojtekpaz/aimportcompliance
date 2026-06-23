@@ -1,5 +1,6 @@
 lxml>=5.0
 openpyxl>=3.1
+xlrd>=2.0          # legacy .xls invoice parsing only (Milestone One V2)
 pdfplumber>=0.11
 
 # web app (server/) — the local UI + API

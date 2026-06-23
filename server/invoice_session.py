@@ -13,16 +13,24 @@ WHAT IT DOES:
 Architecture guarantee: the classification engine and its anti-hallucination
 guard are NOT modified. This module only calls the engine and compares results.
 """
+import concurrent.futures
 import re
 import sys
 from pathlib import Path
 
 import pdfplumber
 
+# Per-line classification is independent (each call gets its own engine session),
+# so lines are classified concurrently. Bounded to keep within API rate limits;
+# the oracle already retries transient 429s with backoff. Sequential time was
+# ~25 s/line, which made multi-line invoices time out in the browser.
+_MAX_PARALLEL_LINES = 4
+
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 import engine_session as es   # noqa: E402
-import invoice_ocr as ocr     # noqa: E402  (Tier 2 / 2.5 OCR fallback)
+import invoice_ocr as ocr     # noqa: E402  (Tier 3 OCR fallback)
+import invoice_vision as vision  # noqa: E402  (Tier 2 Claude-vision + validation)
 
 import sqlite3
 DB_PATH = es.DB_PATH
@@ -159,49 +167,61 @@ def _tier1_word_count(pdf_path):
 
 
 def extract_with_fallback(pdf_path, lang="eng"):
-    """Three-tier strategy. Returns (items, meta, status) where status is one of
-    'ok' (text layer), 'ocr_used' (recovered by OCR), or 'unreadable'.
+    """Three-tier cascade. Returns (items, meta, status) where status is one of
+    'ok' (clean text-layer table), 'vision_used' (recovered by Claude vision),
+    'ocr_used' (recovered by Tesseract), or 'unreadable'.
 
-    Tier 1 (pdfplumber) is unchanged and is accepted whenever it yields a real
-    text layer AND at least one parsed line item — so digital invoices behave
-    exactly as before. Otherwise we fall through to OCR. The empty-vs-unreadable
-    distinction is the whole point of the honest floor: a readable PDF with no
-    line-item table is 'ok' with 0 items; an image we could not read is
-    'unreadable'."""
+        Tier 1: pdfplumber table/coordinate extraction (clean digital PDFs)
+        Tier 2: Claude vision (mixed-content layouts — reads the document
+                spatially and returns only the goods table, never the address /
+                VAT / bank block)
+        Tier 3: Tesseract OCR (image-only scans)
+
+    Tier-1 output is now scrubbed (clean_invoice_items) so address lines and
+    VAT/EORI/IBAN numbers never reach the engine as descriptions or HS codes.
+    """
     items, meta = extract_line_items(pdf_path)
     wc = _tier1_word_count(pdf_path)
 
-    # Tier 1 — accept today's happy path untouched.
-    if wc >= TIER1_MIN_WORDS and items:
-        return items, meta, "ok"
+    # Tier 1 — accept the digital happy path, but only after validation drops
+    # any address/VAT rows the coordinate pass may have swept in.
+    clean1 = vision.clean_invoice_items(items)
+    if wc >= TIER1_MIN_WORDS and clean1:
+        return clean1, meta, "ok"
 
-    # Tier 2 — OCR (primary path for real scans, not just a fallback).
+    # Tier 2 — Claude vision (primary fallback for mixed-content invoices and
+    # image-only PDFs alike). Gated on an API key + PyMuPDF; skipped otherwise.
+    if vision.vision_available():
+        try:
+            vitems, vmeta = vision.extract_line_items_vision(pdf_path)
+        except Exception:
+            vitems, vmeta = [], {}
+        if vitems:
+            merged = dict(meta)
+            merged["origin"] = meta.get("origin") or vmeta.get("origin", "")
+            merged["extraction_tier"] = "vision"
+            return vitems, merged, "vision_used"
+
+    # Tier 3 — OCR (existing path; logic unchanged).
     ocr_ok = ocr.tesseract_available()
     if ocr_ok:
         oitems, ometa = ocr.extract_line_items_ocr(pdf_path, lang=lang)
     else:
         oitems, ometa = [], {"origin": "", "invoice_no": "", "ocr_mean_conf": 0.0}
 
-    # Accept OCR output only if it's actually usable: at least one parsed code,
-    # or a mean confidence above the floor. A pile of low-confidence money-ish
-    # rows with gibberish descriptions is a failed read, not line items —
-    # emitting it would be the confidently-wrong failure mode we're avoiding.
     if oitems:
         has_code = any(it.get("code") for it in oitems)
         if has_code or ometa.get("ocr_mean_conf", 0.0) >= ocr.OCR_MIN_CONF:
             merged = dict(ometa)
-            # prefer anything Tier 1 already parsed from the (sparse) text layer
             merged["origin"] = meta.get("origin") or ometa.get("origin", "")
             merged["invoice_no"] = meta.get("invoice_no") or ometa.get("invoice_no", "")
             return oitems, merged, "ocr_used"
 
-    # Tier 3 — honest failure. Keep any Tier-1 items even if sparse...
-    if items:
-        return items, meta, "ok"
-    # ...a readable text layer with no parseable table is a genuine empty invoice...
+    # Honest failure / empty.
+    if clean1:
+        return clean1, meta, "ok"
     if wc >= TIER1_MIN_WORDS:
         return [], meta, "ok"
-    # ...otherwise we simply could not read the file.
     return [], (ometa if ocr_ok else meta), "unreadable"
 
 
@@ -261,8 +281,10 @@ def analyze_item(item, origin):
                       "message": f"Check this figure — scan unclear: {val}".strip()})
 
     engine_code = None
+    engine_result = {}
     try:
         result = es.start(item["description"], origin, "")
+        engine_result = result
         status = result.get("status")
         if status == "needs_pre_classify":
             flags.append({"type": "VAGUE_DESCRIPTION", "severity": "high",
@@ -302,15 +324,95 @@ def analyze_item(item, origin):
     worst = max(flags, key=lambda f: sev_rank[f["severity"]])
     status = "issue" if worst["severity"] in ("high", "medium") else "ok"
 
+    # Milestone One V2: if the engine could not resolve this line (or an OCR
+    # field was unreadable), capture a FrozenClassification for the client
+    # survey — reusing the engine result already computed above (no re-classify).
+    frozen = None
+    try:
+        import survey_freeze
+        frozen = survey_freeze.frozen_from_result(item, origin, engine_result)
+    except Exception:
+        frozen = None  # survey capture is additive; never break invoice analysis
+
     return {"row": item["row"], "description": item["description"],
             "declared_code": declared, "engine_code": engine_code,
             "qty": item.get("qty", ""), "value": item.get("value", ""),
-            "low_confidence": low, "flags": flags, "status": status}
+            "low_confidence": low, "flags": flags, "status": status,
+            "frozen": frozen}
 
 
 UNREADABLE_MESSAGE = ("Couldn't read line items from this PDF. It may be a "
                       "low-quality scan or photo. Try a clearer copy, or add "
                       "items manually.")
+
+
+def _analyze_items(items, origin):
+    """Classify all line items, concurrently (order preserved). Each line uses
+    an independent engine session, so this is safe; failures are isolated."""
+    n = len(items)
+    if n == 0:
+        return []
+    if n == 1:
+        return [analyze_item(items[0], origin)]
+    results = [None] * n
+    workers = min(_MAX_PARALLEL_LINES, n)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+        fut_to_i = {ex.submit(analyze_item, it, origin): i
+                    for i, it in enumerate(items)}
+        for fut in concurrent.futures.as_completed(fut_to_i):
+            i = fut_to_i[fut]
+            try:
+                results[i] = fut.result()
+            except Exception as e:
+                it = items[i]
+                results[i] = {
+                    "row": it.get("row", i + 1),
+                    "description": it.get("description", ""),
+                    "declared_code": (it.get("code") or "").strip(),
+                    "engine_code": None, "qty": it.get("qty", ""), "value": "",
+                    "low_confidence": [], "frozen": None, "status": "issue",
+                    "flags": [{"type": "ENGINE_ERROR", "severity": "low",
+                               "message": f"Could not classify this line: {str(e)[:120]}"}],
+                }
+    return results
+
+
+def analyze_line_items(items, origin_override="", invoice_no="",
+                       extraction_status="ok", warning=None):
+    """Run the existing per-line engine analysis over already-parsed line items
+    (from a structured Excel/XML upload). `items` are dicts in the same shape
+    the PDF extractor produces: {row, description, code, qty, ...}. Returns the
+    same response schema as analyze_invoice so the UI is format-agnostic.
+
+    Additive: the PDF path (analyze_invoice) is untouched.
+    """
+    # invoice-level origin: explicit override wins, else the first line's COO.
+    origin = (origin_override or "").upper()
+    if not origin:
+        for it in items:
+            coo = (it.get("country_of_origin") or "").upper()
+            if coo:
+                origin = coo
+                break
+
+    results = _analyze_items(items, origin)
+    frozen_lines = [r["frozen"] for r in results if r.get("frozen")]
+    summary = {
+        "total": len(results),
+        "issues": sum(1 for r in results if r["status"] == "issue"),
+        "ok": sum(1 for r in results if r["status"] == "ok"),
+        "needs_clarification": len(frozen_lines),
+        "origin": origin,
+        "invoice_no": invoice_no or "",
+        "extraction_status": extraction_status,
+    }
+    out = {"summary": summary, "items": results,
+           "frozen_lines": frozen_lines,
+           "meta": {"origin": origin, "invoice_no": invoice_no or ""},
+           "extraction_status": extraction_status}
+    if warning:
+        out["warning"] = warning
+    return out
 
 
 def analyze_invoice(pdf_path, origin_override="", lang="eng"):
@@ -329,15 +431,17 @@ def analyze_invoice(pdf_path, origin_override="", lang="eng"):
             "message": UNREADABLE_MESSAGE,
         }
 
-    results = [analyze_item(it, origin) for it in items]
+    results = _analyze_items(items, origin)
+    frozen_lines = [r["frozen"] for r in results if r.get("frozen")]
     summary = {
         "total": len(results),
         "issues": sum(1 for r in results if r["status"] == "issue"),
         "ok": sum(1 for r in results if r["status"] == "ok"),
+        "needs_clarification": len(frozen_lines),
         "origin": origin,
         "invoice_no": meta.get("invoice_no", ""),
         "extraction_status": extraction_status,
         "ocr_mean_conf": meta.get("ocr_mean_conf", 0.0),
     }
-    return {"summary": summary, "items": results, "meta": meta,
-            "extraction_status": extraction_status}
+    return {"summary": summary, "items": results, "frozen_lines": frozen_lines,
+            "meta": meta, "extraction_status": extraction_status}

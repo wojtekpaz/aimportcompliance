@@ -105,7 +105,10 @@ class HybridOracle:
 # ---- session store ---------------------------------------------------------
 
 _sessions: dict[str, dict] = {}
-_lock = threading.Lock()
+# Reentrant: answer()'s pre-classify branch calls _run() while still holding the
+# lock, and _run() re-acquires it. A plain Lock deadlocks on that re-entry; an
+# RLock is a safe drop-in superset that preserves all existing behaviour.
+_lock = threading.RLock()
 
 
 def _new_session(text, origin, hint) -> str:
@@ -255,3 +258,53 @@ def answer(sid, sig, choice) -> dict:
         s["human_answers"][sig] = choice
 
     return _run(sid)
+
+
+# ---- snapshot / resume (Milestone One V2: survey freeze + resume) ----------
+# Additive. classify() is replayed deterministically from the accumulated
+# human_answers + llm_cache, so "resume from a frozen point" is simply
+# restoring those into a fresh session and supplying the next answer. The
+# engine's logic and the existing start()/answer() flow are untouched.
+
+def export_snapshot(sid: str) -> dict | None:
+    """Serialise everything needed to deterministically rebuild a session at its
+    frozen point: the product text, origin/hint, the human answers given so far,
+    and the LLM choice cache (so resume re-takes the same un-frozen branches
+    without extra API calls)."""
+    with _lock:
+        s = _sessions.get(sid)
+        if s is None:
+            return None
+        return {
+            "text": s["text"], "origin": s["origin"], "hint": s["hint"],
+            "human_answers": dict(s["human_answers"]),
+            "llm_cache": dict(s["llm_cache"]),
+        }
+
+
+def restore_session(snapshot: dict) -> str:
+    """Create a fresh in-memory session seeded from a stored snapshot."""
+    sid = uuid.uuid4().hex
+    with _lock:
+        _sessions[sid] = {
+            "text": snapshot.get("text", "") or "",
+            "origin": snapshot.get("origin", "") or "",
+            "hint": snapshot.get("hint", "") or "",
+            "human_answers": dict(snapshot.get("human_answers") or {}),
+            "llm_cache": dict(snapshot.get("llm_cache") or {}),
+            "claude": ClaudeOracle(),
+        }
+    return sid
+
+
+def resume(snapshot: dict, sig: str, choice: str) -> dict:
+    """Resume a frozen classification: restore the snapshot, supply `choice` as
+    the answer at frozen signature `sig`, and let the GRI state machine continue
+    from there. GRI ordering is preserved — the answer selects a node option, it
+    does not skip steps. Returns the same serialized result shape as start()."""
+    sid = restore_session(snapshot)
+    try:
+        return answer(sid, sig, choice)
+    finally:
+        with _lock:
+            _sessions.pop(sid, None)
