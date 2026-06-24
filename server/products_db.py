@@ -16,12 +16,13 @@ SEPARATION OF CONCERNS (deliberate):
   what was determined and why — the due-diligence value.
 """
 import json
+import os
 import sqlite3
 import time
 import uuid
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent.parent / "saved_products.sqlite"
+DB_PATH = Path(os.environ.get("AIMPORT_DATA_DIR", ".")) / "saved_products.sqlite"
 
 
 def _conn():
