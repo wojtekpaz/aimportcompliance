@@ -42,7 +42,6 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 
 .wrap{max-width:1140px;margin:0 auto;padding:0 28px}
 .eyebrow{font-size:11.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(22,19,15,.3)}
-.eyebrow .dot{display:none}
 
 /* ============ animated aurora background ============ */
 .aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
@@ -75,9 +74,17 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .nav-links{display:flex;gap:30px;align-items:center}
 .nav-links a{font-size:14px;font-weight:500;color:var(--faint);transition:color .2s;position:relative}
 .nav-links a:hover{color:var(--ink)}
-.nav-right{display:flex;gap:18px;align-items:center}
+.nav-right{display:flex;gap:16px;align-items:center}
 .nav-login{font-size:14px;font-weight:500;color:var(--faint);cursor:pointer;transition:color .2s}
 .nav-login:hover{color:var(--ink)}
+
+/* ---- language switch ---- */
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:99px;padding:2px;background:var(--surface)}
+.lang button{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--sans);
+  font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--muted);padding:5px 11px;border-radius:99px;
+  transition:color .2s,background .2s}
+.lang button:hover{color:var(--ink)}
+.lang button.active{background:var(--brand);color:#fff}
 
 .btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--sans);
   font-size:14px;font-weight:600;letter-spacing:.01em;padding:11px 20px;border-radius:10px;
@@ -100,7 +107,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .hero-sub{font-size:19px;color:var(--faint);max-width:30em;margin:26px 0 34px}
 .hero-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .trust{margin-top:30px;display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px}
-.trust .avs{display:flex}
+.trust .avs{display:flex;flex:none}
 .trust .avs span{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);margin-left:-8px;
   background:linear-gradient(135deg,#cdd8ff,#e7ddff)}
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
@@ -117,7 +124,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .tw-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
 .tw-live{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--teal);font-weight:600}
 .tw-live i{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(15,181,138,.5);
-  animation:pulse 1.8s infinite}
+  animation:pulse 1.8s infinite;flex:none}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,181,138,.45)}70%{box-shadow:0 0 0 7px rgba(15,181,138,0)}100%{box-shadow:0 0 0 0 rgba(15,181,138,0)}}
 .tw-input{font-family:var(--mono);font-size:13px;color:var(--faint);background:rgba(22,19,15,.035);
   border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:14px}
@@ -144,10 +151,10 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .tw-node.final .code{color:var(--teal);font-weight:700}
 .tw-node.final .tag{color:#fff;background:var(--teal)}
 .tw-foot{margin-top:13px;padding-top:13px;border-top:1px solid var(--line);
-  display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12.5px;color:var(--muted);
   opacity:0;transition:opacity .5s}
 .tw-foot.show{opacity:1}
-.tw-foot .total{font-family:var(--mono);font-weight:600;color:var(--ink)}
+.tw-foot .total{font-family:var(--mono);font-weight:600;color:var(--ink);text-align:right}
 
 /* ============ audience gallery ============ */
 .gallery{padding:76px 0 40px}
@@ -160,7 +167,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
   transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1),
              filter .6s,box-shadow .6s,border-color .6s}
 .gal-frame .gal-ic{color:var(--muted);display:block;transition:color .6s,transform .6s}
-.gal-frame .gal-label{font-size:15px;font-weight:600;color:var(--faint);letter-spacing:-.01em;transition:color .6s}
+.gal-frame .gal-label{font-size:15px;font-weight:600;color:var(--faint);letter-spacing:-.01em;transition:color .6s;text-align:center}
 .gal-frame.is-active{opacity:1;filter:none;transform:scale(1.06);
   box-shadow:0 20px 54px rgba(43,78,255,.16),var(--glass-shadow);
   border-color:rgba(43,78,255,.28)}
@@ -180,7 +187,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
   border-radius:13px;padding:6px 6px 6px 16px}
 .cl-bar svg{flex:none;color:var(--muted)}
 .cl-bar input{flex:1;border:0;outline:0;background:transparent;font-family:var(--sans);font-size:15.5px;
-  color:var(--ink);padding:10px 0}
+  color:var(--ink);padding:10px 0;min-width:0}
 .cl-bar input::placeholder{color:var(--muted)}
 .cl-go{flex:none}
 .cl-chips{display:flex;gap:9px;flex-wrap:wrap;margin:14px 2px 0}
@@ -207,7 +214,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .cl-final.in{opacity:1;transition:opacity .5s}
 .cl-final .fcode{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
 .cl-final .flbl{font-size:12px;color:var(--muted);margin-top:2px}
-.cl-final .fbadge{font-size:12px;font-weight:600;color:#fff;background:var(--teal);padding:5px 12px;border-radius:99px}
+.cl-final .fbadge{font-size:12px;font-weight:600;color:#fff;background:var(--teal);padding:5px 12px;border-radius:99px;white-space:nowrap}
 .cl-final .fcost{text-align:right}
 .cl-final .fcost b{font-size:17px;color:var(--ink);font-family:var(--mono)}
 .disclaimer{text-align:center;font-size:12px;color:var(--muted);margin-top:14px}
@@ -238,7 +245,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .mock-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .mcode{font-size:17px;font-weight:700;color:var(--ink)}
 .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11.5px;font-weight:600;
-  padding:4px 11px;border-radius:99px}
+  padding:4px 11px;border-radius:99px;white-space:nowrap}
 .pill-ok{color:var(--teal);background:rgba(15,181,138,.12)}
 .pill-warn{color:var(--amber);background:rgba(240,160,32,.14)}
 .mline{display:flex;align-items:center;gap:9px;padding:7px 0;color:var(--faint)}
@@ -252,33 +259,33 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .mcost b{color:var(--ink);font-family:var(--mono)}
 
 /* invoice mock */
-.inv-bar{display:flex;justify-content:space-between;font-family:var(--sans);font-size:12px;margin-bottom:10px}
-.inv-bar .l{color:var(--muted)}.inv-bar .r{color:var(--amber);font-weight:600}
+.inv-bar{display:flex;justify-content:space-between;gap:10px;font-family:var(--sans);font-size:12px;margin-bottom:10px}
+.inv-bar .l{color:var(--muted)}.inv-bar .r{color:var(--amber);font-weight:600;white-space:nowrap}
 .inv-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;
   border-radius:9px;margin:6px 0;background:rgba(22,19,15,.025);font-family:var(--sans);font-size:13px}
 .inv-row.flag{background:rgba(240,160,32,.08);box-shadow:0 0 0 1px rgba(240,160,32,.2) inset;
   animation:flagpulse 2.4s ease-in-out infinite}
 @keyframes flagpulse{0%,100%{box-shadow:0 0 0 1px rgba(240,160,32,.18) inset}50%{box-shadow:0 0 0 1px rgba(240,160,32,.5) inset}}
 .inv-row .weak{color:var(--amber)}
-.inv-row .ic{font-family:var(--mono);color:var(--faint);display:flex;gap:10px;align-items:center}
+.inv-row .ic{font-family:var(--mono);color:var(--faint);display:flex;gap:10px;align-items:center;flex:none}
 .inv-row .st-ok{color:var(--teal)}.inv-row .st-warn{color:var(--amber)}
 .inv-flag{font-size:11px;color:var(--amber);margin-top:3px}
 
 /* export mock */
 .exp-file{display:flex;align-items:center;gap:12px;padding:9px 0;font-family:var(--sans)}
 .exp-ext{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brand);
-  padding:4px 7px;border-radius:6px;letter-spacing:.04em}
+  padding:4px 7px;border-radius:6px;letter-spacing:.04em;flex:none}
 .exp-ext.xml{background:var(--violet)}
 .exp-name{font-size:13px;color:var(--ink);font-weight:500}
 .exp-meta{font-size:11.5px;color:var(--muted)}
 
 /* survey mock */
-.sv-link{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+.sv-link{display:flex;justify-content:space-between;align-items:center;gap:10px;font-family:var(--mono);
   background:rgba(43,78,255,.05);border:1px solid var(--line);border-radius:9px;padding:9px 12px;
   color:var(--brand);font-size:12.5px;margin-bottom:12px}
-.sv-q{display:flex;justify-content:space-between;font-family:var(--sans);font-size:13px;color:var(--faint);
+.sv-q{display:flex;justify-content:space-between;gap:10px;font-family:var(--sans);font-size:13px;color:var(--faint);
   padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin:7px 0}
-.sv-q .car{color:var(--muted)}
+.sv-q .car{color:var(--muted);white-space:nowrap}
 
 /* ============ faq ============ */
 .faq{padding:100px 0}
@@ -294,7 +301,7 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .faq-item .mk::after{left:8px;top:0;width:2px;height:18px}
 .faq-item[open] .mk::after{transform:scaleY(0)}
 .faq-item .ans{overflow:hidden;max-height:0;transition:max-height .35s ease}
-.faq-item[open] .ans{max-height:300px}
+.faq-item[open] .ans{max-height:360px}
 .faq-item .ans p{color:var(--faint);font-size:14.5px;margin:0 0 20px;max-width:62ch}
 
 /* ============ final cta ============ */
@@ -342,15 +349,19 @@ footer a:hover{color:var(--brand)}
 <!-- ============ NAV ============ -->
 <header class="nav" id="nav">
   <div class="wrap row">
-    <a class="logo" href="#"><img src="../logo-mark.png" alt="Aimport">Aimport Compliance</a>
+    <a class="logo" href="#"><img src="data:image/png;base64,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" alt="Aimport">Aimport Compliance</a>
     <nav class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#who">Who it's for</a>
-      <a href="#faq">FAQ</a>
+      <a href="#how" data-i18n="nav.how">How it works</a>
+      <a href="#who" data-i18n="nav.who">Who it's for</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
     </nav>
     <div class="nav-right">
-      <span class="nav-login">Log in</span>
-      <a class="btn btn-primary" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo</a>
+      <div class="lang" id="lang">
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="pl">PL</button>
+      </div>
+      <span class="nav-login" data-i18n="nav.login">Log in</span>
+      <a class="btn btn-primary" data-i18n="nav.book" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo</a>
     </div>
   </div>
 </header>
@@ -359,35 +370,35 @@ footer a:hover{color:var(--brand)}
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <h1 class="reveal d1">Import faster.<br>With <span class="grad">certainty.</span></h1>
-      <p class="hero-sub reveal d2">Aimport walks the CN tree and applies the GRI rules at each branch. Every code arrives with the path — and the legal basis behind it.</p>
+      <h1 class="reveal d1" data-i18n-html="hero.h1">Import faster.<br>With <span class="grad">certainty.</span></h1>
+      <p class="hero-sub reveal d2" data-i18n="hero.sub">Aimport walks the CN tree and applies the GRI rules at each branch. Every code arrives with the path — and the legal basis behind it.</p>
       <div class="hero-cta reveal d3">
-        <a class="btn btn-primary btn-lg" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo <span class="arr">→</span></a>
-        <a class="btn btn-lg" href="#demo">Try it live</a>
+        <a class="btn btn-primary btn-lg" data-i18n-html="hero.book" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo <span class="arr">→</span></a>
+        <a class="btn btn-lg" data-i18n="hero.try" href="#demo">Try it live</a>
       </div>
       <div class="trust reveal d4">
         <div class="avs"><span></span><span></span><span></span><span></span></div>
-        In pilot with customs brokers &amp; freight forwarders across the EU
+        <span data-i18n="hero.trust">In pilot with customs brokers &amp; freight forwarders across the EU</span>
       </div>
     </div>
 
     <!-- interactive tariff tree walk -->
     <div class="glass treewalk reveal d2" id="treewalk">
       <div class="tw-head">
-        <span class="tw-title">Live classification</span>
-        <span class="tw-live"><i></i>Walking the tree</span>
+        <span class="tw-title" data-i18n="tw.title">Live classification</span>
+        <span class="tw-live"><i></i><span data-i18n="tw.live">Walking the tree</span></span>
       </div>
-      <div class="tw-input">Steel mounting brackets, hot-dip galvanised<span class="cur"></span></div>
+      <div class="tw-input"><span data-i18n="tw.input">Steel mounting brackets, hot-dip galvanised</span><span class="cur"></span></div>
       <ul class="tw-tree" id="twTree">
-        <li class="tw-node" data-depth="1" data-step="0"><span class="lvl">Chapter</span><span class="code">73</span><span class="lbl">Articles of iron or steel</span></li>
-        <li class="tw-node" data-depth="2" data-step="1"><span class="lvl">Heading</span><span class="code">7308</span><span class="lbl">Structures &amp; parts</span></li>
-        <li class="tw-node reject" data-depth="2" data-step="1"><span class="lvl">Heading</span><span class="code">7326</span><span class="lbl">Other articles</span><span class="tag">rejected · GRI 1</span></li>
-        <li class="tw-node" data-depth="3" data-step="2"><span class="lvl">Subhd.</span><span class="code">7308.30</span><span class="lbl">Doors, windows &amp; frames</span></li>
-        <li class="tw-node final" data-depth="4" data-step="3"><span class="lvl">CN code</span><span class="code">7308.30.00.00</span><span class="tag">Defensible</span></li>
+        <li class="tw-node" data-depth="1" data-step="0"><span class="lvl" data-i18n="tw.lvl.ch">Chapter</span><span class="code">73</span><span class="lbl" data-i18n="tw.n1">Articles of iron or steel</span></li>
+        <li class="tw-node" data-depth="2" data-step="1"><span class="lvl" data-i18n="tw.lvl.hd">Heading</span><span class="code">7308</span><span class="lbl" data-i18n="tw.n2">Structures &amp; parts</span></li>
+        <li class="tw-node reject" data-depth="2" data-step="1"><span class="lvl" data-i18n="tw.lvl.hd">Heading</span><span class="code">7326</span><span class="lbl" data-i18n="tw.n3">Other articles</span><span class="tag" data-i18n="tw.tag.rej">rejected · GRI 1</span></li>
+        <li class="tw-node" data-depth="3" data-step="2"><span class="lvl" data-i18n="tw.lvl.sub">Subhd.</span><span class="code">7308.30</span><span class="lbl" data-i18n="tw.n4">Doors, windows &amp; frames</span></li>
+        <li class="tw-node final" data-depth="4" data-step="3"><span class="lvl" data-i18n="tw.lvl.cn">CN code</span><span class="code">7308.30.00.00</span><span class="tag" data-i18n="tw.defensible">Defensible</span></li>
       </ul>
       <div class="tw-foot" id="twFoot">
-        <span>GRI 1 → 6 · Section XV Note 1</span>
-        <span class="total">€1,078.35 landed</span>
+        <span data-i18n="tw.foot1">GRI 1 → 6 · Section XV Note 1</span>
+        <span class="total" data-i18n="tw.total">€1,078.35 landed</span>
       </div>
     </div>
   </div>
@@ -396,23 +407,23 @@ footer a:hover{color:var(--brand)}
 <!-- ============ AUDIENCE GALLERY ============ -->
 <section class="gallery" id="who">
   <div class="wrap">
-    <p class="eyebrow gal-eyebrow reveal">Who it's for</p>
+    <p class="eyebrow gal-eyebrow reveal" data-i18n="gal.eyebrow">Who it's for</p>
     <div class="gal-row reveal d1" id="gal">
-      <button class="glass gal-frame is-active" data-i="0" aria-label="Customs Brokers">
+      <button class="glass gal-frame is-active" data-i="0">
         <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3.5" width="12" height="17" rx="2"/><path d="M9 3.5V2.5h6v1"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <span class="gal-label">Customs Brokers</span>
+        <span class="gal-label" data-i18n="gal.brokers">Customs Brokers</span>
       </button>
-      <button class="glass gal-frame" data-i="1" aria-label="Importers">
+      <button class="glass gal-frame" data-i="1">
         <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l8 4.5v8l-8 4.5-8-4.5v-8z"/><path d="M4 8l8 4.5L20 8"/><path d="M12 12.5V21"/></svg></span>
-        <span class="gal-label">Importers</span>
+        <span class="gal-label" data-i18n="gal.importers">Importers</span>
       </button>
-      <button class="glass gal-frame" data-i="2" aria-label="Manufacturers">
+      <button class="glass gal-frame" data-i="2">
         <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l6 4V10l6 4V7l6 4v10z"/><path d="M3 21h18"/></svg></span>
-        <span class="gal-label">Manufacturers</span>
+        <span class="gal-label" data-i18n="gal.manufacturers">Manufacturers</span>
       </button>
-      <button class="glass gal-frame" data-i="3" aria-label="Customs Officers">
+      <button class="glass gal-frame" data-i="3">
         <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <span class="gal-label">Customs Officers</span>
+        <span class="gal-label" data-i18n="gal.officers">Customs Officers</span>
       </button>
     </div>
   </div>
@@ -422,22 +433,22 @@ footer a:hover{color:var(--brand)}
 <section class="demo" id="demo">
   <div class="wrap">
     <div class="demo-head reveal">
-      <p class="eyebrow"><span class="dot"></span>Try it</p>
-      <h2>Classify a product. Watch it reason.</h2>
-      <p>Type a description or pick an example. Aimport shows the rule it applied at every branch — never a code without a reason.</p>
+      <p class="eyebrow" data-i18n="demo.eyebrow">Try it</p>
+      <h2 data-i18n="demo.h2">Classify a product. Watch it reason.</h2>
+      <p data-i18n="demo.p">Type a description or pick an example. Aimport shows the rule it applied at every branch — never a code without a reason.</p>
     </div>
 
     <div class="glass classifier reveal d1">
       <div class="cl-bar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input id="clInput" type="text" placeholder="e.g. Cotton knitted t-shirt, men's" autocomplete="off">
-        <button class="btn btn-primary cl-go" id="clGo">Classify <span class="arr">→</span></button>
+        <input id="clInput" type="text" data-i18n-ph="demo.ph" placeholder="e.g. Cotton knitted t-shirt, men's" autocomplete="off">
+        <button class="btn btn-primary cl-go" id="clGo" data-i18n-html="demo.classify">Classify <span class="arr">→</span></button>
       </div>
       <div class="cl-chips" id="clChips">
-        <button data-k="steel">Steel mounting bracket</button>
-        <button data-k="tshirt">Cotton knitted t-shirt</button>
-        <button data-k="battery">Lithium-ion battery</button>
-        <button data-k="coffee">Roasted coffee beans</button>
+        <button data-k="steel" data-i18n="demo.chip.steel">Steel mounting bracket</button>
+        <button data-k="tshirt" data-i18n="demo.chip.tshirt">Cotton knitted t-shirt</button>
+        <button data-k="battery" data-i18n="demo.chip.battery">Lithium-ion battery</button>
+        <button data-k="coffee" data-i18n="demo.chip.coffee">Roasted coffee beans</button>
       </div>
 
       <div class="cl-result" id="clResult">
@@ -448,13 +459,13 @@ footer a:hover{color:var(--brand)}
             <div class="flbl" id="fLbl"></div>
           </div>
           <div class="fcost">
-            <span class="fbadge">Defensible</span>
-            <div style="margin-top:8px"><b id="fCost"></b><div class="flbl">est. landed cost</div></div>
+            <span class="fbadge" data-i18n="demo.defensible">Defensible</span>
+            <div style="margin-top:8px"><b id="fCost"></b><div class="flbl" data-i18n="demo.landed">est. landed cost</div></div>
           </div>
         </div>
       </div>
     </div>
-    <p class="disclaimer">Illustrative demo with sample products. The live engine runs against the full CN, TARIC and EBTI tables.</p>
+    <p class="disclaimer" data-i18n="demo.disclaimer">Illustrative demo with sample products. The live engine runs against the full CN, TARIC and EBTI tables.</p>
   </div>
 </section>
 
@@ -462,10 +473,10 @@ footer a:hover{color:var(--brand)}
 <section class="stats">
   <div class="wrap">
     <div class="glass stats-wrap" id="stats">
-      <div class="stat"><div class="num" data-to="9600" data-suf="+">0</div><div class="lbl">CN headings covered</div></div>
-      <div class="stat"><div class="num" data-to="6" data-pre="GRI 1–">0</div><div class="lbl">rules applied per code</div></div>
-      <div class="stat"><div class="num" data-to="100" data-suf="%">0</div><div class="lbl">codes with an audit trail</div></div>
-      <div class="stat"><div class="num" data-to="0" data-pre="0 ">invented</div><div class="lbl">codes off the tariff</div></div>
+      <div class="stat"><div class="num" data-to="9600" data-suf-en="+" data-suf-pl="+">0</div><div class="lbl" data-i18n="stat.1">CN headings covered</div></div>
+      <div class="stat"><div class="num" data-to="6" data-pre-en="GRI 1–" data-pre-pl="ORINS 1–">0</div><div class="lbl" data-i18n="stat.2">rules applied per code</div></div>
+      <div class="stat"><div class="num" data-to="100" data-suf-en="%" data-suf-pl="%">0</div><div class="lbl" data-i18n="stat.3">codes with an audit trail</div></div>
+      <div class="stat"><div class="num" data-to="0">0</div><div class="lbl" data-i18n="stat.4">invented codes off the tariff</div></div>
     </div>
   </div>
 </section>
@@ -474,78 +485,78 @@ footer a:hover{color:var(--brand)}
 <section class="features" id="how">
   <div class="wrap">
     <div class="sec-head reveal">
-      <p class="eyebrow"><span class="dot"></span>How it works</p>
-      <h2>From product data to a code you can defend.</h2>
+      <p class="eyebrow" data-i18n="feat.eyebrow">How it works</p>
+      <h2 data-i18n="feat.h2">From product data to a code you can defend.</h2>
     </div>
 
     <!-- 01 CLASSIFY -->
     <div class="feat reveal">
       <div class="feat-copy">
-        <span class="step-no">01 · Classify</span>
-        <h3>The code — and the reason behind it.</h3>
-        <p>The engine walks the CN tree branch by branch, applies the General Rules of Interpretation at each one, and shows the rule that settled the call. You read the path the way you would defend it.</p>
+        <span class="step-no" data-i18n="f1.step">01 · Classify</span>
+        <h3 data-i18n="f1.h">The code — and the reason behind it.</h3>
+        <p data-i18n="f1.p">The engine walks the CN tree branch by branch, applies the General Rules of Interpretation at each one, and shows the rule that settled the call. You read the path the way you would defend it.</p>
       </div>
       <div class="glass mock">
-        <div class="mock-top"><span class="mcode">7308.30.00.00</span><span class="pill pill-ok">✓ Defensible</span></div>
-        <div class="mline"><span class="ck">✓</span> GRI 1 — heading</div>
-        <div class="mline"><span class="ck">✓</span> GRI 6 — subheading</div>
-        <div class="mline rej"><span class="ck">✕</span> 7326 — rejected branch</div>
+        <div class="mock-top"><span class="mcode">7308.30.00.00</span><span class="pill pill-ok" data-i18n="f1.pill">✓ Defensible</span></div>
+        <div class="mline"><span class="ck">✓</span><span data-i18n="f1.l1"> GRI 1 — heading</span></div>
+        <div class="mline"><span class="ck">✓</span><span data-i18n="f1.l2"> GRI 6 — subheading</span></div>
+        <div class="mline rej"><span class="ck">✕</span><span data-i18n="f1.l3"> 7326 — rejected branch</span></div>
         <hr class="mdiv">
-        <div class="mlegal-lbl">Legal basis</div>
-        <div class="mlegal">Section XV Note 1 · CN Explanatory Note to 7308 90</div>
-        <a class="mbti" href="https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_home.jsp?Lang=en" target="_blank" rel="noopener">Comparable ruling — EBTI DE BTI 24681/23 ↗</a>
+        <div class="mlegal-lbl" data-i18n="f1.legal_lbl">Legal basis</div>
+        <div class="mlegal" data-i18n="f1.legal">Section XV Note 1 · CN Explanatory Note to 7308 90</div>
+        <a class="mbti" data-i18n="f1.bti" href="https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_home.jsp?Lang=en" target="_blank" rel="noopener">Comparable ruling — EBTI DE BTI 24681/23 ↗</a>
         <hr class="mdiv">
-        <div class="mcost">250 units × €4.20 · duty 2.7% → <b>€1,078.35 landed</b></div>
+        <div class="mcost" data-i18n-html="f1.cost">250 units × €4.20 · duty 2.7% → <b>€1,078.35 landed</b></div>
       </div>
     </div>
 
     <!-- 02 REVIEW -->
     <div class="feat reveal">
       <div class="feat-copy">
-        <span class="step-no">02 · Review</span>
-        <h3>Catch the risk before the auditor does.</h3>
-        <p>Drop in a commercial invoice. Aimport flags every line that's too vague to defend or missing a deciding fact, so the weak codes surface before they reach customs.</p>
+        <span class="step-no" data-i18n="f2.step">02 · Review</span>
+        <h3 data-i18n="f2.h">Catch the risk before the auditor does.</h3>
+        <p data-i18n="f2.p">Drop in a commercial invoice. Aimport flags every line that's too vague to defend or missing a deciding fact, so the weak codes surface before they reach customs.</p>
       </div>
       <div class="glass mock">
-        <div class="inv-bar"><span class="l">Commercial invoice · 3 of 4 verified</span><span class="r">2 items flagged</span></div>
-        <div class="inv-row"><span>Steel brackets, hot-dip galvanised</span><span class="ic">7308.90.98 <span class="st-ok">✓</span></span></div>
-        <div class="inv-row flag"><span><span class="weak">Metal parts</span><div class="inv-flag">⚠ too vague to defend</div></span><span class="ic">7326.90.98 <span class="st-warn">⚠</span></span></div>
-        <div class="inv-row flag"><span><span class="weak">Machinery components</span><div class="inv-flag">⚠ missing material spec</div></span><span class="ic">8431.49.00 <span class="st-warn">⚠</span></span></div>
-        <div class="inv-row"><span>Plastic connectors, type A</span><span class="ic">3926.90.98 <span class="st-ok">✓</span></span></div>
+        <div class="inv-bar"><span class="l" data-i18n="f2.bar_l">Commercial invoice · 3 of 4 verified</span><span class="r" data-i18n="f2.bar_r">2 items flagged</span></div>
+        <div class="inv-row"><span data-i18n="f2.r1">Steel brackets, hot-dip galvanised</span><span class="ic">7308.90.98 <span class="st-ok">✓</span></span></div>
+        <div class="inv-row flag"><span><span class="weak" data-i18n="f2.r2">Metal parts</span><div class="inv-flag" data-i18n="f2.r2f">⚠ too vague to defend</div></span><span class="ic">7326.90.98 <span class="st-warn">⚠</span></span></div>
+        <div class="inv-row flag"><span><span class="weak" data-i18n="f2.r3">Machinery components</span><div class="inv-flag" data-i18n="f2.r3f">⚠ missing material spec</div></span><span class="ic">8431.49.00 <span class="st-warn">⚠</span></span></div>
+        <div class="inv-row"><span data-i18n="f2.r4">Plastic connectors, type A</span><span class="ic">3926.90.98 <span class="st-ok">✓</span></span></div>
       </div>
     </div>
 
     <!-- 03 RESOLVE -->
     <div class="feat reveal">
       <div class="feat-copy">
-        <span class="step-no">03 · Resolve</span>
-        <h3>Let the client fill the gaps.</h3>
-        <p>One click turns the open questions into a short survey for the importer. No more chasing five separate emails — the missing descriptions come back filled in and ready to classify.</p>
+        <span class="step-no" data-i18n="f3.step">03 · Resolve</span>
+        <h3 data-i18n="f3.h">Let the client fill the gaps.</h3>
+        <p data-i18n="f3.p">One click turns the open questions into a short survey for the importer. No more chasing five separate emails — the missing descriptions come back filled in and ready to classify.</p>
       </div>
       <div class="glass mock">
         <div class="sv-link"><span>app.aimport.co/s/ax93kf</span><span>⧉</span></div>
-        <div class="sv-q"><span>Primary material</span><span class="car">▾</span></div>
-        <div class="sv-q"><span>Surface coating?</span><span class="car">▾</span></div>
-        <div class="sv-q"><span>Certificate of origin</span><span class="car">▾ / attach</span></div>
+        <div class="sv-q"><span data-i18n="f3.q1">Primary material</span><span class="car">▾</span></div>
+        <div class="sv-q"><span data-i18n="f3.q2">Surface coating?</span><span class="car">▾</span></div>
+        <div class="sv-q"><span data-i18n="f3.q3">Certificate of origin</span><span class="car" data-i18n="f3.attach">▾ / attach</span></div>
         <hr class="mdiv">
-        <div style="display:flex;justify-content:space-between;align-items:center"><span class="pill pill-ok">✓ Completed</span><span style="font-size:12px;color:var(--muted)">→ returns to broker</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><span class="pill pill-ok" data-i18n="f3.completed">✓ Completed</span><span style="font-size:12px;color:var(--muted)" data-i18n="f3.returns">→ returns to broker</span></div>
       </div>
     </div>
 
     <!-- 04 DELIVER -->
     <div class="feat reveal">
       <div class="feat-copy">
-        <span class="step-no">04 · Deliver</span>
-        <h3>A defensible file, ready to hand over.</h3>
-        <p>Export the classification report, the declaration XML for WinSAD or Huzar, and a full audit trail for the customs officer. The reasoning travels with the code.</p>
+        <span class="step-no" data-i18n="f4.step">04 · Deliver</span>
+        <h3 data-i18n="f4.h">A defensible file, ready to hand over.</h3>
+        <p data-i18n="f4.p">Export the classification report, the declaration XML for WinSAD or Huzar, and a full audit trail for the customs officer. The reasoning travels with the code.</p>
       </div>
       <div class="glass mock">
-        <div class="mock-top"><span class="mcode">7308.90.98.90</span><span class="pill pill-ok">✓ Ready to file</span></div>
-        <div class="mlegal" style="margin-bottom:10px">Steel mounting bracket · GRI 1 → 6 · legal basis attached</div>
+        <div class="mock-top"><span class="mcode">7308.90.98.90</span><span class="pill pill-ok" data-i18n="f4.pill">✓ Ready to file</span></div>
+        <div class="mlegal" style="margin-bottom:10px" data-i18n="f4.sub">Steel mounting bracket · GRI 1 → 6 · legal basis attached</div>
         <hr class="mdiv">
-        <div class="exp-file"><span class="exp-ext">PDF</span><span><div class="exp-name">classification-report.pdf</div><div class="exp-meta">code · reasoning · legal basis</div></span></div>
-        <div class="exp-file"><span class="exp-ext xml">XML</span><span><div class="exp-name">declaration.xml</div><div class="exp-meta">imports into WinSAD / Huzar</div></span></div>
-        <div class="exp-file"><span class="exp-ext">PDF</span><span><div class="exp-name">audit-trail.pdf</div><div class="exp-meta">for the customs officer</div></span></div>
+        <div class="exp-file"><span class="exp-ext">PDF</span><span><div class="exp-name">classification-report.pdf</div><div class="exp-meta" data-i18n="f4.m1">code · reasoning · legal basis</div></span></div>
+        <div class="exp-file"><span class="exp-ext xml">XML</span><span><div class="exp-name">declaration.xml</div><div class="exp-meta" data-i18n="f4.m2">imports into WinSAD / Huzar</div></span></div>
+        <div class="exp-file"><span class="exp-ext">PDF</span><span><div class="exp-name">audit-trail.pdf</div><div class="exp-meta" data-i18n="f4.m3">for the customs officer</div></span></div>
       </div>
     </div>
   </div>
@@ -555,16 +566,16 @@ footer a:hover{color:var(--brand)}
 <section class="faq" id="faq">
   <div class="wrap">
     <div class="sec-head reveal">
-      <p class="eyebrow"><span class="dot"></span>FAQ</p>
-      <h2>What brokers ask first.</h2>
+      <p class="eyebrow" data-i18n="faq.eyebrow">FAQ</p>
+      <h2 data-i18n="faq.h2">What brokers ask first.</h2>
     </div>
     <div class="faq-list reveal d1">
-      <details class="faq-item"><summary>Does the model ever invent a code that isn't in the tariff?<span class="mk"></span></summary><div class="ans"><p>No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div></details>
-      <details class="faq-item"><summary>What happens when my description leaves out a deciding fact?<span class="mk"></span></summary><div class="ans"><p>The engine stops at the branch where the facts run out and asks one question — the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div></details>
-      <details class="faq-item"><summary>Can I override the engine at a branch?<span class="mk"></span></summary><div class="ans"><p>Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div></details>
-      <details class="faq-item"><summary>Does it give me the duties and trade measures, or only the ten digits?<span class="mk"></span></summary><div class="ans"><p>Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div></details>
-      <details class="faq-item"><summary>Does Aimport check existing binding tariff rulings?<span class="mk"></span></summary><div class="ans"><p>Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div></details>
-      <details class="faq-item"><summary>Who carries responsibility for the final classification?<span class="mk"></span></summary><div class="ans"><p>You do. The declarant signs the declaration and owns the result. Aimport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div></details>
+      <details class="faq-item"><summary><span data-i18n="faq.q1">Does the model ever invent a code that isn't in the tariff?</span><span class="mk"></span></summary><div class="ans"><p data-i18n="faq.a1">No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div></details>
+      <details class="faq-item"><summary><span data-i18n="faq.q2">What happens when my description leaves out a deciding fact?</span><span class="mk"></span></summary><div class="ans"><p data-i18n="faq.a2">The engine stops at the branch where the facts run out and asks one question — the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div></details>
+      <details class="faq-item"><summary><span data-i18n="faq.q3">Can I override the engine at a branch?</span><span class="mk"></span></summary><div class="ans"><p data-i18n="faq.a3">Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div></details>
+      <details class="faq-item"><summary><span data-i18n="faq.q4">Does it give me the duties and trade measures, or only the ten digits?</span><span class="mk"></span></summary><div class="ans"><p data-i18n="faq.a4">Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div></details>
+      <details class="faq-item"><summary><span data-i18n="faq.q5">Does Aimport check existing binding tariff rulings?</span><span class="mk"></span></summary><div class="ans"><p data-i18n="faq.a5">Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div></details>
+      <details class="faq-item"><summary><span data-i18n="faq.q6">Who carries responsibility for the final classification?</span><span class="mk"></span></summary><div class="ans"><p data-i18n="faq.a6">You do. The declarant signs the declaration and owns the result. Aimport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div></details>
     </div>
   </div>
 </section>
@@ -573,23 +584,129 @@ footer a:hover{color:var(--brand)}
 <section class="cta">
   <div class="wrap">
     <div class="cta-card glass reveal">
-      <p class="eyebrow"><span class="dot"></span>Request access</p>
-      <h2>Bring your own product categories.</h2>
-      <p>Aimport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your product categories, write to us.</p>
-      <a class="btn btn-light btn-lg" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Email contact@aimport.co</a>
-      <div class="respond">We respond to every request.</div>
+      <p class="eyebrow" data-i18n="cta.eyebrow">Request access</p>
+      <h2 data-i18n="cta.h2">Bring your own product categories.</h2>
+      <p data-i18n="cta.p">Aimport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your product categories, write to us.</p>
+      <a class="btn btn-light btn-lg" data-i18n="cta.btn" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Email contact@aimport.co</a>
+      <div class="respond" data-i18n="cta.respond">We respond to every request.</div>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap row">
-    <a class="logo" href="#"><img src="../logo-mark.png" alt="" style="height:24px">Aimport Compliance © 2026</a>
+    <a class="logo" href="#"><img src="data:image/png;base64,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" alt="" style="height:24px"><span data-i18n="footer.copy">Aimport Compliance © 2026</span></a>
     <a href="mailto:contact@aimport.co">contact@aimport.co</a>
   </div>
 </footer>
 
 <script>
+/* =========================================================
+   i18n — English source in the HTML, Polish overrides below.
+   Natural customs-broker Polish: GRI→ORINS, BTI→WIT, "1 078,35 €".
+   ========================================================= */
+var PL={
+  "nav.how":"Jak to działa","nav.who":"Dla kogo","nav.faq":"FAQ","nav.login":"Zaloguj się","nav.book":"Umów demo",
+
+  "hero.h1":'Importuj szybciej.<br>Z <span class="grad">pewnością.</span>',
+  "hero.sub":"Aimport przechodzi przez drzewo CN i na każdym rozgałęzieniu stosuje reguły ORINS. Każdy kod otrzymujesz wraz ze ścieżką — i podstawą prawną, która za nim stoi.",
+  "hero.book":'Umów demo <span class="arr">→</span>',
+  "hero.try":"Wypróbuj na żywo",
+  "hero.trust":"W pilotażu z agencjami celnymi i spedytorami w całej UE",
+
+  "tw.title":"Klasyfikacja na żywo","tw.live":"Przechodzę przez drzewo",
+  "tw.input":"Wsporniki stalowe, cynkowane ogniowo",
+  "tw.lvl.ch":"Dział","tw.lvl.hd":"Pozycja","tw.lvl.sub":"Podpoz.","tw.lvl.cn":"Kod CN",
+  "tw.n1":"Artykuły z żeliwa lub stali","tw.n2":"Konstrukcje i części","tw.n3":"Pozostałe artykuły","tw.n4":"Drzwi, okna i ramy",
+  "tw.tag.rej":"odrzucona · ORINS 1","tw.defensible":"Do obrony",
+  "tw.foot1":"ORINS 1 → 6 · uwaga 1 do sekcji XV","tw.total":"1 078,35 € po odprawie",
+
+  "gal.eyebrow":"Dla kogo","gal.brokers":"Agencje celne","gal.importers":"Importerzy","gal.manufacturers":"Producenci","gal.officers":"Funkcjonariusze celni",
+
+  "demo.eyebrow":"Wypróbuj",
+  "demo.h2":"Zaklasyfikuj produkt. Zobacz, jak rozumuje.",
+  "demo.p":"Wpisz opis lub wybierz przykład. Aimport pokazuje regułę zastosowaną na każdym rozgałęzieniu — nigdy kod bez uzasadnienia.",
+  "demo.ph":"np. T-shirt bawełniany dziany, męski",
+  "demo.classify":'Zaklasyfikuj <span class="arr">→</span>',
+  "demo.chip.steel":"Stalowy wspornik montażowy","demo.chip.tshirt":"Bawełniany t-shirt dziany","demo.chip.battery":"Akumulator litowo-jonowy","demo.chip.coffee":"Palona kawa ziarnista",
+  "demo.defensible":"Do obrony","demo.landed":"szac. koszt sprowadzenia",
+  "demo.disclaimer":"Demonstracja na przykładowych produktach. Silnik produkcyjny korzysta z pełnych tabel CN, TARIC i EBTI.",
+
+  "stat.1":"obsługiwanych pozycji CN","stat.2":"reguł na każdy kod","stat.3":"kodów ze śladem audytowym","stat.4":"wymyślonych kodów spoza taryfy",
+
+  "feat.eyebrow":"Jak to działa","feat.h2":"Od danych produktu do kodu, którego obronisz.",
+
+  "f1.step":"01 · Klasyfikacja","f1.h":"Kod — i powód, który za nim stoi.",
+  "f1.p":"Silnik przechodzi przez drzewo CN gałąź po gałęzi, na każdej stosuje ogólne reguły interpretacji i pokazuje regułę, która przesądziła o wyborze. Czytasz ścieżkę tak, jak byś jej bronił.",
+  "f1.pill":"✓ Do obrony","f1.l1":" ORINS 1 — pozycja","f1.l2":" ORINS 6 — podpozycja","f1.l3":" 7326 — gałąź odrzucona",
+  "f1.legal_lbl":"Podstawa prawna","f1.legal":"Uwaga 1 do sekcji XV · Noty wyjaśniające do CN, poz. 7308 90",
+  "f1.bti":"Porównywalna WIT — EBTI DE BTI 24681/23 ↗",
+  "f1.cost":'250 szt. × 4,20 € · cło 2,7% → <b>1 078,35 € po odprawie</b>',
+
+  "f2.step":"02 · Weryfikacja","f2.h":"Wychwyć ryzyko, zanim zrobi to audytor.",
+  "f2.p":"Wgraj fakturę handlową. Aimport oznacza każdą pozycję zbyt ogólną, by ją obronić, lub pozbawioną rozstrzygającego faktu — słabe kody ujawniają się, zanim trafią do urzędu.",
+  "f2.bar_l":"Faktura handlowa · 3 z 4 zweryfikowane","f2.bar_r":"2 pozycje oznaczone",
+  "f2.r1":"Wsporniki stalowe, cynkowane ogniowo","f2.r2":"Części metalowe","f2.r2f":"⚠ zbyt ogólne, by obronić",
+  "f2.r3":"Komponenty maszynowe","f2.r3f":"⚠ brak specyfikacji materiału","f2.r4":"Złącza z tworzywa, typ A",
+
+  "f3.step":"03 · Uzupełnienie","f3.h":"Pozwól klientowi uzupełnić braki.",
+  "f3.p":"Jednym kliknięciem zamieniasz otwarte pytania w krótką ankietę dla importera. Koniec z pisaniem pięciu osobnych maili — brakujące opisy wracają uzupełnione i gotowe do klasyfikacji.",
+  "f3.q1":"Materiał podstawowy","f3.q2":"Powłoka powierzchniowa?","f3.q3":"Świadectwo pochodzenia","f3.attach":"▾ / załącz",
+  "f3.completed":"✓ Wypełniono","f3.returns":"→ wraca do agencji",
+
+  "f4.step":"04 · Przekazanie","f4.h":"Plik gotowy do obrony i przekazania.",
+  "f4.p":"Wyeksportuj raport klasyfikacyjny, plik XML zgłoszenia do WinSAD lub Huzar oraz pełny ślad audytowy dla funkcjonariusza. Uzasadnienie podróżuje razem z kodem.",
+  "f4.pill":"✓ Gotowe do zgłoszenia","f4.sub":"Stalowy wspornik montażowy · ORINS 1 → 6 · podstawa prawna w załączeniu",
+  "f4.m1":"kod · uzasadnienie · podstawa prawna","f4.m2":"import do WinSAD / Huzar","f4.m3":"dla funkcjonariusza celnego",
+
+  "faq.eyebrow":"FAQ","faq.h2":"O co agencje pytają najpierw.",
+  "faq.q1":"Czy model kiedykolwiek wymyśla kod, którego nie ma w taryfie?",
+  "faq.a1":"Nie. Na każdym rozgałęzieniu silnik podaje modelowi kandydujące pozycje pobrane z tabel CN i TARIC, a model wybiera jedną z nich albo prosi o fakt. Kod spoza tej listy nie trafi do wyniku, bo model nigdy sam nie wpisuje cyfr.",
+  "faq.q2":"Co się dzieje, gdy w opisie brakuje rozstrzygającego faktu?",
+  "faq.a2":"Silnik zatrzymuje się na rozgałęzieniu, na którym kończą się fakty, i zadaje jedno pytanie — to samo, które zadałby klasyfikator: dziane czy tkane, stal czy aluminium. Odpowiadasz, a rozumowanie biegnie dalej od tej gałęzi, zamiast zaczynać od nowa.",
+  "faq.q3":"Czy mogę nadpisać decyzję silnika na rozgałęzieniu?",
+  "faq.a3":"Tak. Każde rozgałęzienie pokazuje kandydatów, których silnik rozważył, oraz zastosowaną regułę. Wybierz innego kandydata, a ślad zapisze Twój wybór i rozumowanie potoczy się dalej. Pozostajesz zgłaszającym, a silnik i tak pokazuje swoją pracę.",
+  "faq.q4":"Czy dostaję cła i środki taryfowe, czy tylko dziesięć cyfr?",
+  "faq.a4":"Jedno i drugie. Silnik zwraca kod, a następnie środki przypisane do niego dla wskazanego pochodzenia: cło dla państw trzecich, ewentualne cło antydumpingowe lub wyrównawcze, zawieszenia i kontyngenty. Widzisz stawkę, którą zadeklarujesz przy odprawie, a nie samą pozycję.",
+  "faq.q5":"Czy Aimport sprawdza istniejące wiążące informacje taryfowe?",
+  "faq.a5":"Tak. Przeszukuje bazę EBTI w poszukiwaniu wiążących informacji taryfowych (WIT) dla towarów podobnych do Twojego i pokazuje je obok wyniku. Widzisz, jak organy celne sklasyfikowały porównywalne produkty, zanim zdecydujesz się na pozycję — i wychwytujesz konflikt wcześniej niż funkcjonariusz.",
+  "faq.q6":"Kto ponosi odpowiedzialność za ostateczną klasyfikację?",
+  "faq.a6":"Ty. Zgłaszający podpisuje zgłoszenie i odpowiada za wynik. Aimport daje Ci rozumowanie do sprawdzenia i ślad do obrony, ale niczego nie składa w Twoim imieniu.",
+
+  "cta.eyebrow":"Poproś o dostęp","cta.h2":"Przyjdź z własnymi kategoriami produktów.",
+  "cta.p":"Aimport jest w fazie pilotażu z niewielką grupą agencji celnych i spedytorów. Jeśli zajmujesz się zgodnością w imporcie i chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami produktów, napisz do nas.",
+  "cta.btn":"Napisz na contact@aimport.co","cta.respond":"Odpowiadamy na każde zgłoszenie.",
+
+  "footer.copy":"Aimport Compliance © 2026"
+};
+
+var currentLang='en', statsAnimated=false;
+
+function applyLang(lang){
+  var pl=(lang==='pl');
+  currentLang=lang;
+  document.documentElement.lang=pl?'pl':'en';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    if(el._o==null)el._o=el.textContent;
+    var k=el.getAttribute('data-i18n');
+    el.textContent=pl?(PL[k]!=null?PL[k]:el._o):el._o;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+    if(el._oh==null)el._oh=el.innerHTML;
+    var k=el.getAttribute('data-i18n-html');
+    el.innerHTML=pl?(PL[k]!=null?PL[k]:el._oh):el._oh;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    if(el._op==null)el._op=el.getAttribute('placeholder')||'';
+    var k=el.getAttribute('data-i18n-ph');
+    el.setAttribute('placeholder',pl?(PL[k]!=null?PL[k]:el._op):el._op);
+  });
+  if(statsAnimated)renderStats(lang);
+  if(window.CL)window.CL.setLang(lang);
+  document.querySelectorAll('#lang button').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-lang')===lang);});
+  try{localStorage.setItem('aimport_lang',lang);}catch(e){}
+}
+
 /* ---- nav scroll state + progress bar ---- */
 (function(){
   var nav=document.getElementById('nav'),bar=document.getElementById('progress'),doc=document.documentElement;
@@ -600,6 +717,13 @@ footer a:hover{color:var(--brand)}
     bar.style.width=(max>0?(y/max*100):0)+'%';
   }
   window.addEventListener('scroll',f,{passive:true});f();
+})();
+
+/* ---- language switch wiring ---- */
+(function(){
+  document.getElementById('lang').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;applyLang(b.getAttribute('data-lang'));
+  });
 })();
 
 /* ---- scroll reveal ---- */
@@ -637,22 +761,31 @@ footer a:hover{color:var(--brand)}
   }
 })();
 
-/* ---- animated stat counters ---- */
+/* ---- animated stat counters (locale-aware) ---- */
+function renderStats(lang){
+  var wrap=document.getElementById('stats');if(!wrap)return;
+  var loc=lang==='pl'?'pl-PL':'en-US';
+  wrap.querySelectorAll('.num').forEach(function(el){
+    var to=parseFloat(el.getAttribute('data-to'));if(isNaN(to))return;
+    var pre=el.getAttribute(lang==='pl'?'data-pre-pl':'data-pre-en')||'';
+    var suf=el.getAttribute(lang==='pl'?'data-suf-pl':'data-suf-en')||'';
+    el.innerHTML=pre+to.toLocaleString(loc)+(suf?'<span class="u">'+suf+'</span>':'');
+  });
+}
 (function(){
   var wrap=document.getElementById('stats');if(!wrap)return;
-  var done=false;
   function animate(){
-    if(done)return;done=true;
+    if(statsAnimated)return;statsAnimated=true;
+    var lang=currentLang,loc=lang==='pl'?'pl-PL':'en-US';
     wrap.querySelectorAll('.num').forEach(function(el){
-      var to=parseFloat(el.getAttribute('data-to'));
-      if(isNaN(to))return;
-      var suf=el.getAttribute('data-suf')||'',pre=el.getAttribute('data-pre')||'';
+      var to=parseFloat(el.getAttribute('data-to'));if(isNaN(to))return;
+      var pre=el.getAttribute(lang==='pl'?'data-pre-pl':'data-pre-en')||'';
+      var suf=el.getAttribute(lang==='pl'?'data-suf-pl':'data-suf-en')||'';
       var dur=1300,start=null;
       function step(ts){
         if(!start)start=ts;
-        var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
-        var v=Math.round(to*e);
-        el.innerHTML=pre+v.toLocaleString()+(suf?'<span class="u">'+suf+'</span>':'');
+        var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3),v=Math.round(to*e);
+        el.innerHTML=pre+v.toLocaleString(loc)+(suf?'<span class="u">'+suf+'</span>':'');
         if(p<1)requestAnimationFrame(step);
       }
       requestAnimationFrame(step);
@@ -680,54 +813,82 @@ footer a:hover{color:var(--brand)}
   show(0);start();
 })();
 
-/* ---- interactive classifier ---- */
-(function(){
-  var DATA={
-    steel:{q:'Steel mounting brackets, hot-dip galvanised',code:'7308.30.00.00',lbl:'Structures & parts of iron or steel',cost:'€1,078.35',
-      trail:[['rule','GRI 1','Heading 73 — articles of iron or steel'],['x','GRI 1','7326 (other articles) rejected — bracket is a structural part'],['rule','GRI 6','Subheading 7308.30 — frames & thresholds'],['ok','Result','7308.30.00.00 · Section XV Note 1']]},
-    tshirt:{q:"Cotton knitted t-shirt, men's",code:'6109.10.00.10',lbl:"T-shirts, knitted, of cotton",cost:'€612.00',
-      trail:[['rule','GRI 1','Chapter 61 — knitted apparel (vs 62 woven)'],['rule','GRI 1','Heading 6109 — T-shirts & vests'],['rule','GRI 6','Subheading 6109.10 — of cotton'],['ok','Result','6109.10.00.10 · CN Note to Ch. 61']]},
-    battery:{q:'Lithium-ion battery, rechargeable',code:'8507.60.00.00',lbl:'Lithium-ion accumulators',cost:'€2,340.00',
-      trail:[['rule','GRI 1','Heading 8507 — electric accumulators'],['x','GRI 1','8506 (primary cells) rejected — battery is rechargeable'],['rule','GRI 6','Subheading 8507.60 — lithium-ion'],['ok','Result','8507.60.00.00 · ADD check flagged']]},
-    coffee:{q:'Roasted coffee beans, not decaffeinated',code:'0901.21.00.00',lbl:'Coffee, roasted, not decaffeinated',cost:'€845.50',
-      trail:[['rule','GRI 1','Heading 0901 — coffee'],['x','GRI 1','2101 (extracts) rejected — beans, not instant'],['rule','GRI 6','Subheading 0901.21 — roasted, caffeinated'],['ok','Result','0901.21.00.00 · 7.5% third-country duty']]}
+/* ---- interactive classifier (bilingual) ---- */
+window.CL=(function(){
+  var D={
+    steel:{code:'7308.30.00.00',
+      q:{en:'Steel mounting brackets, hot-dip galvanised',pl:'Wsporniki stalowe, cynkowane ogniowo'},
+      lbl:{en:'Structures & parts of iron or steel',pl:'Konstrukcje i części z żeliwa lub stali'},
+      cost:{en:'€1,078.35',pl:'1 078,35 €'},
+      trail:{en:[['rule','GRI 1','Heading 73 — articles of iron or steel'],['x','GRI 1','7326 (other articles) rejected — bracket is a structural part'],['rule','GRI 6','Subheading 7308.30 — frames & thresholds'],['ok','Result','7308.30.00.00 · Section XV Note 1']],
+             pl:[['rule','ORINS 1','Pozycja 73 — artykuły z żeliwa lub stali'],['x','ORINS 1','7326 (pozostałe artykuły) odrzucone — wspornik jest częścią konstrukcyjną'],['rule','ORINS 6','Podpozycja 7308.30 — ramy i progi'],['ok','Wynik','7308.30.00.00 · uwaga 1 do sekcji XV']]}},
+    tshirt:{code:'6109.10.00.10',
+      q:{en:"Cotton knitted t-shirt, men's",pl:'Bawełniany t-shirt dziany, męski'},
+      lbl:{en:'T-shirts, knitted, of cotton',pl:'T-shirty, dziane, z bawełny'},
+      cost:{en:'€612.00',pl:'612,00 €'},
+      trail:{en:[['rule','GRI 1','Chapter 61 — knitted apparel (vs 62 woven)'],['rule','GRI 1','Heading 6109 — T-shirts & vests'],['rule','GRI 6','Subheading 6109.10 — of cotton'],['ok','Result','6109.10.00.10 · CN Note to Ch. 61']],
+             pl:[['rule','ORINS 1','Dział 61 — odzież dziana (a nie 62 tkana)'],['rule','ORINS 1','Pozycja 6109 — T-shirty i koszulki'],['rule','ORINS 6','Podpozycja 6109.10 — z bawełny'],['ok','Wynik','6109.10.00.10 · uwaga do działu 61']]}},
+    battery:{code:'8507.60.00.00',
+      q:{en:'Lithium-ion battery, rechargeable',pl:'Akumulator litowo-jonowy, wielokrotnego ładowania'},
+      lbl:{en:'Lithium-ion accumulators',pl:'Akumulatory litowo-jonowe'},
+      cost:{en:'€2,340.00',pl:'2 340,00 €'},
+      trail:{en:[['rule','GRI 1','Heading 8507 — electric accumulators'],['x','GRI 1','8506 (primary cells) rejected — battery is rechargeable'],['rule','GRI 6','Subheading 8507.60 — lithium-ion'],['ok','Result','8507.60.00.00 · ADD check flagged']],
+             pl:[['rule','ORINS 1','Pozycja 8507 — akumulatory elektryczne'],['x','ORINS 1','8506 (baterie pierwotne) odrzucone — akumulator jest wielokrotnego ładowania'],['rule','ORINS 6','Podpozycja 8507.60 — litowo-jonowe'],['ok','Wynik','8507.60.00.00 · sygnał: sprawdź cło antydumpingowe']]}},
+    coffee:{code:'0901.21.00.00',
+      q:{en:'Roasted coffee beans, not decaffeinated',pl:'Kawa palona, niepozbawiona kofeiny'},
+      lbl:{en:'Coffee, roasted, not decaffeinated',pl:'Kawa palona, niepozbawiona kofeiny'},
+      cost:{en:'€845.50',pl:'845,50 €'},
+      trail:{en:[['rule','GRI 1','Heading 0901 — coffee'],['x','GRI 1','2101 (extracts) rejected — beans, not instant'],['rule','GRI 6','Subheading 0901.21 — roasted, caffeinated'],['ok','Result','0901.21.00.00 · 7.5% third-country duty']],
+             pl:[['rule','ORINS 1','Pozycja 0901 — kawa'],['x','ORINS 1','2101 (ekstrakty) odrzucone — ziarna, nie kawa rozpuszczalna'],['rule','ORINS 6','Podpozycja 0901.21 — palona, z kofeiną'],['ok','Wynik','0901.21.00.00 · cło dla państw trzecich 7,5%']]}}
   };
+  var lang='en',last=null;
   var input=document.getElementById('clInput'),go=document.getElementById('clGo'),
       chips=document.getElementById('clChips'),result=document.getElementById('clResult'),
       trail=document.getElementById('clTrail'),finalBox=document.getElementById('clFinal'),
       fCode=document.getElementById('fCode'),fLbl=document.getElementById('fLbl'),fCost=document.getElementById('fCost');
   var icons={ok:'✓',rule:'§',x:'✕'};
 
-  function classify(key){
-    var d=DATA[key]||matchFree(input.value);
-    if(!d)return;
-    input.value=d.q;
+  function resolveKey(key){
+    if(key&&D[key])return key;
+    var t=((input&&input.value)||'').toLowerCase();
+    if(/steel|bracket|galvan|stal|wspor|cynk/.test(t))return 'steel';
+    if(/shirt|cotton|knit|apparel|bawe|dzian|koszul/.test(t))return 'tshirt';
+    if(/batter|lithium|cell|akum|litow|bateri/.test(t))return 'battery';
+    if(/coffee|bean|roast|kaw|ziarn|palon/.test(t))return 'coffee';
+    return 'steel';
+  }
+  function classify(key,opts){
+    opts=opts||{};
+    var k=resolveKey(key);last=k;var d=D[k];
+    if(input)input.value=d.q[lang];
     result.classList.add('show');
     trail.innerHTML='';finalBox.classList.remove('in');
-    result.scrollIntoView({behavior:'smooth',block:'nearest'});
-    d.trail.forEach(function(row,i){
+    if(!opts.noscroll)result.scrollIntoView({behavior:'smooth',block:'nearest'});
+    var rows=d.trail[lang];
+    rows.forEach(function(row,i){
       var li=document.createElement('li');
       li.className='cl-trail '+row[0];
       li.innerHTML='<span class="ic">'+icons[row[0]]+'</span><span class="gri">'+row[1]+'</span><span class="txt">'+row[2]+'</span>';
       trail.appendChild(li);
-      setTimeout(function(){li.classList.add('in');},220*(i+1));
+      if(opts.instant)li.classList.add('in');
+      else setTimeout(function(){li.classList.add('in');},220*(i+1));
     });
-    setTimeout(function(){
-      fCode.textContent=d.code;fLbl.textContent=d.lbl;fCost.textContent=d.cost;
-      finalBox.classList.add('in');
-    },220*(d.trail.length+1));
+    function showFinal(){fCode.textContent=d.code;fLbl.textContent=d.lbl[lang];fCost.textContent=d.cost[lang];finalBox.classList.add('in');}
+    if(opts.instant)showFinal();else setTimeout(showFinal,220*(rows.length+1));
   }
-  function matchFree(t){
-    t=(t||'').toLowerCase();
-    if(/steel|bracket|galvan/.test(t))return DATA.steel;
-    if(/shirt|cotton|knit|apparel/.test(t))return DATA.tshirt;
-    if(/batter|lithium|cell/.test(t))return DATA.battery;
-    if(/coffee|bean|roast/.test(t))return DATA.coffee;
-    return DATA.steel;
-  }
-  chips.addEventListener('click',function(e){var b=e.target.closest('button');if(b)classify(b.getAttribute('data-k'));});
-  go.addEventListener('click',function(){classify(null);});
-  input.addEventListener('keydown',function(e){if(e.key==='Enter')classify(null);});
+  if(chips)chips.addEventListener('click',function(e){var b=e.target.closest('button');if(b)classify(b.getAttribute('data-k'));});
+  if(go)go.addEventListener('click',function(){classify(null);});
+  if(input)input.addEventListener('keydown',function(e){if(e.key==='Enter')classify(null);});
+
+  return {setLang:function(l){lang=l;if(result&&result.classList.contains('show')&&last)classify(last,{instant:true,noscroll:true});}};
+})();
+
+/* ---- initial language: stored choice, else Polish browsers default to PL ---- */
+(function(){
+  var stored=null;try{stored=localStorage.getItem('aimport_lang');}catch(e){}
+  var nav=(navigator.language||navigator.userLanguage||'').toLowerCase();
+  var lang=stored||(nav.indexOf('pl')===0?'pl':'en');
+  applyLang(lang);
 })();
 </script>
 </body>
