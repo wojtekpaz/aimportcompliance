@@ -23,6 +23,7 @@ import uuid
 from pathlib import Path
 
 DB_PATH = Path(os.environ.get("AIMPORT_DATA_DIR", ".")) / "saved_products.sqlite"
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)   # create the volume dir if missing
 
 
 def _conn():
