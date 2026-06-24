@@ -1,15 +1,12 @@
 {
   "nav.request_access": "Poproś o dostęp",
   "nav.classify": "Klasyfikacja ↗",
-
-  "hero.headline": "Automatyzujemy <span class=\"em\">Procesy Celne</span>",
-  "hero.sub": "Każdy kod CN/TARIC poparty regułami GRI i podstawą prawną. Pełna ścieżka audytu, zero halucynacji.",
-  "hero.cta_primary": "Wypróbuj na jednej fakturze →",
+  "hero.headline": "Importuj szybciej. Z pewnością.",
+  "hero.sub": "Wyspecjalizowana AI, która rozpoznaje klasyfikacje, cła i ryzyka zgodności — zanim zrobi to urząd celny.",
+  "hero.cta_primary": "Umów demo",
   "hero.cta_secondary": "Skontaktuj się",
-
   "hiw.kicker": "Jak to działa",
   "hiw.head": "Od danych o produkcie do kodu, którego można bronić.",
-
   "step1.num": "01 · Klasyfikuj",
   "step1.h": "Kod — i uzasadnienie, które za nim stoi.",
   "step1.line": "Przypisanie kodu CN/TARIC w oparciu o reguły GRI, wraz z wyliczeniem kosztu wprowadzenia towaru.",
@@ -24,7 +21,6 @@
   "step4.h": "Dokumentacja gotowa do przekazania, możliwa do obrony.",
   "step4.line": "Aimport zestawia kod, uzasadnienie GRI i podstawę prawną w plikach gotowych do eksportu — sformatowanych pod Twoje oprogramowanie zgłoszeniowe i gotowych do przekazania funkcjonariuszowi celnemu.",
   "step4.sub": "Jeden rekord, możliwy do obrony od początku do końca: od opisu towaru po zgłoszenie, które każdy może prześledzić.",
-
   "mkr.defensible": "<span class=\"beat\">✓</span> Do obrony",
   "mkr.step_gri1": "<span class=\"mk-check\">✓</span> GRI 1 — pozycja",
   "mkr.step_gri6": "<span class=\"mk-check\">✓</span> GRI 6 — podpozycja",
@@ -33,7 +29,6 @@
   "mkr.legal_item": "Uwaga 1 do sekcji XV · Noty wyjaśniające CN do 7308 90",
   "mkr.bti": "Porównywalna decyzja — EBTI DE BTI 24681/23 ↗",
   "mkr.cost": "250 szt. × €4.20 · cło 2.7% → <span class=\"mk-total\">€1,078.35 po odprawie</span>",
-
   "inv.bar_l": "Faktura handlowa · zweryfikowano 3 z 4 pozycji",
   "inv.bar_r": "2 pozycje oznaczone",
   "inv.desc1": "Wsporniki montażowe stalowe, cynkowane ogniowo",
@@ -42,14 +37,12 @@
   "inv.desc3": "Komponenty maszyn",
   "inv.flag3": "⚠ brak specyfikacji materiału",
   "inv.desc4": "Łączniki z tworzywa, typ A",
-
   "srv.q1": "Materiał podstawowy",
   "srv.q2": "Powłoka powierzchni?",
   "srv.q3": "Świadectwo pochodzenia",
   "srv.attach": "▾ / załącz",
   "srv.completed": "<span class=\"beat\">✓</span> Ukończono",
   "srv.returns": "→ wraca do agenta",
-
   "exp.ready": "<span class=\"beat\">✓</span> Gotowe do zgłoszenia",
   "exp.sub": "Wspornik montażowy stalowy · GRI 1 → 6 · z podstawą prawną",
   "exp.meta1": "kod · uzasadnienie · podstawa prawna",
@@ -57,16 +50,13 @@
   "exp.meta3": "dla funkcjonariusza celnego",
   "exp.complete": "Proces zakończony",
   "exp.ret": "↑ wgraj do swojego systemu · wyślij do urzędu",
-
   "orbit.t1": "GRI 1–6",
   "orbit.t2": "Decyzje do obrony",
   "orbit.t3": "Skanowanie faktur",
   "orbit.t4": "Uzasadnienie prawne",
   "orbit.t5": "Opis produktu",
-
   "quote.body": "Koniec z wysyłaniem pięciu osobnych e‑maili. <span class=\"em\">Jedno kliknięcie udostępnia plik importerowi</span> — a brakujące opisy wracają uzupełnione.",
   "quote.cap": "Ankieta z kroku Rozstrzygnij: Aimport zadaje klientowi właściwe pytania, a Ty otrzymujesz kompletny plik, możliwy do obrony.",
-
   "sav.l1": "mniej czasu na klasyfikację",
   "sav.s1": "3–4 godziny skrócone do poniżej 15 minut · benchmark branżowy",
   "sav.l2": "oszczędności na pozycję towarową",
@@ -75,7 +65,6 @@
   "sav.s3": "standard egzekucji celnej UE",
   "sav.close": "Agent obsługujący 50 zgłoszeń tygodniowo odzyskuje około 75 godzin pracy nad klasyfikacją miesięcznie.",
   "sav.foot": "Na podstawie danych o wynagrodzeniach polskich agentów celnych (61 PLN/godz.) i raportowanych w branży oszczędności czasu.",
-
   "who.kicker": "Dla kogo to jest",
   "who.c1_h": "Agenci celni",
   "who.c1_p1": "Logikę klasyfikacji nosisz w głowie. Aimport układa ją w kolejności, w jakiej byś jej bronił.",
@@ -90,7 +79,6 @@
   "who.c4_p1": "Zgłoszenie bez uzasadnienia trudno skontrolować.",
   "who.c4_p2": "Aimport tworzy ścieżkę klasyfikacji w kolejności GRI — tej samej struktury używasz, oceniając, czy kod się broni.",
   "who.close": "Gdy chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami towarów, poprosisz o dostęp.",
-
   "faq.kicker": "FAQ",
   "faq.head": "O co agenci pytają najpierw.",
   "faq.q1": "Czy model kiedykolwiek wymyśla kod, którego nie ma w taryfie?",
@@ -107,22 +95,18 @@
   "faq.a6": "Silnik przechodzi przez reguły GRI od 2 do 4 po kolei: artykuły niekompletne i rozmontowane według GRI 2(a), towary złożone i zestawy według ich zasadniczego charakteru według GRI 3(b) oraz rozstrzygnięcie według GRI 3(c). Ścieżka wskazuje regułę, która rozstrzygnęła sprawę, więc możesz obronić decyzję.",
   "faq.q7": "Kto ponosi odpowiedzialność za ostateczną klasyfikację?",
   "faq.a7": "Ty. Zgłaszający podpisuje zgłoszenie i odpowiada za wynik. Aimport dostarcza uzasadnienie do sprawdzenia i ścieżkę do obrony, ale niczego nie składa w Twoim imieniu.",
-
   "access.kicker": "Poproś o dostęp",
   "access.head": "Przyjdź z własnymi kategoriami towarów.",
   "access.p": "Aimport jest w fazie pilotażu z niewielką grupą agentów celnych i spedytorów. Jeśli zajmujesz się zgodnością importową i chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami towarów, napisz do nas.",
   "access.btn": "Napisz na contact@aimport.co",
   "access.respond": "Odpowiadamy na każde zgłoszenie.",
-
   "footer.copy": "Aimport Compliance © 2026",
   "footer.contact": "Kontakt: leo.goerg@aimport.co",
   "footer.contact_href": "mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request",
-
   "pin.label": "Dostęp demo",
   "pin.heading": "Wprowadź kod dostępu",
   "pin.sub": "Masz kod z Breakbulk lub z e‑maila? Wpisz go poniżej.",
   "pin.error": "Nieprawidłowy kod. <a href=\"mailto:leo.goerg@aimport.co?subject=Aimport%20access%20request\">Poproś o dostęp: leo.goerg@aimport.co</a>",
-
   "cls.nav_home": "Strona główna",
   "cls.nav_classify": "Klasyfikacja",
   "cls.nav_invoice": "Skan faktury",
@@ -159,9 +143,9 @@
   "cls.k_legal": "Podstawa prawna",
   "cls.bti_h": "Powiązane decyzje BTI",
   "cls.btn_save": "Zapisz do moich produktów",
-
   "inv.h1": "Skanowanie faktur",
   "inv.sub": "Prześlij fakturę handlową. Każda pozycja jest ponownie klasyfikowana względem zadeklarowanego kodu towaru, a rozbieżności — błędne kody, nieprecyzyjne opisy, ryzyko ceł antydumpingowych, brakujące kody — są oznaczane do weryfikacji przed złożeniem zgłoszenia.",
   "prod.h1": "Zapisane klasyfikacje",
-  "prod.sub": "Każdy zapisany wynik to utrwalony rekord — kod, cła, środki ochrony handlowej i ścieżka prawna — zachowany na potrzeby audytu i należytej staranności."
+  "prod.sub": "Każdy zapisany wynik to utrwalony rekord — kod, cła, środki ochrony handlowej i ścieżka prawna — zachowany na potrzeby audytu i należytej staranności.",
+  "nav.login": "Zaloguj się"
 }
