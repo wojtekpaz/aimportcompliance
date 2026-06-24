@@ -149,11 +149,26 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
 .tw-foot.show{opacity:1}
 .tw-foot .total{font-family:var(--mono);font-weight:600;color:var(--ink)}
 
-/* ============ logo strip ============ */
-.strip{padding:30px 0 10px;text-align:center}
-.strip p{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
-.strip-row{display:flex;justify-content:center;gap:42px;flex-wrap:wrap;align-items:center;opacity:.62}
-.strip-row span{font-weight:700;font-size:17px;color:var(--faint);letter-spacing:-.02em}
+/* ============ audience gallery ============ */
+.gallery{padding:48px 0 14px}
+.gal-eyebrow{text-align:center;margin:0 0 28px}
+.gal-row{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.gal-frame{appearance:none;cursor:pointer;font-family:var(--sans);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  width:212px;height:152px;padding:24px;
+  opacity:.42;filter:saturate(.55);transform:scale(.95);
+  transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1),
+             filter .6s,box-shadow .6s,border-color .6s}
+.gal-frame .gal-ic{color:var(--muted);display:block;transition:color .6s,transform .6s}
+.gal-frame .gal-label{font-size:15px;font-weight:600;color:var(--faint);letter-spacing:-.01em;transition:color .6s}
+.gal-frame.is-active{opacity:1;filter:none;transform:scale(1.06);
+  box-shadow:0 20px 54px rgba(43,78,255,.16),var(--glass-shadow);
+  border-color:rgba(43,78,255,.28)}
+.gal-frame.is-active .gal-ic{color:var(--brand);transform:translateY(-1px)}
+.gal-frame.is-active .gal-label{color:var(--ink)}
+.gal-frame:hover{opacity:.82}
+.gal-frame.is-active:hover{opacity:1}
+@media(max-width:560px){.gal-frame{width:42%;height:128px;padding:16px;gap:11px}}
 
 /* ============ classifier widget ============ */
 .demo{padding:64px 0}
@@ -265,18 +280,6 @@ h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
   padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin:7px 0}
 .sv-q .car{color:var(--muted)}
 
-/* ============ who cards ============ */
-.who{padding:70px 0}
-.who-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-.who-card{padding:28px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
-.who-card::before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;
-  background:radial-gradient(circle,var(--brand),transparent 70%);opacity:0;
-  left:var(--gx,50%);top:var(--gy,50%);transform:translate(-50%,-50%);transition:opacity .3s;pointer-events:none;filter:blur(40px)}
-.who-card:hover::before{opacity:.1}
-.who-card .wn{font-family:var(--mono);font-size:13px;color:var(--brand);font-weight:600}
-.who-card h3{font-size:19px;margin:12px 0 10px;font-weight:700}
-.who-card p{color:var(--faint);font-size:14px;margin:0 0 8px}
-
 /* ============ faq ============ */
 .faq{padding:60px 0}
 .faq-list{max-width:780px;margin:30px auto 0}
@@ -316,7 +319,7 @@ footer a:hover{color:var(--brand)}
 
 /* ============ responsive ============ */
 @media(max-width:900px){
-  .hero-grid,.feat,.who-grid,.stats-wrap{grid-template-columns:1fr}
+  .hero-grid,.feat,.stats-wrap{grid-template-columns:1fr}
   .feat{gap:28px}.feat:nth-child(even) .feat-copy{order:0}
   .nav-links{display:none}
   .stats-wrap{grid-template-columns:repeat(2,1fr);gap:24px}
@@ -356,7 +359,6 @@ footer a:hover{color:var(--brand)}
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <p class="eyebrow reveal"><span class="dot"></span>EU tariff classification engine</p>
       <h1 class="reveal d1">Import faster.<br>With <span class="grad">certainty.</span></h1>
       <p class="hero-sub reveal d2">Aimport walks the CN tree and applies the GRI rules at each branch. Every code arrives with the path — and the legal basis behind it.</p>
       <div class="hero-cta reveal d3">
@@ -391,12 +393,27 @@ footer a:hover{color:var(--brand)}
   </div>
 </section>
 
-<!-- ============ LOGO STRIP ============ -->
-<section class="strip">
+<!-- ============ AUDIENCE GALLERY ============ -->
+<section class="gallery" id="who">
   <div class="wrap">
-    <p>Built on the same sources customs uses</p>
-    <div class="strip-row">
-      <span>CN&nbsp;2025</span><span>TARIC</span><span>EBTI</span><span>ISZTAR4</span><span>WinSAD</span><span>Huzar</span>
+    <p class="eyebrow gal-eyebrow reveal">Who it's for</p>
+    <div class="gal-row reveal d1" id="gal">
+      <button class="glass gal-frame is-active" data-i="0" aria-label="Customs Brokers">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3.5" width="12" height="17" rx="2"/><path d="M9 3.5V2.5h6v1"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="gal-label">Customs Brokers</span>
+      </button>
+      <button class="glass gal-frame" data-i="1" aria-label="Importers">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l8 4.5v8l-8 4.5-8-4.5v-8z"/><path d="M4 8l8 4.5L20 8"/><path d="M12 12.5V21"/></svg></span>
+        <span class="gal-label">Importers</span>
+      </button>
+      <button class="glass gal-frame" data-i="2" aria-label="Manufacturers">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l6 4V10l6 4V7l6 4v10z"/><path d="M3 21h18"/></svg></span>
+        <span class="gal-label">Manufacturers</span>
+      </button>
+      <button class="glass gal-frame" data-i="3" aria-label="Customs Officers">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="gal-label">Customs Officers</span>
+      </button>
     </div>
   </div>
 </section>
@@ -534,22 +551,6 @@ footer a:hover{color:var(--brand)}
   </div>
 </section>
 
-<!-- ============ WHO ============ -->
-<section class="who" id="who">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <p class="eyebrow"><span class="dot"></span>Who it's for</p>
-      <h2>One rule set. Four perspectives.</h2>
-    </div>
-    <div class="who-grid">
-      <article class="glass who-card reveal"><div class="wn">01</div><h3>Customs brokers</h3><p>You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p><p>Read the path, check the rule at each branch, sign off or override.</p></article>
-      <article class="glass who-card reveal d1"><div class="wn">02</div><h3>Importers</h3><p>You need the same answer every time, no matter who runs the classification.</p><p>One rule set applies to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p></article>
-      <article class="glass who-card reveal d2"><div class="wn">03</div><h3>Manufacturers</h3><p>Classification follows from what your product is: its material, its function, its degree of processing.</p><p>Aimport shows which facts drive the heading, so you know the code before the goods ship.</p></article>
-      <article class="glass who-card reveal d3"><div class="wn">04</div><h3>Customs officers</h3><p>A declaration without reasoning is hard to audit.</p><p>Aimport produces a classification trail in GRI order — the same structure you use to assess whether a code holds up.</p></article>
-    </div>
-  </div>
-</section>
-
 <!-- ============ FAQ ============ -->
 <section class="faq" id="faq">
   <div class="wrap">
@@ -661,16 +662,22 @@ footer a:hover{color:var(--brand)}
   io.observe(wrap);
 })();
 
-/* ---- who-card cursor glow ---- */
+/* ---- audience gallery: smooth auto-switching frames ---- */
 (function(){
-  if(window.matchMedia('(hover:none)').matches)return;
-  document.querySelectorAll('.who-card').forEach(function(c){
-    c.addEventListener('mousemove',function(e){
-      var r=c.getBoundingClientRect();
-      c.style.setProperty('--gx',(e.clientX-r.left)+'px');
-      c.style.setProperty('--gy',(e.clientY-r.top)+'px');
-    });
+  var gal=document.getElementById('gal');if(!gal)return;
+  var frames=[].slice.call(gal.querySelectorAll('.gal-frame'));
+  var i=0,timer=null;
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function show(n){frames.forEach(function(f,k){f.classList.toggle('is-active',k===n);});i=n;}
+  function next(){show((i+1)%frames.length);}
+  function start(){if(reduce)return;stop();timer=setInterval(next,2600);}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  frames.forEach(function(f,k){
+    f.addEventListener('click',function(){show(k);start();});
+    f.addEventListener('mouseenter',stop);
+    f.addEventListener('mouseleave',start);
   });
+  show(0);start();
 })();
 
 /* ---- interactive classifier ---- */
