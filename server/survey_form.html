@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Uzupełnij informacje o przesyłce</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#0f172a; --muted:#64748b;
+    --line:#e2e8f0; --accent:#1f6feb; --accent-dim:#eaf1fd; --ok:#16a34a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 64px;min-height:100vh}
+  header.top{display:flex;align-items:center;gap:10px;padding:8px 0 18px}
+  header.top img{height:24px;width:auto;display:block}
+  header.top .name{font-weight:600;font-size:15px;letter-spacing:-0.01em}
+  .lead{font-size:16px;color:var(--ink);font-weight:600;margin:0 0 4px;line-height:1.35}
+  .sublead{font-size:14px;color:var(--muted);margin:0 0 20px}
+  .context-label{font-size:12px;color:var(--muted);margin:0 0 8px;font-weight:500}
+  .context-label.hidden{display:none}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 20px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .progress{font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--accent);
+    text-transform:uppercase;margin:0 0 6px}
+  .bar{height:4px;border-radius:999px;background:var(--line);margin:0 0 18px;overflow:hidden}
+  .bar span{display:block;height:100%;background:var(--accent);transition:width .3s ease}
+  h1.q{font-size:21px;line-height:1.3;font-weight:600;margin:0 0 18px;letter-spacing:-0.01em}
+  .opts{display:flex;flex-direction:column;gap:10px;margin:0 0 6px}
+  label.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line);
+    border-radius:11px;padding:15px 16px;cursor:pointer;font-size:16px;
+    transition:border-color .15s,background .15s;min-height:54px}
+  label.opt:hover{border-color:#cbd5e1}
+  label.opt.sel{border-color:var(--accent);background:var(--accent-dim)}
+  label.opt input{width:20px;height:20px;accent-color:var(--accent);flex:none;margin:0}
+  .detail{margin:12px 0 0;display:none}
+  .detail.show{display:block}
+  .detail textarea{width:100%;border:1px solid var(--line);border-radius:10px;
+    padding:12px;font:inherit;font-size:15px;resize:vertical;min-height:74px}
+  .photo{margin:18px 0 0;padding-top:16px;border-top:1px dashed var(--line)}
+  .photo label{font-size:13px;color:var(--muted);display:block;margin:0 0 8px}
+  .photo input{font-size:13px;color:var(--muted)}
+  .actions{display:flex;gap:12px;margin:22px 0 0}
+  .btn{appearance:none;border:0;border-radius:11px;padding:15px 22px;font:inherit;
+    font-weight:600;font-size:16px;cursor:pointer;flex:1;transition:opacity .15s,background .15s}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line);flex:0 0 auto}
+  .foot{margin:18px 4px 0;font-size:12px;color:var(--muted);text-align:center}
+  .state{text-align:center;padding:48px 16px}
+  .state .big{font-size:22px;font-weight:600;margin:0 0 8px}
+  .state .sub{color:var(--muted);font-size:15px}
+  .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .check{width:46px;height:46px;border-radius:50%;background:var(--ok);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img src="/logo-mark.png" alt="Aimport" onerror="this.style.display='none'">
+    <span class="name">Aimport</span>
+  </header>
+  <p class="lead" id="lead">Twój agent celny potrzebuje kilku szczegółów dotyczących przesyłki.</p>
+  <p class="sublead" id="sublead">Odpowiedz na poniższe pytania — zajmie to około 2 minut.</p>
+
+  <div id="loading" class="state">
+    <div class="spinner"></div>
+    <div class="sub">Wczytywanie pytań…</div>
+  </div>
+
+  <div id="wizard" class="card hidden">
+    <p class="progress" id="progress">Pytanie 1 z 1</p>
+    <div class="bar"><span id="barfill" style="width:0%"></span></div>
+    <p class="context-label hidden" id="context"></p>
+    <h1 class="q" id="qtext"></h1>
+    <div class="opts" id="opts"></div>
+    <div class="detail" id="detail">
+      <textarea id="detailText" placeholder="Wpisz szczegóły tutaj…"></textarea>
+    </div>
+    <div class="photo">
+      <label for="photo">Masz zdjęcie lub kartę katalogową? Dołącz je tutaj (opcjonalnie).</label>
+      <input id="photo" type="file" accept="image/*,.pdf">
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost hidden" id="back" type="button">← Wstecz</button>
+      <button class="btn btn-primary" id="next" type="button" disabled>Dalej →</button>
+    </div>
+  </div>
+
+  <div id="done" class="state hidden">
+    <div class="check">✓</div>
+    <div class="big">Dziękujemy.</div>
+    <div class="sub">Twój agent celny otrzymał powiadomienie i wróci do Ciebie w razie potrzeby.</div>
+  </div>
+
+  <div id="errstate" class="state hidden">
+    <div class="big">Coś poszło nie tak</div>
+    <div class="sub" id="errmsg">Skontaktuj się ze swoim agentem celnym.</div>
+  </div>
+
+  <p class="foot">Aimport · Twoje odpowiedzi trafiają wyłącznie do Twojego agenta celnego.</p>
+</div>
+
+<script>
+(function(){
+  var token = location.pathname.split("/survey/")[1].split("/")[0];
+  var FREETEXT = {};         // option text -> opens free-text field
+  var questions = [];
+  var idx = 0;
+  var answers = {};          // question_id -> {answer, answer_detail}
+
+  var $ = function(id){ return document.getElementById(id); };
+
+  function show(id){ ["loading","wizard","done","errstate"].forEach(function(x){
+    $(x).classList.toggle("hidden", x !== id); }); }
+
+  function fail(msg){ $("errmsg").textContent = msg || "Skontaktuj się ze swoim agentem celnym."; show("errstate"); }
+
+  fetch("/survey/" + token + "/data")
+    .then(function(r){ if(!r.ok) throw r.status; return r.json(); })
+    .then(function(d){
+      if(d.status === "expired"){ return fail("Ten link wygasł. Skontaktuj się ze swoim agentem celnym, aby uzyskać nowy link."); }
+      if(d.status === "completed"){ show("done"); return; }
+      if(!d.questions || !d.questions.length){ return fail("Brak pytań do uzupełnienia."); }
+      if(d.intro) $("lead").textContent = d.intro;
+      questions = d.questions;
+      questions.forEach(function(q){ (q.freetext_options||[]).forEach(function(o){ FREETEXT[o]=true; }); });
+      render();
+      show("wizard");
+    })
+    .catch(function(){ fail("Nie udało się otworzyć tej ankiety."); });
+
+  function render(){
+    var q = questions[idx];
+    $("progress").textContent = "Pytanie " + q.index + " z " + q.total;
+    $("barfill").style.width = Math.round((q.index-1)/q.total*100) + "%";
+    // small muted context line explaining WHY this is being asked
+    var ctx = $("context");
+    if(q.context_label){ ctx.textContent = q.context_label; ctx.classList.remove("hidden"); }
+    else { ctx.textContent = ""; ctx.classList.add("hidden"); }
+    $("qtext").textContent = q.question;
+    var saved = answers[q.question_id] || {};
+    var labels = q.option_labels || [];
+
+    var optsEl = $("opts"); optsEl.innerHTML = "";
+    (q.options||[]).forEach(function(opt, i){
+      var id = "o"+idx+"_"+i;
+      var lab = document.createElement("label");
+      lab.className = "opt" + (saved.answer===opt ? " sel" : "");
+      lab.innerHTML = '<input type="radio" name="opt'+idx+'" id="'+id+'" value="">'+
+                      '<span></span>';
+      // value stays the original (English) engine option; only the label is Polish
+      lab.querySelector("input").value = opt;
+      lab.querySelector("span").textContent = labels[i] || opt;
+      if(saved.answer===opt) lab.querySelector("input").checked = true;
+      lab.querySelector("input").addEventListener("change", function(){ onSelect(opt); });
+      optsEl.appendChild(lab);
+    });
+
+    // free-text + restore saved detail
+    $("detailText").value = saved.answer_detail || "";
+    toggleDetail(saved.answer);
+    $("photo").value = "";
+
+    $("back").classList.toggle("hidden", idx===0);
+    var last = idx === questions.length-1;
+    $("next").textContent = last ? "Wyślij odpowiedzi" : "Dalej →";
+    $("next").disabled = !saved.answer;
+  }
+
+  function onSelect(opt){
+    var q = questions[idx];
+    answers[q.question_id] = answers[q.question_id] || {};
+    answers[q.question_id].answer = opt;
+    Array.prototype.forEach.call(document.querySelectorAll("#opts .opt"), function(l){
+      l.classList.toggle("sel", l.querySelector("input").value===opt); });
+    toggleDetail(opt);
+    $("next").disabled = false;
+  }
+
+  function toggleDetail(opt){
+    var on = opt && FREETEXT[opt];
+    $("detail").classList.toggle("show", !!on);
+  }
+
+  $("detailText").addEventListener("input", function(){
+    var q = questions[idx];
+    if(answers[q.question_id]) answers[q.question_id].answer_detail = this.value;
+  });
+
+  $("back").addEventListener("click", function(){ if(idx>0){ idx--; render(); } });
+
+  $("next").addEventListener("click", function(){
+    var q = questions[idx];
+    var a = answers[q.question_id];
+    if(!a || !a.answer) return;
+    if(idx < questions.length-1){ idx++; render(); return; }
+    submit();
+  });
+
+  function submit(){
+    show("loading"); $("loading").querySelector(".sub").textContent = "Wysyłanie odpowiedzi…";
+    var payload = { answers: questions.map(function(q){
+      var a = answers[q.question_id] || {};
+      return { question_id: q.question_id, answer: a.answer||"", answer_detail: a.answer_detail||"" };
+    })};
+    fetch("/survey/" + token + "/submit", {
+      method:"POST", headers:{"content-type":"application/json"},
+      body: JSON.stringify(payload)
+    }).then(function(r){ if(!r.ok) throw r.status; return r.json(); })
+      .then(function(){ show("done"); })
+      .catch(function(){ fail("Nie udało się wysłać odpowiedzi. Spróbuj ponownie lub skontaktuj się z agentem celnym."); });
+  }
+})();
+</script>
+</body>
+</html>

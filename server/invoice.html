@@ -103,6 +103,16 @@
   /* low-confidence field marker */
   .lowconf{color:var(--amber);font-family:var(--mono);font-size:11px;
     border:1px solid var(--amber);padding:1px 6px;margin-left:8px;white-space:nowrap}
+  /* client-clarification banner: one-click email of the survey link */
+  .clarify-banner{display:none;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    border:1px solid rgba(31,111,235,.35);border-left:3px solid var(--accent);
+    background:rgba(31,111,235,.08);padding:16px 20px;margin:26px 0 8px}
+  .clarify-banner.on{display:flex}
+  .cb-text{font-size:14px;color:var(--text);line-height:1.5}
+  .cb-btn{background:var(--accent);border:1px solid var(--accent);color:#fff;
+    padding:11px 20px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+    cursor:pointer;transition:background .18s;white-space:nowrap}
+  .cb-btn:hover{background:#4f86f0}
   @media(max-width:760px){.wrap{padding:40px 20px}.topbar{padding:22px}.summary{gap:26px}}
   /* language switcher (globe + menu) */
   .tb-right{display:flex;align-items:center;gap:20px}
@@ -191,6 +201,12 @@
     <div class="stat"><div class="n" id="sOrigin" style="color:var(--text)">—</div><div class="l">Origin</div></div>
   </div>
 
+  <!-- one-click: email the customer the survey link for any unresolved lines -->
+  <div class="clarify-banner" id="clarifyBanner">
+    <div class="cb-text"><span id="cbCount"></span> clarification from your client.</div>
+    <button class="cb-btn" id="cbMail" type="button">Email survey to client</button>
+  </div>
+
   <div id="results"></div>
 </div>
 
@@ -208,6 +224,7 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
   var chosenFile=null;
+  var currentSurvey=null;        // {url, ref} after a scan that froze ≥1 line
 
   var drop=$('drop'), fileInput=$('file');
   drop.addEventListener('click',function(){ fileInput.click(); });
@@ -228,6 +245,25 @@
     $('dropBig').textContent='PDF ready — click “Scan invoice”';
     $('btnScan').disabled=false; $('err').style.display='none';
   }
+
+  // ---- one-click survey email to the client -----------------------------
+  function buildMailto(surveyUrl, invoiceRef, clientEmail){
+    clientEmail=clientEmail||'';
+    var subject=encodeURIComponent('Shipment information needed'+(invoiceRef?(' — '+invoiceRef):''));
+    var body=encodeURIComponent(
+      'Dear Sir/Madam,\n\n'+
+      'We are processing your shipment'+(invoiceRef?(' (ref: '+invoiceRef+')'):'')+
+      ' and need a few additional details about some of the goods before we can complete the customs declaration.\n\n'+
+      'Please click the link below and answer the short questions — it takes about 2 minutes:\n\n'+
+      surveyUrl+'\n\n'+
+      'If you have any questions, please reply to this email.\n\n'+
+      'Kind regards');
+    return 'mailto:'+encodeURIComponent(clientEmail)+'?subject='+subject+'&body='+body;
+  }
+  $('cbMail').addEventListener('click',function(){
+    if(!currentSurvey) return;
+    window.location.href=buildMailto(currentSurvey.url,currentSurvey.ref,'');
+  });
 
   $('btnScan').addEventListener('click',function(){
     if(!chosenFile) return;
@@ -263,6 +299,7 @@
     $('unreadable').classList.remove('on');
     $('ocrNote').classList.remove('on');
     $('summary').classList.remove('on');
+    $('clarifyBanner').classList.remove('on');
 
     var status=data.extraction_status||(data.summary&&data.summary.extraction_status);
 
@@ -288,6 +325,17 @@
 
     // Provenance note when the document was recovered by OCR.
     if(status==='ocr_used'){ $('ocrNote').classList.add('on'); }
+
+    // One-click client clarification: the server already created the survey and
+    // returned its public URL. Show the email button when ≥1 line needs the client.
+    var clar=data.clarifications||[];
+    if(data.survey_url && clar.length){
+      currentSurvey={url:data.survey_url, ref:(data.summary&&data.summary.invoice_no)||''};
+      $('cbCount').textContent=clar.length+(clar.length===1?' line item needs':' line items need');
+      $('clarifyBanner').classList.add('on');
+    } else {
+      currentSurvey=null;
+    }
 
     var items=data.items||[], html='';
     for(var i=0;i<items.length;i++){

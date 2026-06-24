@@ -261,8 +261,10 @@ def analyze_item(item, origin):
                       "message": f"Check this figure — scan unclear: {val}".strip()})
 
     engine_code = None
+    engine_result = {}
     try:
         result = es.start(item["description"], origin, "")
+        engine_result = result
         status = result.get("status")
         if status == "needs_pre_classify":
             flags.append({"type": "VAGUE_DESCRIPTION", "severity": "high",
@@ -302,10 +304,20 @@ def analyze_item(item, origin):
     worst = max(flags, key=lambda f: sev_rank[f["severity"]])
     status = "issue" if worst["severity"] in ("high", "medium") else "ok"
 
+    # Capture a FrozenClassification for the client survey when the engine could
+    # not resolve this line (reuses the engine result already computed above).
+    frozen = None
+    try:
+        import survey_freeze
+        frozen = survey_freeze.frozen_from_result(item, origin, engine_result)
+    except Exception:
+        frozen = None  # survey capture is additive; never break invoice analysis
+
     return {"row": item["row"], "description": item["description"],
             "declared_code": declared, "engine_code": engine_code,
             "qty": item.get("qty", ""), "value": item.get("value", ""),
-            "low_confidence": low, "flags": flags, "status": status}
+            "low_confidence": low, "flags": flags, "status": status,
+            "frozen": frozen}
 
 
 UNREADABLE_MESSAGE = ("Couldn't read line items from this PDF. It may be a "
@@ -330,14 +342,16 @@ def analyze_invoice(pdf_path, origin_override="", lang="eng"):
         }
 
     results = [analyze_item(it, origin) for it in items]
+    frozen_lines = [r["frozen"] for r in results if r.get("frozen")]
     summary = {
         "total": len(results),
         "issues": sum(1 for r in results if r["status"] == "issue"),
         "ok": sum(1 for r in results if r["status"] == "ok"),
+        "needs_clarification": len(frozen_lines),
         "origin": origin,
         "invoice_no": meta.get("invoice_no", ""),
         "extraction_status": extraction_status,
         "ocr_mean_conf": meta.get("ocr_mean_conf", 0.0),
     }
-    return {"summary": summary, "items": results, "meta": meta,
-            "extraction_status": extraction_status}
+    return {"summary": summary, "items": results, "frozen_lines": frozen_lines,
+            "meta": meta, "extraction_status": extraction_status}

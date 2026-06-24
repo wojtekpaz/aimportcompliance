@@ -40,11 +40,64 @@ import invoice_session as inv           # noqa: E402
 import invoice_ocr as ocr               # noqa: E402
 import optimize_session as opt_s        # noqa: E402
 import tempfile, os as _os              # noqa: E402
-from fastapi import UploadFile, File    # noqa: E402
+from fastapi import UploadFile, File, Request   # noqa: E402
 
 app = FastAPI(title="AImport", docs_url="/api/docs")
 HERE = Path(__file__).resolve().parent
 log = logging.getLogger("uvicorn.error")
+
+
+# No broker auth in this build (PIN gate only); surveys are attributed to a
+# single local broker so the pending-clarifications dashboard has an owner.
+DEFAULT_BROKER_ID = "broker-local"
+
+
+def _public_base(request):
+    """Base URL used to build the client-facing survey link.
+
+    A client receives this link by e-mail and opens it on their own device, so
+    it must be PUBLICLY reachable — never the broker's localhost. In a hosted
+    deployment set PUBLIC_BASE_URL (e.g. https://app.aimport.co); we fall back to
+    the request's own base URL for local single-machine use."""
+    env = (os.environ.get("PUBLIC_BASE_URL") or "").strip().rstrip("/")
+    return env or str(request.base_url).rstrip("/")
+
+
+def _attach_survey(result, request):
+    """If invoice analysis froze ≥1 line, create the survey session server-side
+    and return a sanitised preview + the shareable survey URL. Engine state
+    (snapshots, option maps) never leaves the server."""
+    if not isinstance(result, dict):
+        return result
+    frozen = result.get("frozen_lines") or []
+    if not frozen:
+        result.pop("frozen_lines", None)
+        for it in result.get("items") or []:
+            it.pop("frozen", None)
+        return result
+    invoice_ref = ((result.get("summary") or {}).get("invoice_no")
+                   or (result.get("meta") or {}).get("invoice_no") or "")
+    try:
+        import survey_db as sdb
+        created = sdb.create_session(broker_id=DEFAULT_BROKER_ID,
+                                     invoice_ref=invoice_ref, frozen_lines=frozen)
+        token = created["token"]
+        base = _public_base(request)
+        result["survey_token"] = token
+        result["survey_url"] = f"{base}/survey/{token}"
+    except Exception as e:                       # additive; never break analysis
+        result["survey_error"] = str(e)[:160]
+    # client-facing preview only — no engine internals
+    result["clarifications"] = [
+        {"line_number": f.get("line_number"),
+         "description": f.get("description_used"),
+         "freeze_reason": f.get("freeze_reason"),
+         "engine_question": f.get("engine_question")}
+        for f in frozen]
+    result.pop("frozen_lines", None)
+    for it in result.get("items") or []:
+        it.pop("frozen", None)
+    return result
 
 
 @app.on_event("startup")
@@ -260,7 +313,8 @@ def invoice_page():
 
 
 @app.post("/api/invoice/analyze")
-async def invoice_analyze(file: UploadFile = File(...), origin: str = "", market: str = "EU"):
+async def invoice_analyze(request: Request, file: UploadFile = File(...),
+                          origin: str = "", market: str = "EU"):
     # PL profile reads Polish invoices with the pol model (pol+eng for mixed
     # PL/EN); EU stays on "eng" so existing English OCR behaviour is unchanged.
     ocr_lang = "pol+eng" if (market or "").upper() == "PL" else "eng"
@@ -274,7 +328,8 @@ async def invoice_analyze(file: UploadFile = File(...), origin: str = "", market
         tmp.write(content)
         tmp.close()
         result = inv.analyze_invoice(tmp.name, origin_override=origin, lang=ocr_lang)
-        return result
+        # Create the client survey if any line froze, and attach its public URL.
+        return _attach_survey(result, request)
     except Exception as e:
         return {"error": f"Could not process the invoice: {str(e)[:200]}"}
     finally:
@@ -314,6 +369,12 @@ def optimize_endpoint(body: OptimizeIn):
     except Exception:
         pass  # scoring is additive; never break the existing optimize response
     return result
+
+
+# Client-clarification survey: public tokenised survey URL + one-click broker
+# email. Additive router; existing classify/products/invoice routes untouched.
+import survey_api                      # noqa: E402
+app.include_router(survey_api.router)
 
 
 if __name__ == "__main__":
