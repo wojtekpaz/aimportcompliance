@@ -47,6 +47,17 @@ HERE = Path(__file__).resolve().parent
 log = logging.getLogger("uvicorn.error")
 
 
+@app.middleware("http")
+async def _revalidate_html(request, call_next):
+    """HTML pages must always revalidate so a redeploy (new layout) shows up
+    immediately instead of a browser serving a stale cached copy. ETag still
+    lets the server answer 304 when nothing changed, so it stays cheap."""
+    resp = await call_next(request)
+    if resp.headers.get("content-type", "").startswith("text/html"):
+        resp.headers["Cache-Control"] = "no-cache, must-revalidate"
+    return resp
+
+
 # No broker auth in this build (PIN gate only); surveys are attributed to a
 # single local broker so the pending-clarifications dashboard has an owner.
 DEFAULT_BROKER_ID = "broker-local"
