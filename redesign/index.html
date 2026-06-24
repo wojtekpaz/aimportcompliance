@@ -338,6 +338,28 @@ footer a:hover{color:var(--brand)}
   .reveal{opacity:1;transform:none}
   .aurora b{opacity:.3}
 }
+
+/* ============ PIN access modal ============ */
+.pin-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:24px;
+  background:rgba(22,19,15,.34);backdrop-filter:blur(7px) saturate(120%);-webkit-backdrop-filter:blur(7px) saturate(120%)}
+.pin-overlay.open{display:flex;animation:fadeUp .3s cubic-bezier(.2,.8,.2,1)}
+.pin-card{position:relative;width:100%;max-width:382px;background:var(--surface);border:1px solid var(--glass-line);
+  border-radius:20px;box-shadow:0 30px 80px rgba(22,19,15,.28);padding:40px 34px 34px;text-align:center}
+.pin-close{position:absolute;top:14px;right:15px;width:30px;height:30px;border:0;background:transparent;cursor:pointer;
+  color:var(--muted);font-size:21px;line-height:1;border-radius:8px;transition:color .2s,background .2s}
+.pin-close:hover{color:var(--ink);background:rgba(22,19,15,.05)}
+.pin-label{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(22,19,15,.3)}
+.pin-card h3{font-size:22px;font-weight:700;margin:10px 0 8px}
+.pin-sub{font-size:13.5px;color:var(--muted);margin:0 0 22px}
+.pin-input{width:100%;text-align:center;font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:.45em;
+  padding:14px 12px 14px 18px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);outline:none;
+  transition:border-color .2s,box-shadow .2s}
+.pin-input::placeholder{color:var(--muted);letter-spacing:.3em}
+.pin-input:focus{border-color:var(--brand)}
+.pin-input.flash{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,181,138,.22)}
+.pin-error{font-size:13px;color:#dc2626;margin:14px 0 0;min-height:1.1em;opacity:0;transition:opacity .25s}
+.pin-error.show{opacity:1}
+.pin-error a{color:var(--brand)}
 </style>
 </head>
 <body>
@@ -360,7 +382,7 @@ footer a:hover{color:var(--brand)}
         <button type="button" data-lang="en">EN</button>
         <button type="button" data-lang="pl">PL</button>
       </div>
-      <span class="nav-login" data-i18n="nav.login">Log in</span>
+      <span class="nav-login" data-i18n="nav.login" data-pin-trigger role="button" tabindex="0">Log in</span>
       <a class="btn btn-primary" data-i18n="nav.book" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo</a>
     </div>
   </div>
@@ -400,31 +422,6 @@ footer a:hover{color:var(--brand)}
         <span data-i18n="tw.foot1">GRI 1 → 6 · Section XV Note 1</span>
         <span class="total" data-i18n="tw.total">€1,078.35 landed</span>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ AUDIENCE GALLERY ============ -->
-<section class="gallery" id="who">
-  <div class="wrap">
-    <p class="eyebrow gal-eyebrow reveal" data-i18n="gal.eyebrow">Who it's for</p>
-    <div class="gal-row reveal d1" id="gal">
-      <button class="glass gal-frame is-active" data-i="0">
-        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3.5" width="12" height="17" rx="2"/><path d="M9 3.5V2.5h6v1"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <span class="gal-label" data-i18n="gal.brokers">Customs Brokers</span>
-      </button>
-      <button class="glass gal-frame" data-i="1">
-        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l8 4.5v8l-8 4.5-8-4.5v-8z"/><path d="M4 8l8 4.5L20 8"/><path d="M12 12.5V21"/></svg></span>
-        <span class="gal-label" data-i18n="gal.importers">Importers</span>
-      </button>
-      <button class="glass gal-frame" data-i="2">
-        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l6 4V10l6 4V7l6 4v10z"/><path d="M3 21h18"/></svg></span>
-        <span class="gal-label" data-i18n="gal.manufacturers">Manufacturers</span>
-      </button>
-      <button class="glass gal-frame" data-i="3">
-        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
-        <span class="gal-label" data-i18n="gal.officers">Customs Officers</span>
-      </button>
     </div>
   </div>
 </section>
@@ -562,6 +559,31 @@ footer a:hover{color:var(--brand)}
   </div>
 </section>
 
+<!-- ============ AUDIENCE GALLERY ============ -->
+<section class="gallery" id="who">
+  <div class="wrap">
+    <p class="eyebrow gal-eyebrow reveal" data-i18n="gal.eyebrow">Who it's for</p>
+    <div class="gal-row reveal d1" id="gal">
+      <button class="glass gal-frame is-active" data-i="0">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3.5" width="12" height="17" rx="2"/><path d="M9 3.5V2.5h6v1"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="gal-label" data-i18n="gal.brokers">Customs Brokers</span>
+      </button>
+      <button class="glass gal-frame" data-i="1">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l8 4.5v8l-8 4.5-8-4.5v-8z"/><path d="M4 8l8 4.5L20 8"/><path d="M12 12.5V21"/></svg></span>
+        <span class="gal-label" data-i18n="gal.importers">Importers</span>
+      </button>
+      <button class="glass gal-frame" data-i="2">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l6 4V10l6 4V7l6 4v10z"/><path d="M3 21h18"/></svg></span>
+        <span class="gal-label" data-i18n="gal.manufacturers">Manufacturers</span>
+      </button>
+      <button class="glass gal-frame" data-i="3">
+        <span class="gal-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="gal-label" data-i18n="gal.officers">Customs Officers</span>
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- ============ FAQ ============ -->
 <section class="faq" id="faq">
   <div class="wrap">
@@ -599,6 +621,19 @@ footer a:hover{color:var(--brand)}
     <a href="mailto:contact@aimport.co">contact@aimport.co</a>
   </div>
 </footer>
+
+<!-- ===== PIN ACCESS MODAL ===== -->
+<div class="pin-overlay" id="pinOverlay" role="dialog" aria-modal="true" aria-labelledby="pinHeading">
+  <div class="pin-card">
+    <button class="pin-close" id="pinClose" type="button" aria-label="Close">&times;</button>
+    <div class="pin-label" data-i18n="pin.label">Demo access</div>
+    <h3 id="pinHeading" data-i18n="pin.heading">Enter your access code</h3>
+    <p class="pin-sub" data-i18n="pin.sub">Received an access code by email? Enter it below.</p>
+    <input class="pin-input" id="pinInput" type="text" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" aria-label="4-digit access code">
+    <p class="pin-error" id="pinError" aria-live="polite"></p>
+  </div>
+</div>
+
 
 <script>
 /* =========================================================
@@ -677,7 +712,8 @@ var PL={
   "cta.p":"Aimport jest w fazie pilotażu z niewielką grupą agencji celnych i spedytorów. Jeśli zajmujesz się zgodnością w imporcie i chcesz zobaczyć, jak radzi sobie z Twoimi kategoriami produktów, napisz do nas.",
   "cta.btn":"Napisz na contact@aimport.co","cta.respond":"Odpowiadamy na każde zgłoszenie.",
 
-  "footer.copy":"Aimport Compliance © 2026"
+  "footer.copy":"Aimport Compliance © 2026",
+  "pin.label":"Dostęp demo","pin.heading":"Wprowadź kod dostępu","pin.sub":"Masz kod dostępu z e\u2011maila? Wpisz go poniżej."
 };
 
 var currentLang='en', statsAnimated=false;
@@ -889,6 +925,34 @@ window.CL=(function(){
   var nav=(navigator.language||navigator.userLanguage||'').toLowerCase();
   var lang=stored||(nav.indexOf('pl')===0?'pl':'en');
   applyLang(lang);
+})();
+</script>
+
+<!-- pin gate: velvet rope, not a security system. Change ACCESS_PIN before deploy. -->
+<script>
+(function(){
+  var ACCESS_PIN="0660";
+  var overlay=document.getElementById('pinOverlay'),input=document.getElementById('pinInput'),
+      errorEl=document.getElementById('pinError'),closeEl=document.getElementById('pinClose');
+  if(!overlay||!input)return;
+  function open(){overlay.classList.add('open');input.value='';errorEl.classList.remove('show');errorEl.innerHTML='';setTimeout(function(){input.focus();},50);}
+  function close(){overlay.classList.remove('open');input.classList.remove('flash');}
+  function showError(){
+    var pl=(typeof currentLang!=='undefined'&&currentLang==='pl');
+    errorEl.innerHTML=pl
+      ? 'Nieprawid\u0142owy kod. <a href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Popro\u015b o dost\u0119p: contact@aimport.co</a>'
+      : 'That code isn\u2019t right. <a href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Request access at contact@aimport.co</a>';
+    errorEl.classList.remove('show');void errorEl.offsetWidth;errorEl.classList.add('show');
+  }
+  function grant(){sessionStorage.setItem('aimport_access','granted');input.classList.add('flash');setTimeout(function(){window.location.href='/classify';},420);}
+  document.querySelectorAll('[data-pin-trigger]').forEach(function(el){
+    el.addEventListener('click',function(e){e.preventDefault();open();});
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
+  });
+  input.addEventListener('input',function(){if(input.value.length===4){if(input.value===ACCESS_PIN)grant();else{showError();input.select();}}});
+  closeEl.addEventListener('click',close);
+  overlay.addEventListener('click',function(e){if(e.target===overlay)close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('open'))close();});
 })();
 </script>
 </body>
