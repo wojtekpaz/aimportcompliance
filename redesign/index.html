@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aimport Compliance — EU Tariff Classification</title>
+<meta name="description" content="Aimport walks the CN tree and applies the GRI rules at each branch. Every code arrives with the path and the legal basis behind it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* ---- calm, expanded palette (raft-inspired) ---- */
+  --bg:#FBFAF7; --surface:#FFFFFF;
+  --ink:#16130F; --text:#1E1B16; --muted:#6E665B; --faint:#3C352D;
+  --line:rgba(22,19,15,.09); --line-2:rgba(22,19,15,.05);
+
+  --brand:#2B4EFF;          /* primary blue */
+  --violet:#7C5CFF;         /* secondary, gradient partner only */
+  --teal:#0FB58A;           /* verified / defensible */
+  --amber:#F0A020;          /* risk / flagged */
+  --rose:#F25C7A;           /* rejected branch */
+
+  --brand-dim:rgba(43,78,255,.08);
+  --glass:rgba(255,255,255,.62);
+  --glass-line:rgba(255,255,255,.7);
+  --glass-shadow:0 8px 40px rgba(22,19,15,.07), 0 1px 3px rgba(22,19,15,.05);
+  --blur:blur(18px) saturate(170%);
+
+  --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Spline Sans Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);
+  line-height:1.65;letter-spacing:-.006em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+::selection{background:rgba(43,78,255,.16)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:4px}
+h1,h2,h3{margin:0;letter-spacing:-.03em;line-height:1.04}
+
+.wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.eyebrow .dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--brand);margin-right:9px;vertical-align:middle;
+  box-shadow:0 0 0 4px var(--brand-dim)}
+
+/* ============ animated aurora background ============ */
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.aurora b{position:absolute;border-radius:50%;filter:blur(70px);opacity:.42;mix-blend-mode:multiply}
+.aurora .a1{width:46vw;height:46vw;left:-8vw;top:-10vw;
+  background:radial-gradient(circle at 30% 30%,#9db4ff,transparent 70%);animation:drift1 22s ease-in-out infinite}
+.aurora .a2{width:40vw;height:40vw;right:-6vw;top:6vh;
+  background:radial-gradient(circle at 60% 40%,#cbb6ff,transparent 70%);animation:drift2 26s ease-in-out infinite}
+.aurora .a3{width:38vw;height:38vw;left:24vw;top:38vh;
+  background:radial-gradient(circle at 50% 50%,#a9eed8,transparent 70%);animation:drift3 30s ease-in-out infinite}
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background:
+    linear-gradient(180deg,rgba(251,250,247,.0) 0%,rgba(251,250,247,.55) 60%,var(--bg) 100%);}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6vw,4vh) scale(1.12)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-5vw,5vh) scale(1.08)}}
+@keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-4vw,-4vh) scale(1.15)}}
+
+/* ============ scroll progress ============ */
+.progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:40;
+  background:linear-gradient(90deg,var(--brand),var(--violet));box-shadow:0 0 12px rgba(43,78,255,.5)}
+
+/* ============ nav ============ */
+.nav{position:sticky;top:0;z-index:30;transition:background .3s,border-color .3s,box-shadow .3s;
+  border-bottom:1px solid transparent}
+.nav.scrolled{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(255,255,255,.5) inset}
+.nav .row{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:11px;font-weight:600;font-size:16px;letter-spacing:-.02em}
+.logo img{height:30px;width:auto;display:block}
+.nav-links{display:flex;gap:30px;align-items:center}
+.nav-links a{font-size:14px;font-weight:500;color:var(--faint);transition:color .2s;position:relative}
+.nav-links a:hover{color:var(--ink)}
+.nav-right{display:flex;gap:18px;align-items:center}
+.nav-login{font-size:14px;font-weight:500;color:var(--faint);cursor:pointer;transition:color .2s}
+.nav-login:hover{color:var(--ink)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:var(--sans);
+  font-size:14px;font-weight:600;letter-spacing:.01em;padding:11px 20px;border-radius:10px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .2s,background .2s,border-color .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--glass-shadow)}
+.btn-primary{background:linear-gradient(180deg,#3a5cff,#2B4EFF);color:#fff;border-color:transparent;
+  box-shadow:0 6px 20px rgba(43,78,255,.28)}
+.btn-primary:hover{box-shadow:0 10px 28px rgba(43,78,255,.4);transform:translateY(-2px)}
+.btn-lg{padding:15px 28px;font-size:15px;border-radius:12px}
+.btn .arr{transition:transform .2s}
+.btn:hover .arr{transform:translateX(3px)}
+
+/* ============ hero ============ */
+.hero{position:relative;padding:84px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:54px;align-items:center}
+.hero h1{font-size:clamp(40px,5.4vw,68px);font-weight:800}
+.hero h1 .grad{background:linear-gradient(100deg,var(--brand) 10%,var(--violet) 90%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:18px;color:var(--faint);max-width:30em;margin:22px 0 30px}
+.hero-cta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.trust{margin-top:30px;display:flex;align-items:center;gap:14px;color:var(--muted);font-size:13px}
+.trust .avs{display:flex}
+.trust .avs span{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);margin-left:-8px;
+  background:linear-gradient(135deg,#cdd8ff,#e7ddff)}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.06s}.reveal.d2{transition-delay:.12s}.reveal.d3{transition-delay:.18s}.reveal.d4{transition-delay:.24s}
+
+/* ---- glass card base ---- */
+.glass{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--glass-line);border-radius:18px;box-shadow:var(--glass-shadow)}
+
+/* ============ HERO interactive: TARIFF TREE WALK ============ */
+.treewalk{padding:20px 22px 22px;position:relative;overflow:hidden}
+.tw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.tw-title{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.tw-live{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--teal);font-weight:600}
+.tw-live i{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 0 rgba(15,181,138,.5);
+  animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(15,181,138,.45)}70%{box-shadow:0 0 0 7px rgba(15,181,138,0)}100%{box-shadow:0 0 0 0 rgba(15,181,138,0)}}
+.tw-input{font-family:var(--mono);font-size:13px;color:var(--faint);background:rgba(22,19,15,.035);
+  border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:14px}
+.tw-input .cur{display:inline-block;width:7px;height:15px;background:var(--brand);vertical-align:-2px;margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.tw-tree{list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:13px}
+.tw-node{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:9px;margin:3px 0;
+  opacity:.32;transform:translateX(-6px);transition:all .45s cubic-bezier(.2,.8,.2,1);position:relative}
+.tw-node .lvl{color:var(--muted);font-size:11px;width:54px;flex:none}
+.tw-node .code{font-weight:600;color:var(--faint)}
+.tw-node .lbl{color:var(--muted);font-weight:400;font-family:var(--sans);font-size:12.5px;letter-spacing:0}
+.tw-node .tag{margin-left:auto;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:99px;font-family:var(--sans)}
+.tw-node[data-depth="1"]{margin-left:0}
+.tw-node[data-depth="2"]{margin-left:20px}
+.tw-node[data-depth="3"]{margin-left:40px}
+.tw-node[data-depth="4"]{margin-left:60px}
+.tw-node.active{opacity:1;transform:none;background:linear-gradient(90deg,var(--brand-dim),transparent)}
+.tw-node.active .code{color:var(--brand)}
+.tw-node.reject{opacity:.5}
+.tw-node.reject .code{color:var(--rose);text-decoration:line-through;text-decoration-color:rgba(242,92,122,.55)}
+.tw-node.reject .tag{color:var(--rose);background:rgba(242,92,122,.1)}
+.tw-node.final{opacity:1;transform:none;background:linear-gradient(90deg,rgba(15,181,138,.12),transparent);
+  box-shadow:0 0 0 1px rgba(15,181,138,.25) inset}
+.tw-node.final .code{color:var(--teal);font-weight:700}
+.tw-node.final .tag{color:#fff;background:var(--teal)}
+.tw-foot{margin-top:13px;padding-top:13px;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--muted);
+  opacity:0;transition:opacity .5s}
+.tw-foot.show{opacity:1}
+.tw-foot .total{font-family:var(--mono);font-weight:600;color:var(--ink)}
+
+/* ============ logo strip ============ */
+.strip{padding:30px 0 10px;text-align:center}
+.strip p{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 18px}
+.strip-row{display:flex;justify-content:center;gap:42px;flex-wrap:wrap;align-items:center;opacity:.62}
+.strip-row span{font-weight:700;font-size:17px;color:var(--faint);letter-spacing:-.02em}
+
+/* ============ classifier widget ============ */
+.demo{padding:64px 0}
+.demo-head{text-align:center;max-width:620px;margin:0 auto 36px}
+.demo-head h2{font-size:clamp(28px,3.6vw,40px);font-weight:700;margin:14px 0 12px}
+.demo-head p{color:var(--faint);font-size:16px;margin:0}
+.classifier{padding:26px;max-width:760px;margin:0 auto}
+.cl-bar{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:13px;padding:6px 6px 6px 16px}
+.cl-bar svg{flex:none;color:var(--muted)}
+.cl-bar input{flex:1;border:0;outline:0;background:transparent;font-family:var(--sans);font-size:15.5px;
+  color:var(--ink);padding:10px 0}
+.cl-bar input::placeholder{color:var(--muted)}
+.cl-go{flex:none}
+.cl-chips{display:flex;gap:9px;flex-wrap:wrap;margin:14px 2px 0}
+.cl-chips button{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--faint);cursor:pointer;
+  background:rgba(22,19,15,.04);border:1px solid var(--line);border-radius:99px;padding:7px 14px;transition:all .18s}
+.cl-chips button:hover{color:var(--brand);border-color:var(--brand);background:var(--brand-dim);transform:translateY(-1px)}
+.cl-result{margin-top:18px;border-top:1px dashed var(--line);padding-top:18px;display:none}
+.cl-result.show{display:block;animation:fadeUp .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.cl-trail{list-style:none;margin:0;padding:0}
+.cl-trail li{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:10px;margin:6px 0;
+  background:rgba(22,19,15,.025);font-size:13.5px;opacity:0;transform:translateX(-8px)}
+.cl-trail li.in{opacity:1;transform:none;transition:all .4s cubic-bezier(.2,.8,.2,1)}
+.cl-trail li .ic{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;flex:none;
+  font-size:11px;font-weight:700;color:#fff}
+.cl-trail li.ok .ic{background:var(--teal)}
+.cl-trail li.rule .ic{background:var(--brand)}
+.cl-trail li.x .ic{background:var(--rose)}
+.cl-trail li .gri{font-family:var(--mono);font-weight:600;color:var(--faint);flex:none}
+.cl-trail li .txt{color:var(--faint)}
+.cl-final{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  background:linear-gradient(100deg,rgba(43,78,255,.07),rgba(124,92,255,.07));
+  border:1px solid var(--line);border-radius:13px;padding:16px 20px;opacity:0}
+.cl-final.in{opacity:1;transition:opacity .5s}
+.cl-final .fcode{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.cl-final .flbl{font-size:12px;color:var(--muted);margin-top:2px}
+.cl-final .fbadge{font-size:12px;font-weight:600;color:#fff;background:var(--teal);padding:5px 12px;border-radius:99px}
+.cl-final .fcost{text-align:right}
+.cl-final .fcost b{font-size:17px;color:var(--ink);font-family:var(--mono)}
+.disclaimer{text-align:center;font-size:12px;color:var(--muted);margin-top:14px}
+
+/* ============ stats ============ */
+.stats{padding:36px 0}
+.stats-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:34px 28px}
+.stat{text-align:center;padding:8px}
+.stat .num{font-size:clamp(34px,4vw,50px);font-weight:800;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(160deg,var(--ink),#4a4136);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat .num .u{font-size:.55em;color:var(--brand);-webkit-text-fill-color:var(--brand)}
+.stat .lbl{font-size:13px;color:var(--muted);margin-top:9px}
+
+/* ============ features (how it works) ============ */
+.features{padding:70px 0}
+.sec-head{max-width:680px;margin:0 auto 50px;text-align:center}
+.sec-head h2{font-size:clamp(28px,3.6vw,42px);font-weight:700;margin:14px 0 0}
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;padding:34px 0}
+.feat:nth-child(even) .feat-copy{order:2}
+.feat-copy .step-no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--brand);
+  display:inline-flex;align-items:center;gap:9px}
+.feat-copy .step-no::before{content:"";width:26px;height:1px;background:var(--brand)}
+.feat-copy h3{font-size:25px;font-weight:700;margin:14px 0 12px}
+.feat-copy p{color:var(--faint);font-size:15.5px;margin:0;max-width:34em}
+
+/* mock cards */
+.mock{padding:18px;font-family:var(--mono);font-size:12.5px}
+.mock-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.mcode{font-size:17px;font-weight:700;color:var(--ink)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:11.5px;font-weight:600;
+  padding:4px 11px;border-radius:99px}
+.pill-ok{color:var(--teal);background:rgba(15,181,138,.12)}
+.pill-warn{color:var(--amber);background:rgba(240,160,32,.14)}
+.mline{display:flex;align-items:center;gap:9px;padding:7px 0;color:var(--faint)}
+.mline .ck{color:var(--teal);font-weight:700}
+.mline.rej{color:var(--rose)}.mline.rej .ck{color:var(--rose)}
+.mdiv{border:0;border-top:1px solid var(--line);margin:12px 0}
+.mlegal-lbl{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.mlegal{font-family:var(--sans);font-size:12.5px;color:var(--faint);margin-top:4px}
+.mbti{font-family:var(--sans);font-size:12.5px;color:var(--brand);display:inline-block;margin-top:8px}
+.mcost{font-family:var(--sans);font-size:13px;color:var(--faint);margin-top:6px}
+.mcost b{color:var(--ink);font-family:var(--mono)}
+
+/* invoice mock */
+.inv-bar{display:flex;justify-content:space-between;font-family:var(--sans);font-size:12px;margin-bottom:10px}
+.inv-bar .l{color:var(--muted)}.inv-bar .r{color:var(--amber);font-weight:600}
+.inv-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;
+  border-radius:9px;margin:6px 0;background:rgba(22,19,15,.025);font-family:var(--sans);font-size:13px}
+.inv-row.flag{background:rgba(240,160,32,.08);box-shadow:0 0 0 1px rgba(240,160,32,.2) inset;
+  animation:flagpulse 2.4s ease-in-out infinite}
+@keyframes flagpulse{0%,100%{box-shadow:0 0 0 1px rgba(240,160,32,.18) inset}50%{box-shadow:0 0 0 1px rgba(240,160,32,.5) inset}}
+.inv-row .weak{color:var(--amber)}
+.inv-row .ic{font-family:var(--mono);color:var(--faint);display:flex;gap:10px;align-items:center}
+.inv-row .st-ok{color:var(--teal)}.inv-row .st-warn{color:var(--amber)}
+.inv-flag{font-size:11px;color:var(--amber);margin-top:3px}
+
+/* export mock */
+.exp-file{display:flex;align-items:center;gap:12px;padding:9px 0;font-family:var(--sans)}
+.exp-ext{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;background:var(--brand);
+  padding:4px 7px;border-radius:6px;letter-spacing:.04em}
+.exp-ext.xml{background:var(--violet)}
+.exp-name{font-size:13px;color:var(--ink);font-weight:500}
+.exp-meta{font-size:11.5px;color:var(--muted)}
+
+/* survey mock */
+.sv-link{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);
+  background:rgba(43,78,255,.05);border:1px solid var(--line);border-radius:9px;padding:9px 12px;
+  color:var(--brand);font-size:12.5px;margin-bottom:12px}
+.sv-q{display:flex;justify-content:space-between;font-family:var(--sans);font-size:13px;color:var(--faint);
+  padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin:7px 0}
+.sv-q .car{color:var(--muted)}
+
+/* ============ who cards ============ */
+.who{padding:70px 0}
+.who-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.who-card{padding:28px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.who-card::before{content:"";position:absolute;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,var(--brand),transparent 70%);opacity:0;
+  left:var(--gx,50%);top:var(--gy,50%);transform:translate(-50%,-50%);transition:opacity .3s;pointer-events:none;filter:blur(40px)}
+.who-card:hover::before{opacity:.1}
+.who-card .wn{font-family:var(--mono);font-size:13px;color:var(--brand);font-weight:600}
+.who-card h3{font-size:19px;margin:12px 0 10px;font-weight:700}
+.who-card p{color:var(--faint);font-size:14px;margin:0 0 8px}
+
+/* ============ faq ============ */
+.faq{padding:60px 0}
+.faq-list{max-width:780px;margin:30px auto 0}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-item summary{list-style:none;cursor:pointer;padding:20px 0;display:flex;justify-content:space-between;
+  gap:20px;align-items:center;font-size:16px;font-weight:600;color:var(--ink)}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item .mk{width:18px;height:18px;flex:none;position:relative}
+.faq-item .mk::before,.faq-item .mk::after{content:"";position:absolute;background:var(--brand);
+  border-radius:2px;transition:transform .25s}
+.faq-item .mk::before{left:0;top:8px;width:18px;height:2px}
+.faq-item .mk::after{left:8px;top:0;width:2px;height:18px}
+.faq-item[open] .mk::after{transform:scaleY(0)}
+.faq-item .ans{overflow:hidden;max-height:0;transition:max-height .35s ease}
+.faq-item[open] .ans{max-height:300px}
+.faq-item .ans p{color:var(--faint);font-size:14.5px;margin:0 0 20px;max-width:62ch}
+
+/* ============ final cta ============ */
+.cta{padding:40px 0 90px}
+.cta-card{padding:60px 40px;text-align:center;position:relative;overflow:hidden;
+  background:linear-gradient(150deg,#1a1f3d 0%,#1d2456 55%,#2a1f52 100%);border:0}
+.cta-card::after{content:"";position:absolute;inset:0;opacity:.6;pointer-events:none;
+  background:radial-gradient(60% 60% at 20% 0%,rgba(124,92,255,.35),transparent 70%),
+             radial-gradient(50% 50% at 90% 100%,rgba(43,78,255,.4),transparent 70%)}
+.cta-card>*{position:relative;z-index:1}
+.cta-card .eyebrow{color:rgba(255,255,255,.6)}
+.cta-card h2{color:#fff;font-size:clamp(28px,3.6vw,40px);font-weight:700;margin:14px 0 14px}
+.cta-card p{color:rgba(255,255,255,.72);font-size:16px;max-width:46em;margin:0 auto 28px}
+.cta-card .respond{color:rgba(255,255,255,.5);font-size:13px;margin-top:18px}
+.btn-light{background:#fff;color:var(--ink);border-color:#fff}
+.btn-light:hover{box-shadow:0 12px 30px rgba(0,0,0,.3)}
+
+/* ============ footer ============ */
+footer{padding:34px 0;border-top:1px solid var(--line)}
+footer .row{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;color:var(--muted);flex-wrap:wrap;gap:12px}
+footer a:hover{color:var(--brand)}
+
+/* ============ responsive ============ */
+@media(max-width:900px){
+  .hero-grid,.feat,.who-grid,.stats-wrap{grid-template-columns:1fr}
+  .feat{gap:28px}.feat:nth-child(even) .feat-copy{order:0}
+  .nav-links{display:none}
+  .stats-wrap{grid-template-columns:repeat(2,1fr);gap:24px}
+  .hero{padding-top:50px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+  .aurora b{opacity:.3}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"><b class="a1"></b><b class="a2"></b><b class="a3"></b></div>
+<div class="grain"></div>
+<div class="progress" id="progress"></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav" id="nav">
+  <div class="wrap row">
+    <a class="logo" href="#"><img src="../logo-mark.png" alt="Aimport">Aimport Compliance</a>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#who">Who it's for</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-right">
+      <span class="nav-login">Log in</span>
+      <a class="btn btn-primary" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow reveal"><span class="dot"></span>EU tariff classification engine</p>
+      <h1 class="reveal d1">Import faster.<br>With <span class="grad">certainty.</span></h1>
+      <p class="hero-sub reveal d2">Aimport walks the CN tree and applies the GRI rules at each branch. Every code arrives with the path — and the legal basis behind it.</p>
+      <div class="hero-cta reveal d3">
+        <a class="btn btn-primary btn-lg" href="https://calendly.com/leo-goerg/aimport-demo" target="_blank" rel="noopener">Book a demo <span class="arr">→</span></a>
+        <a class="btn btn-lg" href="#demo">Try it live</a>
+      </div>
+      <div class="trust reveal d4">
+        <div class="avs"><span></span><span></span><span></span><span></span></div>
+        In pilot with customs brokers &amp; freight forwarders across the EU
+      </div>
+    </div>
+
+    <!-- interactive tariff tree walk -->
+    <div class="glass treewalk reveal d2" id="treewalk">
+      <div class="tw-head">
+        <span class="tw-title">Live classification</span>
+        <span class="tw-live"><i></i>Walking the tree</span>
+      </div>
+      <div class="tw-input">Steel mounting brackets, hot-dip galvanised<span class="cur"></span></div>
+      <ul class="tw-tree" id="twTree">
+        <li class="tw-node" data-depth="1" data-step="0"><span class="lvl">Chapter</span><span class="code">73</span><span class="lbl">Articles of iron or steel</span></li>
+        <li class="tw-node" data-depth="2" data-step="1"><span class="lvl">Heading</span><span class="code">7308</span><span class="lbl">Structures &amp; parts</span></li>
+        <li class="tw-node reject" data-depth="2" data-step="1"><span class="lvl">Heading</span><span class="code">7326</span><span class="lbl">Other articles</span><span class="tag">rejected · GRI 1</span></li>
+        <li class="tw-node" data-depth="3" data-step="2"><span class="lvl">Subhd.</span><span class="code">7308.30</span><span class="lbl">Doors, windows &amp; frames</span></li>
+        <li class="tw-node final" data-depth="4" data-step="3"><span class="lvl">CN code</span><span class="code">7308.30.00.00</span><span class="tag">Defensible</span></li>
+      </ul>
+      <div class="tw-foot" id="twFoot">
+        <span>GRI 1 → 6 · Section XV Note 1</span>
+        <span class="total">€1,078.35 landed</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LOGO STRIP ============ -->
+<section class="strip">
+  <div class="wrap">
+    <p>Built on the same sources customs uses</p>
+    <div class="strip-row">
+      <span>CN&nbsp;2025</span><span>TARIC</span><span>EBTI</span><span>ISZTAR4</span><span>WinSAD</span><span>Huzar</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INTERACTIVE CLASSIFIER ============ -->
+<section class="demo" id="demo">
+  <div class="wrap">
+    <div class="demo-head reveal">
+      <p class="eyebrow"><span class="dot"></span>Try it</p>
+      <h2>Classify a product. Watch it reason.</h2>
+      <p>Type a description or pick an example. Aimport shows the rule it applied at every branch — never a code without a reason.</p>
+    </div>
+
+    <div class="glass classifier reveal d1">
+      <div class="cl-bar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="clInput" type="text" placeholder="e.g. Cotton knitted t-shirt, men's" autocomplete="off">
+        <button class="btn btn-primary cl-go" id="clGo">Classify <span class="arr">→</span></button>
+      </div>
+      <div class="cl-chips" id="clChips">
+        <button data-k="steel">Steel mounting bracket</button>
+        <button data-k="tshirt">Cotton knitted t-shirt</button>
+        <button data-k="battery">Lithium-ion battery</button>
+        <button data-k="coffee">Roasted coffee beans</button>
+      </div>
+
+      <div class="cl-result" id="clResult">
+        <ul class="cl-trail" id="clTrail"></ul>
+        <div class="cl-final" id="clFinal">
+          <div>
+            <div class="fcode" id="fCode">—</div>
+            <div class="flbl" id="fLbl"></div>
+          </div>
+          <div class="fcost">
+            <span class="fbadge">Defensible</span>
+            <div style="margin-top:8px"><b id="fCost"></b><div class="flbl">est. landed cost</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="disclaimer">Illustrative demo with sample products. The live engine runs against the full CN, TARIC and EBTI tables.</p>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section class="stats">
+  <div class="wrap">
+    <div class="glass stats-wrap" id="stats">
+      <div class="stat"><div class="num" data-to="9600" data-suf="+">0</div><div class="lbl">CN headings covered</div></div>
+      <div class="stat"><div class="num" data-to="6" data-pre="GRI 1–">0</div><div class="lbl">rules applied per code</div></div>
+      <div class="stat"><div class="num" data-to="100" data-suf="%">0</div><div class="lbl">codes with an audit trail</div></div>
+      <div class="stat"><div class="num" data-to="0" data-pre="0 ">invented</div><div class="lbl">codes off the tariff</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES / HOW IT WORKS ============ -->
+<section class="features" id="how">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><span class="dot"></span>How it works</p>
+      <h2>From product data to a code you can defend.</h2>
+    </div>
+
+    <!-- 01 CLASSIFY -->
+    <div class="feat reveal">
+      <div class="feat-copy">
+        <span class="step-no">01 · Classify</span>
+        <h3>The code — and the reason behind it.</h3>
+        <p>The engine walks the CN tree branch by branch, applies the General Rules of Interpretation at each one, and shows the rule that settled the call. You read the path the way you would defend it.</p>
+      </div>
+      <div class="glass mock">
+        <div class="mock-top"><span class="mcode">7308.30.00.00</span><span class="pill pill-ok">✓ Defensible</span></div>
+        <div class="mline"><span class="ck">✓</span> GRI 1 — heading</div>
+        <div class="mline"><span class="ck">✓</span> GRI 6 — subheading</div>
+        <div class="mline rej"><span class="ck">✕</span> 7326 — rejected branch</div>
+        <hr class="mdiv">
+        <div class="mlegal-lbl">Legal basis</div>
+        <div class="mlegal">Section XV Note 1 · CN Explanatory Note to 7308 90</div>
+        <a class="mbti" href="https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_home.jsp?Lang=en" target="_blank" rel="noopener">Comparable ruling — EBTI DE BTI 24681/23 ↗</a>
+        <hr class="mdiv">
+        <div class="mcost">250 units × €4.20 · duty 2.7% → <b>€1,078.35 landed</b></div>
+      </div>
+    </div>
+
+    <!-- 02 REVIEW -->
+    <div class="feat reveal">
+      <div class="feat-copy">
+        <span class="step-no">02 · Review</span>
+        <h3>Catch the risk before the auditor does.</h3>
+        <p>Drop in a commercial invoice. Aimport flags every line that's too vague to defend or missing a deciding fact, so the weak codes surface before they reach customs.</p>
+      </div>
+      <div class="glass mock">
+        <div class="inv-bar"><span class="l">Commercial invoice · 3 of 4 verified</span><span class="r">2 items flagged</span></div>
+        <div class="inv-row"><span>Steel brackets, hot-dip galvanised</span><span class="ic">7308.90.98 <span class="st-ok">✓</span></span></div>
+        <div class="inv-row flag"><span><span class="weak">Metal parts</span><div class="inv-flag">⚠ too vague to defend</div></span><span class="ic">7326.90.98 <span class="st-warn">⚠</span></span></div>
+        <div class="inv-row flag"><span><span class="weak">Machinery components</span><div class="inv-flag">⚠ missing material spec</div></span><span class="ic">8431.49.00 <span class="st-warn">⚠</span></span></div>
+        <div class="inv-row"><span>Plastic connectors, type A</span><span class="ic">3926.90.98 <span class="st-ok">✓</span></span></div>
+      </div>
+    </div>
+
+    <!-- 03 RESOLVE -->
+    <div class="feat reveal">
+      <div class="feat-copy">
+        <span class="step-no">03 · Resolve</span>
+        <h3>Let the client fill the gaps.</h3>
+        <p>One click turns the open questions into a short survey for the importer. No more chasing five separate emails — the missing descriptions come back filled in and ready to classify.</p>
+      </div>
+      <div class="glass mock">
+        <div class="sv-link"><span>app.aimport.co/s/ax93kf</span><span>⧉</span></div>
+        <div class="sv-q"><span>Primary material</span><span class="car">▾</span></div>
+        <div class="sv-q"><span>Surface coating?</span><span class="car">▾</span></div>
+        <div class="sv-q"><span>Certificate of origin</span><span class="car">▾ / attach</span></div>
+        <hr class="mdiv">
+        <div style="display:flex;justify-content:space-between;align-items:center"><span class="pill pill-ok">✓ Completed</span><span style="font-size:12px;color:var(--muted)">→ returns to broker</span></div>
+      </div>
+    </div>
+
+    <!-- 04 DELIVER -->
+    <div class="feat reveal">
+      <div class="feat-copy">
+        <span class="step-no">04 · Deliver</span>
+        <h3>A defensible file, ready to hand over.</h3>
+        <p>Export the classification report, the declaration XML for WinSAD or Huzar, and a full audit trail for the customs officer. The reasoning travels with the code.</p>
+      </div>
+      <div class="glass mock">
+        <div class="mock-top"><span class="mcode">7308.90.98.90</span><span class="pill pill-ok">✓ Ready to file</span></div>
+        <div class="mlegal" style="margin-bottom:10px">Steel mounting bracket · GRI 1 → 6 · legal basis attached</div>
+        <hr class="mdiv">
+        <div class="exp-file"><span class="exp-ext">PDF</span><span><div class="exp-name">classification-report.pdf</div><div class="exp-meta">code · reasoning · legal basis</div></span></div>
+        <div class="exp-file"><span class="exp-ext xml">XML</span><span><div class="exp-name">declaration.xml</div><div class="exp-meta">imports into WinSAD / Huzar</div></span></div>
+        <div class="exp-file"><span class="exp-ext">PDF</span><span><div class="exp-name">audit-trail.pdf</div><div class="exp-meta">for the customs officer</div></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHO ============ -->
+<section class="who" id="who">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><span class="dot"></span>Who it's for</p>
+      <h2>One rule set. Four perspectives.</h2>
+    </div>
+    <div class="who-grid">
+      <article class="glass who-card reveal"><div class="wn">01</div><h3>Customs brokers</h3><p>You carry the classification reasoning in your head. Aimport lays it out in the order you would defend it.</p><p>Read the path, check the rule at each branch, sign off or override.</p></article>
+      <article class="glass who-card reveal d1"><div class="wn">02</div><h3>Importers</h3><p>You need the same answer every time, no matter who runs the classification.</p><p>One rule set applies to every product and keeps the trail, so an audit reads your decisions instead of guessing at them.</p></article>
+      <article class="glass who-card reveal d2"><div class="wn">03</div><h3>Manufacturers</h3><p>Classification follows from what your product is: its material, its function, its degree of processing.</p><p>Aimport shows which facts drive the heading, so you know the code before the goods ship.</p></article>
+      <article class="glass who-card reveal d3"><div class="wn">04</div><h3>Customs officers</h3><p>A declaration without reasoning is hard to audit.</p><p>Aimport produces a classification trail in GRI order — the same structure you use to assess whether a code holds up.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow"><span class="dot"></span>FAQ</p>
+      <h2>What brokers ask first.</h2>
+    </div>
+    <div class="faq-list reveal d1">
+      <details class="faq-item"><summary>Does the model ever invent a code that isn't in the tariff?<span class="mk"></span></summary><div class="ans"><p>No. At each branch the engine hands the model the candidate headings it pulled from the CN and TARIC tables, and the model picks one or asks for a fact. A code outside that list cannot reach the result, because the model never writes the digits itself.</p></div></details>
+      <details class="faq-item"><summary>What happens when my description leaves out a deciding fact?<span class="mk"></span></summary><div class="ans"><p>The engine stops at the branch where the facts run out and asks one question — the same question a classifier would ask: knitted or woven, steel or aluminium. You answer, and the reasoning continues from that branch instead of starting over.</p></div></details>
+      <details class="faq-item"><summary>Can I override the engine at a branch?<span class="mk"></span></summary><div class="ans"><p>Yes. Each branch shows the candidates the engine weighed and the rule it applied. Pick a different candidate and the trail records your choice, then the reasoning continues from there. You stay the declarant, and the engine shows its work either way.</p></div></details>
+      <details class="faq-item"><summary>Does it give me the duties and trade measures, or only the ten digits?<span class="mk"></span></summary><div class="ans"><p>Both. The engine returns the code, then the measures that attach to it for the origin you enter: the third-country duty, any anti-dumping or countervailing duty, suspensions, and quotas. You see the rate you would declare on entry, not the heading on its own.</p></div></details>
+      <details class="faq-item"><summary>Does Aimport check existing binding tariff rulings?<span class="mk"></span></summary><div class="ans"><p>Yes. It searches the EBTI database for binding rulings on goods like yours and shows them next to the result. You see how customs classified comparable products before you commit to a heading, and you spot a conflict before an officer does.</p></div></details>
+      <details class="faq-item"><summary>Who carries responsibility for the final classification?<span class="mk"></span></summary><div class="ans"><p>You do. The declarant signs the declaration and owns the result. Aimport gives you the reasoning to check and the trail to defend, and it files nothing on your behalf.</p></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="cta">
+  <div class="wrap">
+    <div class="cta-card glass reveal">
+      <p class="eyebrow"><span class="dot"></span>Request access</p>
+      <h2>Bring your own product categories.</h2>
+      <p>Aimport is in pilot with a small group of customs brokers and freight forwarders. If you work in import compliance and want to see how it handles your product categories, write to us.</p>
+      <a class="btn btn-light btn-lg" href="mailto:contact@aimport.co?subject=Aimport%20access%20request">Email contact@aimport.co</a>
+      <div class="respond">We respond to every request.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap row">
+    <a class="logo" href="#"><img src="../logo-mark.png" alt="" style="height:24px">Aimport Compliance © 2026</a>
+    <a href="mailto:contact@aimport.co">contact@aimport.co</a>
+  </div>
+</footer>
+
+<script>
+/* ---- nav scroll state + progress bar ---- */
+(function(){
+  var nav=document.getElementById('nav'),bar=document.getElementById('progress'),doc=document.documentElement;
+  function f(){
+    var y=window.scrollY||0;
+    nav.classList.toggle('scrolled',y>10);
+    var max=doc.scrollHeight-window.innerHeight;
+    bar.style.width=(max>0?(y/max*100):0)+'%';
+  }
+  window.addEventListener('scroll',f,{passive:true});f();
+})();
+
+/* ---- scroll reveal ---- */
+(function(){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+})();
+
+/* ---- hero tree walk animation (loops) ---- */
+(function(){
+  var tree=document.getElementById('twTree'),foot=document.getElementById('twFoot');
+  if(!tree)return;
+  var nodes=[].slice.call(tree.querySelectorAll('.tw-node'));
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function reset(){nodes.forEach(function(n){n.classList.remove('active');if(n.classList.contains('final'))n.style.opacity='.3';});foot.classList.remove('show');}
+  function run(){
+    reset();
+    var i=0;
+    function next(){
+      if(i>=nodes.length){foot.classList.add('show');setTimeout(run,3200);return;}
+      var n=nodes[i];
+      if(n.classList.contains('final')){n.style.opacity='1';}
+      else if(!n.classList.contains('reject')){n.classList.add('active');}
+      else{n.style.opacity='.5';}
+      i++;setTimeout(next,650);
+    }
+    setTimeout(next,500);
+  }
+  if(reduce){nodes.forEach(function(n){n.classList.add('active');n.style.opacity='1';});foot.classList.add('show');}
+  else{
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){run();io.disconnect();}});},{threshold:.3});
+    io.observe(tree);
+  }
+})();
+
+/* ---- animated stat counters ---- */
+(function(){
+  var wrap=document.getElementById('stats');if(!wrap)return;
+  var done=false;
+  function animate(){
+    if(done)return;done=true;
+    wrap.querySelectorAll('.num').forEach(function(el){
+      var to=parseFloat(el.getAttribute('data-to'));
+      if(isNaN(to))return;
+      var suf=el.getAttribute('data-suf')||'',pre=el.getAttribute('data-pre')||'';
+      var dur=1300,start=null;
+      function step(ts){
+        if(!start)start=ts;
+        var p=Math.min((ts-start)/dur,1),e=1-Math.pow(1-p,3);
+        var v=Math.round(to*e);
+        el.innerHTML=pre+v.toLocaleString()+(suf?'<span class="u">'+suf+'</span>':'');
+        if(p<1)requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)animate();});},{threshold:.4});
+  io.observe(wrap);
+})();
+
+/* ---- who-card cursor glow ---- */
+(function(){
+  if(window.matchMedia('(hover:none)').matches)return;
+  document.querySelectorAll('.who-card').forEach(function(c){
+    c.addEventListener('mousemove',function(e){
+      var r=c.getBoundingClientRect();
+      c.style.setProperty('--gx',(e.clientX-r.left)+'px');
+      c.style.setProperty('--gy',(e.clientY-r.top)+'px');
+    });
+  });
+})();
+
+/* ---- interactive classifier ---- */
+(function(){
+  var DATA={
+    steel:{q:'Steel mounting brackets, hot-dip galvanised',code:'7308.30.00.00',lbl:'Structures & parts of iron or steel',cost:'€1,078.35',
+      trail:[['rule','GRI 1','Heading 73 — articles of iron or steel'],['x','GRI 1','7326 (other articles) rejected — bracket is a structural part'],['rule','GRI 6','Subheading 7308.30 — frames & thresholds'],['ok','Result','7308.30.00.00 · Section XV Note 1']]},
+    tshirt:{q:"Cotton knitted t-shirt, men's",code:'6109.10.00.10',lbl:"T-shirts, knitted, of cotton",cost:'€612.00',
+      trail:[['rule','GRI 1','Chapter 61 — knitted apparel (vs 62 woven)'],['rule','GRI 1','Heading 6109 — T-shirts & vests'],['rule','GRI 6','Subheading 6109.10 — of cotton'],['ok','Result','6109.10.00.10 · CN Note to Ch. 61']]},
+    battery:{q:'Lithium-ion battery, rechargeable',code:'8507.60.00.00',lbl:'Lithium-ion accumulators',cost:'€2,340.00',
+      trail:[['rule','GRI 1','Heading 8507 — electric accumulators'],['x','GRI 1','8506 (primary cells) rejected — battery is rechargeable'],['rule','GRI 6','Subheading 8507.60 — lithium-ion'],['ok','Result','8507.60.00.00 · ADD check flagged']]},
+    coffee:{q:'Roasted coffee beans, not decaffeinated',code:'0901.21.00.00',lbl:'Coffee, roasted, not decaffeinated',cost:'€845.50',
+      trail:[['rule','GRI 1','Heading 0901 — coffee'],['x','GRI 1','2101 (extracts) rejected — beans, not instant'],['rule','GRI 6','Subheading 0901.21 — roasted, caffeinated'],['ok','Result','0901.21.00.00 · 7.5% third-country duty']]}
+  };
+  var input=document.getElementById('clInput'),go=document.getElementById('clGo'),
+      chips=document.getElementById('clChips'),result=document.getElementById('clResult'),
+      trail=document.getElementById('clTrail'),finalBox=document.getElementById('clFinal'),
+      fCode=document.getElementById('fCode'),fLbl=document.getElementById('fLbl'),fCost=document.getElementById('fCost');
+  var icons={ok:'✓',rule:'§',x:'✕'};
+
+  function classify(key){
+    var d=DATA[key]||matchFree(input.value);
+    if(!d)return;
+    input.value=d.q;
+    result.classList.add('show');
+    trail.innerHTML='';finalBox.classList.remove('in');
+    result.scrollIntoView({behavior:'smooth',block:'nearest'});
+    d.trail.forEach(function(row,i){
+      var li=document.createElement('li');
+      li.className='cl-trail '+row[0];
+      li.innerHTML='<span class="ic">'+icons[row[0]]+'</span><span class="gri">'+row[1]+'</span><span class="txt">'+row[2]+'</span>';
+      trail.appendChild(li);
+      setTimeout(function(){li.classList.add('in');},220*(i+1));
+    });
+    setTimeout(function(){
+      fCode.textContent=d.code;fLbl.textContent=d.lbl;fCost.textContent=d.cost;
+      finalBox.classList.add('in');
+    },220*(d.trail.length+1));
+  }
+  function matchFree(t){
+    t=(t||'').toLowerCase();
+    if(/steel|bracket|galvan/.test(t))return DATA.steel;
+    if(/shirt|cotton|knit|apparel/.test(t))return DATA.tshirt;
+    if(/batter|lithium|cell/.test(t))return DATA.battery;
+    if(/coffee|bean|roast/.test(t))return DATA.coffee;
+    return DATA.steel;
+  }
+  chips.addEventListener('click',function(e){var b=e.target.closest('button');if(b)classify(b.getAttribute('data-k'));});
+  go.addEventListener('click',function(){classify(null);});
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')classify(null);});
+})();
+</script>
+</body>
+</html>
