@@ -97,8 +97,17 @@ def survey_create(body: SurveyCreateIn, request: Request):
     # Prefer the public base URL (hosted deployment) so the emailed link is
     # reachable by the client, not the broker's localhost.
     import os
-    base = ((os.environ.get("PUBLIC_BASE_URL") or "").strip().rstrip("/")
-            or str(request.base_url).rstrip("/"))
+    env = (os.environ.get("PUBLIC_BASE_URL") or "").strip().rstrip("/")
+    if env:
+        base = env
+    else:
+        host = (request.url.hostname or "").lower()
+        if host in ("localhost", "127.0.0.1", "0.0.0.0", "::1", "") or host.endswith(".local"):
+            base = "https://app.aimport.co"
+        else:
+            base = str(request.base_url).rstrip("/")
+            if base.startswith("http://"):
+                base = "https://" + base[len("http://"):]
     return {"survey_token": token,
             "survey_url": f"{base}/survey/{token}"}
 

@@ -52,15 +52,30 @@ log = logging.getLogger("uvicorn.error")
 DEFAULT_BROKER_ID = "broker-local"
 
 
+# Public host the app is served from; client survey links must point here, never
+# the broker's localhost. Overridable per-deployment via PUBLIC_BASE_URL.
+PUBLIC_BASE_DEFAULT = "https://app.aimport.co"
+_LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1", ""}
+
+
 def _public_base(request):
     """Base URL used to build the client-facing survey link.
 
     A client receives this link by e-mail and opens it on their own device, so
-    it must be PUBLICLY reachable — never the broker's localhost. In a hosted
-    deployment set PUBLIC_BASE_URL (e.g. https://app.aimport.co); we fall back to
-    the request's own base URL for local single-machine use."""
+    it must be PUBLICLY reachable — never the broker's localhost. PUBLIC_BASE_URL
+    overrides everything; otherwise a localhost/loopback request (the broker
+    testing locally) is rewritten to the public app domain, and a real hosted
+    request keeps its own host but is forced to https."""
     env = (os.environ.get("PUBLIC_BASE_URL") or "").strip().rstrip("/")
-    return env or str(request.base_url).rstrip("/")
+    if env:
+        return env
+    host = (request.url.hostname or "").lower()
+    if host in _LOCAL_HOSTS or host.endswith(".local"):
+        return PUBLIC_BASE_DEFAULT
+    base = str(request.base_url).rstrip("/")
+    if base.startswith("http://"):
+        base = "https://" + base[len("http://"):]
+    return base
 
 
 def _attach_survey(result, request):
