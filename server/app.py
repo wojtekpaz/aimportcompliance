@@ -95,6 +95,22 @@ def _attach_survey(result, request):
     (snapshots, option maps) never leaves the server."""
     if not isinstance(result, dict):
         return result
+    # Pre-classification plausibility guard (extraction-level): if the extractor
+    # judged the read suspect (every line an invalid code), route it to the same
+    # human-review surface the survey generator uses, rather than presenting junk.
+    if result.get("extraction_status") == "extraction_suspect":
+        try:
+            import survey_review as srev
+            inv_ref = ((result.get("summary") or {}).get("invoice_no")
+                       or (result.get("meta") or {}).get("invoice_no") or "")
+            srev.raise_flag(
+                broker_id=DEFAULT_BROKER_ID, invoice_ref=inv_ref,
+                line_number=0,
+                description=(result.get("meta") or {}).get("invoice_no") or "(scanned invoice)",
+                flag_type="extraction_suspect", field="extraction",
+                observation=result.get("message", "Extraction looks wrong."))
+        except Exception:
+            pass  # additive; never break analysis
     frozen = result.get("frozen_lines") or []
     if not frozen:
         result.pop("frozen_lines", None)

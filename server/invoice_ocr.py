@@ -53,6 +53,24 @@ HS_RE = re.compile(r"\d{4}[.\s]?\d{2}[.\s]?\d{2,4}")
 MONEY_RE = re.compile(r"\$?\d[\d,]*\.\d{2}")
 _HAS_LETTER = re.compile(r"[A-Za-z]")
 
+# Header / party / totals rows are NOT goods lines. A scanned invoice's VAT and
+# EORI numbers OCR as single dot/letter-joined tokens that spuriously satisfy
+# HS_RE (e.g. "8123.45.678", "DE517734221"); without this gate they masquerade
+# as commodity codes and crowd out the real goods table. The label may lead the
+# row and may be followed by ':'. (Goods rows lead with a row number + product
+# text, never with one of these labels.)
+_NON_GOODS_RE = re.compile(
+    r"^(vat|eori|invoice\s*(no|number)|date(\s*of\s*issue)?|incoterms?|"
+    r"consignee|importer|exporter|seller|buyer|ship\s*to|bill\s*to|"
+    r"sub\s*total|subtotal|freight|insurance|total|grand\s*total|"
+    r"value|amount|qty|quantity|unit\s*price|price|cost|"
+    r"authoris(e|ed)\s*signature|notes?|tel|fax|e-?mail|iban|swift|bic)\b",
+    re.I)
+
+# A bare value that is structurally a tax / EORI / registration identifier
+# (country-letter prefix + digits, or dotted digit groups) rather than a CN code.
+_TAXID_RE = re.compile(r"^[A-Z]{2}\d", re.I)
+
 
 def tesseract_available():
     """True iff the OCR stack imports AND the tesseract binary is on PATH.
@@ -156,34 +174,105 @@ def _description_span(words, exclude_texts):
     return " ".join(w["text"] for w in best).strip()
 
 
+def _row_text(row_words):
+    return " ".join(w["text"] for w in row_words)
+
+
+def _is_non_goods_row(row_words):
+    """True if the row is a header / party / totals line, not a goods line.
+    A real CN code on a goods row OCRs as space-separated groups ('6109 10 00');
+    a VAT/EORI number OCRs as one dot/letter-joined token ('8123.45.678',
+    'DE517734221'). So: reject if the row LEADS with a header label, or if its
+    only code-like token is a structural tax/EORI id rather than spaced groups."""
+    words = [w for w in row_words if w["text"].strip()]
+    if not words:
+        return True
+    # Drop a leading pure-number token (the invoice row index) before label check.
+    lead = words[1:] if re.fullmatch(r"\d{1,3}", words[0]["text"]) else words
+    lead_text = _row_text(lead).lstrip()
+    if _NON_GOODS_RE.match(lead_text):
+        return True
+    # A row whose HS match comes from a single tax/EORI-style token (no spaced
+    # groups anywhere) is not a goods line.
+    spaced = re.search(r"\d{4}[.\s]\d{2}[.\s]\d{2}", _row_text(words))
+    if not spaced:
+        taxish = any(_TAXID_RE.match(w["text"]) or
+                     re.fullmatch(r"\d{4}\.\d{2}\.\d{2,4}.*", w["text"])
+                     for w in words)
+        if taxish:
+            return True
+    return False
+
+
+def _match_hs(row_words):
+    """Find the HS code in the row, matching across space-separated tokens (the
+    real failure: '6109 10 00' is three tokens, so a per-token search misses it).
+    Returns (code_digits, contributing_token_dicts, min_conf) or ('', [], None)."""
+    row_text = _row_text(row_words)
+    m = HS_RE.search(row_text)
+    if not m:
+        return "", [], None
+    code = re.sub(r"\D", "", m.group(0))
+    if not (6 <= len(code) <= 10):
+        return "", [], None
+    # Identify the tokens that make up the matched code (for conf + description
+    # exclusion): consecutive numeric tokens whose concatenated digits are a
+    # prefix-aligned run inside the matched code string.
+    digits_wanted = re.sub(r"\D", "", m.group(0))
+    toks, acc = [], ""
+    for w in row_words:
+        d = re.sub(r"\D", "", w["text"])
+        if d and digits_wanted.startswith(acc + d):
+            toks.append(w); acc += d
+            if acc == digits_wanted:
+                break
+        elif acc:
+            break
+    conf = min((w["conf"] for w in toks), default=None)
+    return code, toks, conf
+
+
+def _description_left_of(row_words, stop_tokens):
+    """Goods descriptions sit in the leftmost column. Take letter-bearing words
+    to the LEFT of the first stop token (the HS code / money), dropping a leading
+    row number and a trailing 2-letter origin code (e.g. 'BD', 'CN')."""
+    stop_left = min((w["left"] for w in stop_tokens), default=None)
+    left = [w for w in row_words
+            if stop_left is None or w["left"] < stop_left]
+    # strip leading row-index number
+    if left and re.fullmatch(r"\d{1,3}", left[0]["text"]):
+        left = left[1:]
+    # strip a trailing standalone 2-letter origin code
+    if left and re.fullmatch(r"[A-Z]{2}", left[-1]["text"]):
+        left = left[:-1]
+    desc = " ".join(w["text"] for w in left
+                    if _HAS_LETTER.search(w["text"]) or re.search(r"\d", w["text"])).strip()
+    return desc
+
+
 def _build_item(row_words, prev_words):
     """Turn one OCR row into a line item dict (Tier-1 shape + OCR extras).
     Returns None if the row carries neither an HS code nor a money token."""
-    code_w, code_txt = _find_token(row_words, HS_RE)
-    money_w, money_txt = _find_token(row_words, MONEY_RE, skip=code_w)
-    if not code_w and not money_w:
+    code, code_toks, code_conf = _match_hs(row_words)
+    money_w, money_txt = _find_token(
+        [w for w in row_words if w not in code_toks], MONEY_RE)
+    if not code and not money_w:
         return None
 
-    exclude = set()
     low_conf = []
-    code = ""
-    if code_w:
-        exclude.add(code_w["text"])
-        code = re.sub(r"\D", "", code_txt)          # digits only, Tier-1 style
-        if not (6 <= len(code) <= 10):
-            code = ""                               # not a plausible code length
-        elif code_w["conf"] < CONF_THRESHOLD:
-            low_conf.append("code")
+    if code and code_conf is not None and code_conf < CONF_THRESHOLD:
+        low_conf.append("code")
     value = ""
     if money_w:
-        exclude.add(money_w["text"])
         value = money_txt
         if money_w["conf"] < CONF_THRESHOLD:
             low_conf.append("value")
 
-    desc = _description_span(row_words, exclude)
-    # If the row was code/value only (description wrapped to the line above),
-    # borrow the previous row's text — y-adjacent, same line item.
+    stop = list(code_toks) + ([money_w] if money_w else [])
+    desc = _description_left_of(row_words, stop)
+    # Fallbacks: longest letter span on the row, then the previous (wrapped) row.
+    if len(desc) < 3:
+        desc = _description_span(row_words, {w["text"] for w in stop})
     if len(desc) < 3 and prev_words:
         desc = _description_span(prev_words, set())
 
@@ -193,28 +282,34 @@ def _build_item(row_words, prev_words):
         "value": value,
         "qty": value,                # Tier-1 'qty' slot carries the figure
         "low_confidence": low_conf,  # subset of {"code","value"}
-        "code_uncertain": ("code" in low_conf) or (code_w is not None and not code),
-        "code_conf": round(code_w["conf"], 1) if code_w else None,
+        "code_uncertain": ("code" in low_conf),
+        "code_conf": round(code_conf, 1) if code_conf is not None else None,
         "value_conf": round(money_w["conf"], 1) if money_w else None,
     }
 
 
 def _parse_rows(rows):
-    """HS-code rows are the primary line-item signal. Only if none exist do we
-    fall back to money-token rows (covers code-less invoices) — this stops a
-    stray 'Value: $...' line from becoming a spurious item when codes are present."""
-    hs_items, money_items = [], []
+    """Goods rows = code-bearing rows PLUS code-less money rows that carry a real
+    description (covers a line whose code is 'not stated', e.g. solar modules).
+    Header/party/totals rows are rejected up front so a VAT/EORI number can never
+    masquerade as a commodity code and crowd out the goods table."""
+    items = []
     for i, row in enumerate(rows):
         prev = rows[i - 1] if i > 0 else None
-        if _find_token(row, HS_RE)[0]:
-            it = _build_item(row, prev)
-            if it:
-                hs_items.append(it)
-        elif _find_token(row, MONEY_RE)[0]:
-            it = _build_item(row, prev)
-            if it:
-                money_items.append(it)
-    items = hs_items if hs_items else money_items
+        if _is_non_goods_row(row):
+            continue
+        has_code = bool(_match_hs(row)[0])
+        has_money = _find_token(row, MONEY_RE)[0] is not None
+        if not (has_code or has_money):
+            continue
+        it = _build_item(row, prev)
+        if not it:
+            continue
+        # A code-less row is only a goods line if it carries a real description
+        # (guards against a stray money figure becoming a spurious item).
+        if not it["code"] and len(it["description"]) < 4:
+            continue
+        items.append(it)
     for n, it in enumerate(items, 1):
         it["row"] = n
     return items

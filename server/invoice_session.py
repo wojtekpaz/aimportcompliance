@@ -205,6 +205,41 @@ def extract_with_fallback(pdf_path, lang="eng"):
     return [], (ometa if ocr_ok else meta), "unreadable"
 
 
+# ---- shared validity gate (applies to EVERY tier's output) ----------------
+
+def _drop_non_goods(items):
+    """Defence-in-depth filter applied to whichever tier produced the items: drop
+    any row that is actually a header/party/totals field (description leads with a
+    non-goods label like VAT/EORI/Total) or whose 'code' is structurally a
+    tax/EORI identifier rather than a CN code. The OCR parser already rejects
+    these at source; this guarantees the engine never receives one regardless of
+    which tier ran or how a future change reorders them."""
+    out = []
+    for it in items:
+        desc = (it.get("description") or "").strip()
+        code = (it.get("code") or "").strip()
+        if desc and ocr._NON_GOODS_RE.match(desc):
+            continue
+        if code and ocr._TAXID_RE.match(code):
+            continue
+        out.append(it)
+    for n, it in enumerate(out, 1):
+        it["row"] = n
+    return out
+
+
+def _all_codes_malformed(items):
+    """Pre-classification plausibility check: True if at least one line declares a
+    code and EVERY declared code is invalid (not a real CN code). When this holds,
+    the likely cause is a failed extraction, not genuinely-bad declarations — so
+    the caller surfaces 'extraction_suspect' for human review rather than handing
+    the engine a page of junk codes."""
+    declared = [it for it in items if (it.get("code") or "").strip()]
+    if not declared:
+        return False
+    return not any(_code_is_valid((it.get("code") or "").strip()) for it in declared)
+
+
 # ---- code validity check --------------------------------------------------
 
 def _code_is_valid(code):
@@ -324,10 +359,27 @@ UNREADABLE_MESSAGE = ("Couldn't read line items from this PDF. It may be a "
                       "low-quality scan or photo. Try a clearer copy, or add "
                       "items manually.")
 
+EXTRACTION_SUSPECT_MESSAGE = (
+    "Every line read from this document has an invalid commodity code, which "
+    "usually means the scan was misread rather than the codes being wrong. "
+    "Flagged for review — please check the extracted lines against the original.")
+
 
 def analyze_invoice(pdf_path, origin_override="", lang="eng"):
     items, meta, extraction_status = extract_with_fallback(pdf_path, lang=lang)
     origin = (origin_override or meta.get("origin") or "").upper()
+
+    # Shared validity gate across whichever tier ran (header/party/totals + tax-id
+    # rows never reach the engine).
+    items = _drop_non_goods(items)
+
+    # Pre-classification plausibility check: a page of all-invalid codes is almost
+    # always a failed extraction. Surface it for review instead of presenting a
+    # wall of MALFORMED_CODE results as if they were normal findings.
+    extraction_suspect = (extraction_status in ("ok", "ocr_used")
+                          and _all_codes_malformed(items))
+    if extraction_suspect:
+        extraction_status = "extraction_suspect"
 
     # Tier 3 — honest failure. A failed read is NOT a "0 line items" empty
     # invoice; the UI must be able to tell them apart.
@@ -353,5 +405,8 @@ def analyze_invoice(pdf_path, origin_override="", lang="eng"):
         "extraction_status": extraction_status,
         "ocr_mean_conf": meta.get("ocr_mean_conf", 0.0),
     }
-    return {"summary": summary, "items": results, "frozen_lines": frozen_lines,
-            "meta": meta, "extraction_status": extraction_status}
+    out = {"summary": summary, "items": results, "frozen_lines": frozen_lines,
+           "meta": meta, "extraction_status": extraction_status}
+    if extraction_suspect:
+        out["message"] = EXTRACTION_SUSPECT_MESSAGE
+    return out
