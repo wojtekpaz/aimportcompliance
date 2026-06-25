@@ -25,9 +25,40 @@
   .brand{display:inline-flex;align-items:center;gap:9px;margin-top:28px;font-size:14px;
     font-weight:600;color:#1E1712}
   .brand img{height:26px;width:auto;display:block}
+
+/* ===== match landing redesign (appended; tokens + shared components) ===== */
+:root{
+  --bg:#FBFAF7; --surface:#FFFFFF; --card:#FFFFFF; --ink:#16130F;
+  --brand:#2B4EFF; --accent:#2B4EFF; --violet:#7C5CFF; --teal:#0FB58A; --rose:#F25C7A;
+  --accent-dim:rgba(43,78,255,.08); --line:rgba(22,19,15,.09);
+  --glass:rgba(255,255,255,.62); --glass-line:rgba(255,255,255,.7);
+  --glass-shadow:0 8px 40px rgba(22,19,15,.07),0 1px 3px rgba(22,19,15,.05);
+  --blur:blur(18px) saturate(170%);
+  --mono:"Spline Sans Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+body{background:var(--bg)!important;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+.aurora b{position:absolute;border-radius:50%;filter:blur(72px);opacity:.30;mix-blend-mode:multiply}
+.aurora .a1{width:46vw;height:46vw;left:-10vw;top:-14vw;background:radial-gradient(circle at 30% 30%,#9db4ff,transparent 70%)}
+.aurora .a2{width:40vw;height:40vw;right:-8vw;top:2vh;background:radial-gradient(circle at 60% 40%,#cbb6ff,transparent 70%)}
+.aurora .a3{width:38vw;height:38vw;left:22vw;top:42vh;background:radial-gradient(circle at 50% 50%,#a9eed8,transparent 70%)}
+.topbar{background:var(--glass)!important;backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border-bottom:1px solid var(--line)!important}
+.topbar nav a{border-radius:8px;transition:color .2s,background .2s}
+.topbar nav a.active{color:var(--brand)!important}
+.btn{background:linear-gradient(180deg,#3a5cff,#2B4EFF)!important;color:#fff!important;
+  border:1px solid transparent!important;border-radius:10px!important;
+  box-shadow:0 6px 20px rgba(43,78,255,.28);transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .2s}
+.btn:hover{background:linear-gradient(180deg,#3a5cff,#2B4EFF)!important;color:#fff!important;
+  transform:translateY(-1px);box-shadow:0 10px 28px rgba(43,78,255,.4);border-color:transparent!important}
+.btn:disabled{opacity:.4;box-shadow:none;transform:none}
+input,textarea,select{border-radius:10px!important}
+::selection{background:rgba(43,78,255,.16)}
 </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+<div class="aurora" aria-hidden="true"><b class="a1"></b><b class="a2"></b><b class="a3"></b></div>
   <div class="card">
     <div class="icon"></div>
     <h1>Odpowiedzi już zostały przesłane.</h1>
