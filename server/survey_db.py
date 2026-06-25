@@ -14,9 +14,13 @@ commercial data is placed in any URL.
 import json
 import os
 import sqlite3
+import sys
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from survey_locale import DEFAULT_SURVEY_LOCALE  # noqa: E402  single source of truth
 
 # Same user-data DB file as saved classifications. AIMPORT_DATA_DIR (a mounted
 # persistent volume in a hosted deployment) keeps survey sessions across
@@ -47,7 +51,7 @@ def init():
         status      TEXT DEFAULT 'pending',
         client_email TEXT,
         notification_sent_at DATETIME,
-        language    TEXT DEFAULT 'pl'
+        language    TEXT DEFAULT 'en'
     );
 
     CREATE TABLE IF NOT EXISTS survey_questions (
@@ -86,7 +90,7 @@ def init():
     # check PRAGMA first so a re-run never errors on 'duplicate column').
     cols = [r[1] for r in c.execute("PRAGMA table_info(survey_sessions)").fetchall()]
     if "language" not in cols:
-        c.execute("ALTER TABLE survey_sessions ADD COLUMN language TEXT DEFAULT 'pl'")
+        c.execute("ALTER TABLE survey_sessions ADD COLUMN language TEXT DEFAULT 'en'")
         c.commit()
     c.close()
 
@@ -97,11 +101,13 @@ def init():
 
 def create_session(broker_id: str, invoice_ref: str,
                    frozen_lines: list[dict], client_email: str = "",
-                   language: str = "pl") -> dict:
+                   language: str = "") -> dict:
     """Create a survey session plus one question row per frozen line.
 
     `frozen_lines` is a list of FrozenClassification dicts (see survey_freeze).
-    `language` is the client-facing survey language (Polish by default).
+    `language` is the client-facing survey language. It MUST be resolved
+    deterministically upstream (survey_locale.resolve_survey_locale); an empty
+    value here fails safe to DEFAULT_SURVEY_LOCALE ("en"), never silently to pl.
     Returns {token, question_ids}.
     """
     token = uuid.uuid4().hex
@@ -115,7 +121,8 @@ def create_session(broker_id: str, invoice_ref: str,
         (token, broker_id or "", invoice_ref or "",
          now.isoformat(sep=" ", timespec="seconds"),
          expires.isoformat(sep=" ", timespec="seconds"),
-         "pending", (client_email or "") or None, (language or "pl")))
+         "pending", (client_email or "") or None,
+         (language or DEFAULT_SURVEY_LOCALE)))
     qids = []
     for fl in frozen_lines:
         qid = uuid.uuid4().hex

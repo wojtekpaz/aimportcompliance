@@ -26,7 +26,8 @@ import sys
 from pathlib import Path
 
 from fastapi import APIRouter, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
+                               RedirectResponse)
 from pydantic import BaseModel
 
 HERE = Path(__file__).resolve().parent
@@ -35,6 +36,9 @@ import engine_session as es        # noqa: E402
 import survey_db as sdb            # noqa: E402
 import survey_text as stext        # noqa: E402
 from survey_freeze import FREETEXT_OPTION, OCR_WRONG_OPTION  # noqa: E402
+from survey_locale import DEFAULT_SURVEY_LOCALE, resolve_survey_locale  # noqa: E402
+import survey_review as srev      # noqa: E402
+import survey_pipeline as spipe   # noqa: E402
 
 router = APIRouter()
 
@@ -62,7 +66,8 @@ class SurveyCreateIn(BaseModel):
     invoice_ref: str = ""
     frozen_lines: list[FrozenLineIn] = []
     client_email: str = ""
-    language: str = "pl"          # client-facing survey language (Polish default)
+    language: str = ""            # explicit UI language choice; "" = let
+                                  # resolve_survey_locale decide (never silently pl)
 
 
 class AnswerIn(BaseModel):
@@ -86,12 +91,32 @@ def survey_create(body: SurveyCreateIn, request: Request):
     if not frozen:
         return JSONResponse({"error": "No frozen lines — nothing to ask."},
                             status_code=400)
+    # Language is resolved deterministically, never inferred from invoice
+    # content. The broker's explicit UI choice (body.language) is the strongest
+    # signal available here; the request's Accept-Language is the fallback UI
+    # signal; everything else fails safe to DEFAULT_SURVEY_LOCALE ("en").
+    survey_locale = resolve_survey_locale(
+        broker_locale=None,
+        ui_locale=(body.language or request.headers.get("accept-language")),
+        invoice_locale=None,
+    )
+    # Phase 2: resolve DB candidates + generate one anchored, localized question
+    # per line. Lines the generator flags (candidates_mismatch / extraction_
+    # suspect) are routed to /survey/review and excluded here — never sent to the
+    # client and never downgraded to simplify_question.
+    survey_lines, flagged = spipe.build_survey_lines(
+        frozen, locale=survey_locale,
+        broker_id=body.session_broker_id, invoice_ref=body.invoice_ref)
+    if not survey_lines:
+        return JSONResponse(
+            {"error": "All lines were flagged for human review — no survey sent.",
+             "flagged_for_review": flagged}, status_code=409)
     created = sdb.create_session(
         broker_id=body.session_broker_id,
         invoice_ref=body.invoice_ref,
-        frozen_lines=frozen,
+        frozen_lines=survey_lines,
         client_email=body.client_email,
-        language=body.language or "pl",
+        language=survey_locale,
     )
     token = created["token"]
     # Prefer the public base URL (hosted deployment) so the emailed link is
@@ -109,7 +134,37 @@ def survey_create(body: SurveyCreateIn, request: Request):
             if base.startswith("http://"):
                 base = "https://" + base[len("http://"):]
     return {"survey_token": token,
-            "survey_url": f"{base}/survey/{token}"}
+            "survey_url": f"{base}/survey/{token}",
+            "flagged_for_review": flagged}
+
+
+# --------------------------------------------------------------------------- #
+#  Review surface (broker) — Phase 0                                           #
+#  Home for lines the question generator flagged (candidates_mismatch /        #
+#  extraction_suspect) instead of sending a wrong survey. Read-only list + one #
+#  human-initiated "mark reviewed" action. MUST be declared before the         #
+#  /survey/{token} route so the literal path is not captured as a token.       #
+# --------------------------------------------------------------------------- #
+
+@router.get("/survey/review", response_class=HTMLResponse)
+def survey_review_page(request: Request, locale: str = "", status: str = "open"):
+    # Locale reuses Phase 1's deterministic resolver (explicit ?locale wins,
+    # else the request's Accept-Language, else DEFAULT_SURVEY_LOCALE).
+    resolved = resolve_survey_locale(
+        broker_locale=None,
+        ui_locale=(locale or request.headers.get("accept-language")),
+        invoice_locale=None)
+    flags = srev.list_flags(status=status or "open")
+    return HTMLResponse(srev.render_review_page(flags, resolved))
+
+
+@router.post("/survey/review/{flag_id}/reviewed")
+def survey_review_mark(flag_id: str, request: Request, locale: str = ""):
+    """Human-initiated, non-destructive status flip (open -> reviewed). Redirect
+    back to the list so a plain form button works without JS."""
+    srev.mark_reviewed(flag_id)
+    back = "/survey/review" + (f"?locale={locale}" if locale else "")
+    return RedirectResponse(back, status_code=303)
 
 
 # --------------------------------------------------------------------------- #
@@ -139,12 +194,32 @@ def survey_data(token: str):
     if sess.get("status") == "completed":
         return JSONResponse({"status": "completed"})
 
-    language = (sess.get("language") or "pl")
+    # Render in the locale stored at create time (already resolved upstream);
+    # never re-resolve from invoice content here, and never fall back to pl.
+    language = (sess.get("language") or DEFAULT_SURVEY_LOCALE)
     questions = sdb.get_questions(token)
     total = len(questions)
     out = []
     for i, q in enumerate(questions, start=1):
         options = q["option_set"] or []
+        gen = (q.get("engine_state") or {}).get("generated")
+        if gen:
+            # Phase 2 generator-driven line: the question + closed option set were
+            # already composed and localized at create time (anchored to this
+            # line, drawn only from DB candidates). Render them verbatim — do NOT
+            # re-run simplify_question. Options carry candidate codes + a single
+            # localized "none of these" fallback; no free-text path.
+            out.append({
+                "question_id": q["id"], "index": i, "total": total,
+                "question": gen.get("question", ""),
+                "options": gen.get("values", options),
+                "option_labels": gen.get("labels", []),
+                "freetext_options": [],
+                "freeze_reason": q.get("freeze_reason"),
+                "context_label": stext.freeze_reason_label(q.get("freeze_reason"), language),
+                "anchor_summary": gen.get("anchor_summary", ""),
+            })
+            continue
         out.append({
             "question_id": q["id"],
             "index": i,
@@ -210,6 +285,19 @@ def survey_submit(token: str, body: SurveySubmitIn):
         sdb.write_result(token, q["id"], q["line_number"], final_code,
                          still_frozen, notes)
 
+        # A "none of these" on a generated line means the offered candidates did
+        # not fit — route it to human review (candidates_mismatch), same home.
+        gen = (q.get("engine_state") or {}).get("generated")
+        if gen and (not answer
+                    or answer == gen.get("none_sentinel", "__NONE_OF_THESE__")):
+            srev.raise_flag(
+                broker_id=sess.get("broker_id") or "",
+                invoice_ref=sess.get("invoice_ref") or "",
+                line_number=q["line_number"],
+                description=(q.get("description_used") or ""),
+                flag_type="candidates_mismatch",
+                observation="Client selected 'none of these'; offered candidates did not fit.")
+
     sdb.mark_completed(token)
 
     # Optional broker notification (Section 4.4): plain text, no invoice data.
@@ -228,6 +316,30 @@ def _resolve_question(q: dict, answer: str, detail: str, market="EU"):
     snap = q["engine_state"] or {}
     kind = snap.get("kind")
     sig = snap.get("sig")
+
+    # Phase 2: generator-driven line. Options are candidate CODES (+ a single
+    # localized "none of these"). The client picked a real DB code, not an
+    # engine attribute option.
+    gen = snap.get("generated")
+    if gen:
+        none_sentinel = gen.get("none_sentinel", "__NONE_OF_THESE__")
+        if not answer or answer == none_sentinel:
+            return None, True, "Client selected 'none of these' for the offered candidates."
+        option_map = snap.get("option_map") or {}
+        if option_map and sig:
+            # Path (a): the codes are the engine's own next-level options. Map the
+            # chosen code back to its engine option id and let the GRI state
+            # machine continue from the frozen point (no skipped steps).
+            opt_id = next((oid for oid in option_map.values()
+                           if str(oid).split(":", 1)[0] == answer), None)
+            if opt_id is not None:
+                try:
+                    return _engine_outcome(es.resume(snap, sig, opt_id))
+                except Exception as e:
+                    return None, True, f"Needs manual review: engine error ({str(e)[:80]})."
+        # Path (b) / unmapped: the client selected a scoped DB subheading. Record
+        # it as the resolved code; the broker confirms completeness on review.
+        return answer, False, f"Client selected candidate {answer} from scoped survey."
 
     try:
         if kind == "node":
@@ -268,6 +380,11 @@ def _resolve_question(q: dict, answer: str, detail: str, market="EU"):
     except Exception as e:
         return None, True, f"Needs manual review: engine error ({str(e)[:80]})."
 
+    return _engine_outcome(res)
+
+
+def _engine_outcome(res: dict):
+    """Map an engine result to (final_code|None, still_frozen, notes)."""
     status = res.get("status")
     if status == "classified":
         return res.get("code"), False, ""

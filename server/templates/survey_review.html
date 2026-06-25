@@ -1,0 +1,58 @@
+<!doctype html>
+{# Review surface for lines the question generator flagged. Rendered via Jinja2
+   with autoescaping ON (see survey_review._env) — every {{ value }} below is
+   HTML-escaped by the engine, so fields added here later are safe by default.
+   Do NOT add |safe to any user/LLM-supplied value. #}
+<html lang="{{ locale }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ L.title }}</title>
+<style>
+  body { font-family: Inter, system-ui, sans-serif; color: #111; margin: 2rem; }
+  h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 .25rem; }
+  p.sub { color: #555; margin: 0 0 1.5rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  th, td { border: 1px solid #ddd; padding: .5rem .6rem; text-align: left; vertical-align: top; }
+  th { background: #f6f6f6; font-weight: 600; }
+  td.ts { white-space: nowrap; color: #555; }
+  td.empty { text-align: center; color: #777; padding: 2rem; }
+  button { font: inherit; border: 1px solid #111; background: #fff; padding: .35rem .6rem;
+           border-radius: 0; cursor: pointer; white-space: nowrap; }
+  button:hover { background: #111; color: #fff; }
+</style>
+</head>
+<body>
+<h1>{{ L.title }}</h1>
+<p class="sub">{{ L.subtitle }}</p>
+<table>
+<thead><tr>
+  <th>{{ L.col_invoice }}</th><th>{{ L.col_line }}</th><th>{{ L.col_desc }}</th>
+  <th>{{ L.col_type }}</th><th>{{ L.col_field }}</th><th>{{ L.col_obs }}</th>
+  <th>{{ L.col_time }}</th><th></th>
+</tr></thead>
+<tbody>
+{% if not rows %}
+  <tr><td class="empty" colspan="8">{{ L.empty }}</td></tr>
+{% else %}
+  {% for f in rows %}
+  <tr>
+    <td>{{ f.invoice_ref }}</td>
+    <td>{{ f.line_number if f.line_number is not none else "" }}</td>
+    <td>{{ f.description }}</td>
+    <td>{{ f.type_label }}</td>
+    <td>{{ f.field }}</td>
+    <td>{{ f.observation }}</td>
+    <td class="ts">{{ f.created_at }}</td>
+    <td>
+      <form method="post" action="/survey/review/{{ f.id }}/reviewed">
+        <button type="submit">{{ L.mark }}</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+{% endif %}
+</tbody>
+</table>
+</body>
+</html>

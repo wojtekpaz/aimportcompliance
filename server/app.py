@@ -103,23 +103,47 @@ def _attach_survey(result, request):
         return result
     invoice_ref = ((result.get("summary") or {}).get("invoice_no")
                    or (result.get("meta") or {}).get("invoice_no") or "")
+    survey_lines = frozen
     try:
         import survey_db as sdb
-        created = sdb.create_session(broker_id=DEFAULT_BROKER_ID,
-                                     invoice_ref=invoice_ref, frozen_lines=frozen)
-        token = created["token"]
-        base = _public_base(request)
-        result["survey_token"] = token
-        result["survey_url"] = f"{base}/survey/{token}"
+        import survey_pipeline as spipe
+        from survey_locale import resolve_survey_locale
+        # Language is decided in control flow, never inferred from invoice
+        # content. No broker auth exists in this build (single DEFAULT_BROKER_ID),
+        # and the invoice carries no detected-language signal, so the genuine
+        # source is the broker's UI request (Accept-Language); everything else
+        # fails safe to DEFAULT_SURVEY_LOCALE ("en").
+        survey_locale = resolve_survey_locale(
+            broker_locale=None,
+            ui_locale=request.headers.get("accept-language"),
+            invoice_locale=None,
+        )
+        # Phase 2: generate one anchored, localized question per line from DB
+        # candidates; lines the generator flags are routed to /survey/review and
+        # excluded from the client survey (never simplify_question-downgraded).
+        survey_lines, flagged = spipe.build_survey_lines(
+            frozen, locale=survey_locale,
+            broker_id=DEFAULT_BROKER_ID, invoice_ref=invoice_ref)
+        result["flagged_for_review"] = flagged
+        if survey_lines:
+            created = sdb.create_session(broker_id=DEFAULT_BROKER_ID,
+                                         invoice_ref=invoice_ref,
+                                         frozen_lines=survey_lines,
+                                         language=survey_locale)
+            token = created["token"]
+            base = _public_base(request)
+            result["survey_token"] = token
+            result["survey_url"] = f"{base}/survey/{token}"
     except Exception as e:                       # additive; never break analysis
         result["survey_error"] = str(e)[:160]
-    # client-facing preview only — no engine internals
+    # client-facing preview only — no engine internals (only lines that became a
+    # survey question; flagged lines are held for broker review, not shown here)
     result["clarifications"] = [
         {"line_number": f.get("line_number"),
          "description": f.get("description_used"),
          "freeze_reason": f.get("freeze_reason"),
          "engine_question": f.get("engine_question")}
-        for f in frozen]
+        for f in survey_lines]
     result.pop("frozen_lines", None)
     for it in result.get("items") or []:
         it.pop("frozen", None)
